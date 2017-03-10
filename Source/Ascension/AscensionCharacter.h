@@ -1,7 +1,9 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "Globals.h"
 #include "AscensionCharacter.generated.h"
+
 
 UCLASS(config=Game)
 class AAscensionCharacter : public ACharacter
@@ -15,8 +17,17 @@ class AAscensionCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
 public:
 	AAscensionCharacter();
+
+	/** State that the character is in. Determines whether the character can switch from one state to another. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character State")
+	ECharacterState CharacterState;
+
+	/** State that the character's weapon is in. Determines whether the weapon is sheathed/unsheathed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character State")
+	EWeaponState WeaponState;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -27,7 +38,6 @@ public:
 	float BaseLookUpRate;
 
 protected:
-
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
 
