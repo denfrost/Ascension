@@ -72,6 +72,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	bool CanChain;
 
+	/** Used to indicate to the animation blueprint whether the character should switch weapons. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	bool ShouldCharSwitch;
+
 protected:
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
@@ -106,19 +110,49 @@ protected:
 	/** Called for the player to stop jumping. */
 	void StopJumping();
 
-	/** Called for the player to perform an attack. */
-	void Attack();
+	/** Called for the player to perform a light attack. */
+	void LightAttack();
+
+	/** Called for the player to perform a strong attack. */
+	void StrongAttack();
 
 	/** Called for the player to dodge. */
 	void Dodge();
+
+	/** Called for the character to sheath/unsheath weapon. */
+	void SwitchWeapon();
 
 	/** Called to stop player movement. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	void StopMovement();
 
+	/** Called to limit player movement to a certain speed. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void LimitMovement(float Speed);
+
 	/** Called to reset player movement to normal speed. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	void ResetMovement();
+
+	/** Called to stop player turning. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void StopTurning();
+
+	/** Called to limit player turning to a certain rate. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void LimitTurning(float Rate);
+
+	/** Called to reset player turning to normal rate. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void ResetTurning();
+
+	/** Called to set gravity to a value. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void SetGravity(float GravityValue);
+
+	/** Called to reset gravity. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void ResetGravity();
 
 	/** Called to check if the player can attack. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
@@ -135,6 +169,8 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 protected:
+	// TODO: Move attacks into a separate component.
+
 	/** Attack anim montage. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	FPlayerAnimation LightAttack01;
@@ -175,10 +211,86 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+	FPlayerAnimation SelectAttack(FString AttackType);
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+public:
+	/** Event called when a combo is finished/reset.
+	  * Performs necessary actions after a combo is completed.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ResetCombo();
+
+	/** Event called when a dodge is finished.
+	 * Performs necessary actions after a dodge is completed.
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ResetDodge();
+
+	/** Event called when the character completes switching.
+	  * Performs necessary actions after a switch is completed.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void SwitchComplete();
+
+	/** Event called when rotation rate needs to be limited.
+	  * Limits rotation rate.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void LimitTurn();
+
+	/** Event called when rotation rate needs to be reset.
+	  * Resets rotation rate.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ResetTurn();
+
+	/** Event called when character needs to be launch.
+	  * Launches the character.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void LaunchChar();
+
+	/** Event called when character can chain an attack.
+	  * Sets CanChainAttack.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void CanChainAttack();
+
+	/** Event called when character's movement needs to be set to flying.
+	  * Sets movement mode to flying.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void SetFlyable();
+
+	/** Event called when character's movement needs to be set to walking.
+	* Sets movement mode to walking.
+	*/
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ResetFlyable();
+
+public:
+	// The following are events whose functionality is implemented in blueprint.
+
+	/** Event called when the sword is sheathed. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Sheathed();
+
+	/** Event called when the sword is unsheathed. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Unsheathed();
+
+	/** Event called to play footstep sounds. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void FootstepSound();
+
+	/** Event called to play a sword slash sound. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void SlashSound();
 };
 

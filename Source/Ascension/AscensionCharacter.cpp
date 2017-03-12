@@ -30,6 +30,7 @@ AAscensionCharacter::AAscensionCharacter()
 	// Set gameplay variables.
 	ComboMeter = 0;
 	CanChain = false;
+	ShouldCharSwitch = false;
 
 	// Set player anim structs.
 	DodgeAnim = nullptr;
@@ -83,7 +84,12 @@ void AAscensionCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AAscensionCharacter::Sprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AAscensionCharacter::StopSprinting);
 
+	PlayerInputComponent->BindAction("LightAttack", IE_Pressed, this, &AAscensionCharacter::LightAttack);
+	PlayerInputComponent->BindAction("StrongAttack", IE_Pressed, this, &AAscensionCharacter::StrongAttack);
+
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &AAscensionCharacter::Dodge);
+
+	PlayerInputComponent->BindAction("SheathWeapon", IE_Pressed, this, &AAscensionCharacter::SwitchWeapon);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AAscensionCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AAscensionCharacter::MoveRight);
@@ -202,9 +208,26 @@ void AAscensionCharacter::StopJumping()
 	}
 }
 
-void AAscensionCharacter::Attack()
+void AAscensionCharacter::LightAttack()
 {
-	// TODO: Implement attack functionality.
+	if (CanAttack())
+	{
+		FPlayerAnimation AttackToPerform = SelectAttack(FString("Light Attack"));
+		SetLaunchParams(AttackToPerform.LaunchForwardForce, AttackToPerform.LaunchUpwardForce);
+		PlayAnimMontage(AttackToPerform.AnimMontage);
+		ComboMeter++;
+	}
+}
+
+void AAscensionCharacter::StrongAttack()
+{
+	if (CanAttack())
+	{
+		FPlayerAnimation AttackToPerform = SelectAttack(FString("Strong Attack"));
+		SetLaunchParams(AttackToPerform.LaunchForwardForce, AttackToPerform.LaunchUpwardForce);
+		PlayAnimMontage(AttackToPerform.AnimMontage);
+		ComboMeter++;
+	}
 }
 
 void AAscensionCharacter::Dodge()
@@ -214,6 +237,9 @@ void AAscensionCharacter::Dodge()
 		CharacterState = ECharacterState::CS_Dodging;
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		SetLaunchParams(8500.0f, 0.0f);
+
+		StopMovement();
+		StopTurning();
 		
 		if (DodgeAnim != nullptr)
 		{
@@ -222,10 +248,32 @@ void AAscensionCharacter::Dodge()
 	}
 }
 
+void AAscensionCharacter::SwitchWeapon()
+{
+	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
+	{
+		switch (WeaponState)
+		{
+		case EWeaponState::WS_Sheathed:
+			WeaponState = EWeaponState::WS_Unsheathed;
+			break;
+
+		case EWeaponState::WS_Unsheathed:
+			WeaponState = EWeaponState::WS_Sheathed;
+			break;
+		}
+
+		StopMovement();
+		CharacterState = ECharacterState::CS_Switching;
+		ShouldCharSwitch = true;
+		LimitTurning(100.0f);
+	}
+}
+
 bool AAscensionCharacter::CanAttack()
 {
-	if ((CharacterState == ECharacterState::CS_Idle || (CharacterState == ECharacterState::CS_Attacking) &&
-		(MovementState == EMovementState::MS_OnGround) && (WeaponState == EWeaponState::WS_Unsheathed)))
+	if ((CharacterState == ECharacterState::CS_Idle || CharacterState == ECharacterState::CS_Attacking) &&
+		(MovementState == EMovementState::MS_OnGround) && (WeaponState == EWeaponState::WS_Unsheathed))
 	{
 		if (CharacterState == ECharacterState::CS_Attacking)
 		{
@@ -258,9 +306,39 @@ void AAscensionCharacter::StopMovement()
 	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 }
 
+void AAscensionCharacter::LimitMovement(float Speed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = Speed;
+}
+
 void AAscensionCharacter::ResetMovement()
 {
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+}
+
+void AAscensionCharacter::StopTurning()
+{
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
+}
+
+void AAscensionCharacter::LimitTurning(float Rate)
+{
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, Rate, 0.0f);
+}
+
+void AAscensionCharacter::ResetTurning()
+{
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f);
+}
+
+void AAscensionCharacter::SetGravity(float GravityValue)
+{
+	GetCharacterMovement()->GravityScale = GravityValue;
+}
+
+void AAscensionCharacter::ResetGravity()
+{
+	GetCharacterMovement()->GravityScale = 1.0f;
 }
 
 void AAscensionCharacter::SetLaunchParams(float LaunchHForce, float LaunchVForce)
@@ -268,3 +346,110 @@ void AAscensionCharacter::SetLaunchParams(float LaunchHForce, float LaunchVForce
 	LaunchForwardForce = LaunchHForce;
 	LaunchUpwardForce = LaunchVForce;
 }
+
+FPlayerAnimation AAscensionCharacter::SelectAttack(FString AttackType)
+{
+	if (AttackType.Equals(FString("Light Attack")))
+	{
+		switch (ComboMeter)
+		{
+		case 0:
+			return LightAttack01;
+			break;
+
+		case 1:
+			return LightAttack02;
+			break;
+
+		case 2:
+			return LightAttack03;
+			break;
+		}
+	}
+	
+	else if (AttackType.Equals(FString("Strong Attack")))
+	{
+		switch (ComboMeter)
+		{
+		case 0:
+			return StrongAttack01;
+			break;
+
+		case 1:
+			return StrongAttack02;
+			break;
+
+		case 2:
+			return StrongAttack03;
+			break;
+
+		case 3:
+			return StrongAttack04;
+			break;
+		}
+	}
+
+	return LightAttack01;
+}
+
+void AAscensionCharacter::SwitchComplete_Implementation()
+{
+	CharacterState = ECharacterState::CS_Idle;
+	ShouldCharSwitch = false;
+	ResetMovement();
+	ResetTurning();
+}
+
+void AAscensionCharacter::ResetCombo_Implementation()
+{
+	CharacterState = ECharacterState::CS_Idle;
+	ComboMeter = 0;
+	CanChain = false;
+	ResetGravity();
+	ResetMovement();
+}
+
+void AAscensionCharacter::ResetDodge_Implementation()
+{
+	CharacterState = ECharacterState::CS_Idle;
+	ResetMovement();
+	ResetTurning();
+	ResetGravity();
+}
+
+void AAscensionCharacter::LimitTurn_Implementation()
+{
+	StopTurning();
+}
+
+void AAscensionCharacter::ResetTurn_Implementation()
+{
+	ResetTurning();
+}
+
+void AAscensionCharacter::LaunchChar_Implementation()
+{
+	SetGravity(100.0f);
+	FVector LaunchVeloctiy = (GetActorForwardVector() * LaunchForwardForce) + (GetActorUpVector() * LaunchUpwardForce);
+	LaunchCharacter(LaunchVeloctiy, true, false);
+}
+
+void AAscensionCharacter::CanChainAttack_Implementation()
+{
+	CanChain = true;
+}
+
+void AAscensionCharacter::SetFlyable_Implementation()
+{
+	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
+}
+
+void AAscensionCharacter::ResetFlyable_Implementation()
+{
+	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+}
+
+void AAscensionCharacter::Sheathed_Implementation() {}
+void AAscensionCharacter::Unsheathed_Implementation() {}
+void AAscensionCharacter::FootstepSound_Implementation() {}
+void AAscensionCharacter::SlashSound_Implementation() {}
