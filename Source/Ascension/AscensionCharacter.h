@@ -2,6 +2,7 @@
 #pragma once
 #include "GameFramework/Character.h"
 #include "Globals.h"
+#include "Classes/Components/TimelineComponent.h"
 #include "AscensionCharacter.generated.h"
 
 
@@ -75,6 +76,14 @@ public:
 	/** Used to indicate to the animation blueprint whether the character should switch weapons. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool ShouldCharSwitch;
+
+	/** Used to check if the character can be moved with player input. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool CanMove;
+
+	/** The timeline to be played. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	UTimelineComponent* TimelineToPlay;
 
 protected:
 	/** Resets HMD orientation in VR. */
@@ -162,6 +171,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	void SetLaunchParams(float LaunchHForce, float LaunchVForce);
 
+	/** Function to handle the movement of the character in the timeline. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void TimelineMovement(float Speed);
+
 	/** Handler for when a touch input begins. */
 	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
@@ -199,19 +212,53 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	FPlayerAnimation StrongAttack04;
 
-	/** The dodge anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FPlayerAnimation DodgeAnim01;
+	/** Attack to be performed. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+	FPlayerAnimation AttackToPerform;
+
+	/** Used for comparison purposes. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+	FPlayerAnimation NullAttack;
 
 	/** The dodge anim montage. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimMontage* DodgeAnim;
 
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* Light01Timeline;
+
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* Light02Timeline;
+
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* Light03Timeline;
+
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* Strong01Timeline;
+
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* Strong02Timeline;
+
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* Strong03Timeline;
+
+	/** A timeline for movement. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UTimelineComponent* DodgeTimeline;
+
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
-	FPlayerAnimation SelectAttack(FString AttackType);
+	/** Function to select the attack to perform next. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void SelectAttack(FString AttackType);
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -231,6 +278,14 @@ public:
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetDodge();
+
+	/** Plays the timeline for dodge movement. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void DodgeMovement();
+
+	/** Plays the timeline for attack movement. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void AttackMovement();
 
 	/** Event called when the character completes switching.
 	  * Performs necessary actions after a switch is completed.

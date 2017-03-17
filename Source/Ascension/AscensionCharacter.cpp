@@ -31,9 +31,19 @@ AAscensionCharacter::AAscensionCharacter()
 	ComboMeter = 0;
 	CanChain = false;
 	ShouldCharSwitch = false;
+	CanMove = true;
 
 	// Set player anim structs.
 	DodgeAnim = nullptr;
+
+	TimelineToPlay = nullptr;
+	Light01Timeline = nullptr;
+	Light02Timeline = nullptr;
+	Light03Timeline = nullptr;
+	Strong01Timeline = nullptr;
+	Strong02Timeline = nullptr;
+	Strong03Timeline = nullptr;
+	DodgeTimeline = nullptr;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -134,7 +144,7 @@ void AAscensionCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Lo
 
 void AAscensionCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if ((Controller != NULL) && (Value != 0.0f) && CanMove)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -148,7 +158,7 @@ void AAscensionCharacter::MoveForward(float Value)
 
 void AAscensionCharacter::MoveRight(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if ((Controller != NULL) && (Value != 0.0f) && CanMove)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -165,13 +175,19 @@ void AAscensionCharacter::MoveRight(float Value)
 void AAscensionCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	if (CanMove)
+	{
+		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void AAscensionCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	if (CanMove)
+	{
+		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void AAscensionCharacter::Sprint()
@@ -212,10 +228,17 @@ void AAscensionCharacter::LightAttack()
 {
 	if (CanAttack())
 	{
-		FPlayerAnimation AttackToPerform = SelectAttack(FString("Light Attack"));
+		AttackToPerform = NullAttack;
+		SelectAttack(FString("Light Attack"));
 		SetLaunchParams(AttackToPerform.LaunchForwardForce, AttackToPerform.LaunchUpwardForce);
-		PlayAnimMontage(AttackToPerform.AnimMontage);
-		ComboMeter++;
+
+		if (AttackToPerform.AnimMontage != nullptr)
+		{
+			CharacterState = ECharacterState::CS_Attacking;
+			CanMove = false;
+			PlayAnimMontage(AttackToPerform.AnimMontage);
+			ComboMeter++;
+		}
 	}
 }
 
@@ -223,10 +246,17 @@ void AAscensionCharacter::StrongAttack()
 {
 	if (CanAttack())
 	{
-		FPlayerAnimation AttackToPerform = SelectAttack(FString("Strong Attack"));
+		AttackToPerform = NullAttack;
+		SelectAttack(FString("Strong Attack"));
 		SetLaunchParams(AttackToPerform.LaunchForwardForce, AttackToPerform.LaunchUpwardForce);
-		PlayAnimMontage(AttackToPerform.AnimMontage);
-		ComboMeter++;
+		
+		if (AttackToPerform.AnimMontage != nullptr)
+		{
+			CharacterState = ECharacterState::CS_Attacking;
+			CanMove = false;
+			PlayAnimMontage(AttackToPerform.AnimMontage);
+			ComboMeter++;
+		}
 	}
 }
 
@@ -235,14 +265,15 @@ void AAscensionCharacter::Dodge()
 	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
 	{
 		CharacterState = ECharacterState::CS_Dodging;
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-		SetLaunchParams(8500.0f, 0.0f);
-
-		StopMovement();
-		StopTurning();
+		CanMove = false;
 		
 		if (DodgeAnim != nullptr)
 		{
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = DodgeTimeline;
 			PlayAnimMontage(DodgeAnim);
 		}
 	}
@@ -280,7 +311,6 @@ bool AAscensionCharacter::CanAttack()
 			if (CanChain)
 			{
 				CanChain = false;
-				StopMovement();
 				return true;
 			}
 			else
@@ -290,8 +320,6 @@ bool AAscensionCharacter::CanAttack()
 		}
 		else
 		{
-			CharacterState = ECharacterState::CS_Attacking;
-			StopMovement();
 			return true;
 		}
 	}
@@ -347,22 +375,46 @@ void AAscensionCharacter::SetLaunchParams(float LaunchHForce, float LaunchVForce
 	LaunchUpwardForce = LaunchVForce;
 }
 
-FPlayerAnimation AAscensionCharacter::SelectAttack(FString AttackType)
+void AAscensionCharacter::TimelineMovement(float Speed)
+{
+	const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
+
+	// get forward vector
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	AddMovementInput(Direction, Speed);
+}
+
+void AAscensionCharacter::SelectAttack(FString AttackType)
 {
 	if (AttackType.Equals(FString("Light Attack")))
 	{
 		switch (ComboMeter)
 		{
 		case 0:
-			return LightAttack01;
+			AttackToPerform = LightAttack01;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Light01Timeline;
 			break;
 
 		case 1:
-			return LightAttack02;
+			AttackToPerform = LightAttack02;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Light02Timeline;
 			break;
 
 		case 2:
-			return LightAttack03;
+			AttackToPerform = LightAttack03;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Light03Timeline;
 			break;
 		}
 	}
@@ -372,24 +424,41 @@ FPlayerAnimation AAscensionCharacter::SelectAttack(FString AttackType)
 		switch (ComboMeter)
 		{
 		case 0:
-			return StrongAttack01;
+			AttackToPerform = StrongAttack01;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Strong01Timeline;
 			break;
 
 		case 1:
-			return StrongAttack02;
+			AttackToPerform = StrongAttack02;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Strong02Timeline;
 			break;
 
 		case 2:
-			return StrongAttack03;
+			AttackToPerform = StrongAttack03;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Strong03Timeline;
 			break;
 
 		case 3:
-			return StrongAttack04;
+			AttackToPerform = StrongAttack04;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
 			break;
 		}
 	}
-
-	return LightAttack01;
 }
 
 void AAscensionCharacter::SwitchComplete_Implementation()
@@ -402,19 +471,43 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 
 void AAscensionCharacter::ResetCombo_Implementation()
 {
+	UE_LOG(LogTemp, Warning, TEXT("CALLED."))
 	CharacterState = ECharacterState::CS_Idle;
 	ComboMeter = 0;
 	CanChain = false;
-	ResetGravity();
 	ResetMovement();
+	GetCharacterMovement()->MaxAcceleration = 2048;
+	CanMove = true;
 }
 
 void AAscensionCharacter::ResetDodge_Implementation()
 {
+	UE_LOG(LogTemp, Warning, TEXT("CALLED."))
 	CharacterState = ECharacterState::CS_Idle;
 	ResetMovement();
-	ResetTurning();
-	ResetGravity();
+	GetCharacterMovement()->MaxAcceleration = 2048;
+	CanMove = true;
+}
+
+void AAscensionCharacter::DodgeMovement_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("DodgeMovement works!"))
+	if (TimelineToPlay != nullptr)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 1000;
+		GetCharacterMovement()->MaxAcceleration = 20000;
+		TimelineToPlay->PlayFromStart();
+	}
+}
+
+void AAscensionCharacter::AttackMovement_Implementation()
+{
+	if (TimelineToPlay != nullptr)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 1500;
+		GetCharacterMovement()->MaxAcceleration = 20000;
+		TimelineToPlay->PlayFromStart();
+	}
 }
 
 void AAscensionCharacter::LimitTurn_Implementation()
