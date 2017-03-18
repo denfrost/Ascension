@@ -26,6 +26,7 @@ AAscensionCharacter::AAscensionCharacter()
 	WalkSpeed = 200.0f;
 	NormalSpeed = 500.0f;
 	SprintSpeed = 800.0f;
+	NormalAcceleration = 2048.0f;
 
 	// Set gameplay variables.
 	ComboMeter = 0;
@@ -124,6 +125,14 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 	{
 		MovementState = EMovementState::MS_OnGround;
 	}
+
+	MovementIntent = ForwardIntent + SideIntent;
+	if (MovementIntent.IsNearlyZero(0.01f))
+	{
+		
+		const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
+		MovementIntent = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	}
 }
 
 void AAscensionCharacter::OnResetVR()
@@ -144,28 +153,32 @@ void AAscensionCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Lo
 
 void AAscensionCharacter::MoveForward(float Value)
 {
+	// find out which way is forward
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+	// get forward vector
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	ForwardIntent = Direction * Value;
+
 	if ((Controller != NULL) && (Value != 0.0f) && CanMove)
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
 	}
 }
 
 void AAscensionCharacter::MoveRight(float Value)
 {
+	// find out which way is right
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+	// get right vector 
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	SideIntent = Direction * Value;
+
 	if ((Controller != NULL) && (Value != 0.0f) && CanMove)
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
@@ -230,12 +243,15 @@ void AAscensionCharacter::LightAttack()
 	{
 		AttackToPerform = NullAttack;
 		SelectAttack(FString("Light Attack"));
-		SetLaunchParams(AttackToPerform.LaunchForwardForce, AttackToPerform.LaunchUpwardForce);
 
 		if (AttackToPerform.AnimMontage != nullptr)
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
+			ActionDirection = MovementIntent;
+			SetTurningRate(2048.0f);
+			SetMovementSpeed(AttackToPerform.AnimSpeed);
+			SetAcceleration(AttackToPerform.AnimAcceleration);
 			PlayAnimMontage(AttackToPerform.AnimMontage);
 			ComboMeter++;
 		}
@@ -248,12 +264,15 @@ void AAscensionCharacter::StrongAttack()
 	{
 		AttackToPerform = NullAttack;
 		SelectAttack(FString("Strong Attack"));
-		SetLaunchParams(AttackToPerform.LaunchForwardForce, AttackToPerform.LaunchUpwardForce);
 		
 		if (AttackToPerform.AnimMontage != nullptr)
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
+			ActionDirection = MovementIntent;
+			SetTurningRate(2048.0f);
+			SetMovementSpeed(AttackToPerform.AnimSpeed);
+			SetAcceleration(AttackToPerform.AnimAcceleration);
 			PlayAnimMontage(AttackToPerform.AnimMontage);
 			ComboMeter++;
 		}
@@ -273,6 +292,9 @@ void AAscensionCharacter::Dodge()
 			{
 				TimelineToPlay->Stop();
 			}
+			ActionDirection = MovementIntent;
+			SetMovementSpeed(1500.0f);
+			SetAcceleration(20000.0f);
 			TimelineToPlay = DodgeTimeline;
 			PlayAnimMontage(DodgeAnim);
 		}
@@ -297,7 +319,7 @@ void AAscensionCharacter::SwitchWeapon()
 		StopMovement();
 		CharacterState = ECharacterState::CS_Switching;
 		ShouldCharSwitch = true;
-		LimitTurning(100.0f);
+		SetTurningRate(100.0f);
 	}
 }
 
@@ -334,14 +356,24 @@ void AAscensionCharacter::StopMovement()
 	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 }
 
-void AAscensionCharacter::LimitMovement(float Speed)
+void AAscensionCharacter::SetMovementSpeed(float Speed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = Speed;
 }
 
-void AAscensionCharacter::ResetMovement()
+void AAscensionCharacter::ResetMovementSpeed()
 {
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+}
+
+void AAscensionCharacter::SetAcceleration(float Acceleration)
+{
+	GetCharacterMovement()->MaxAcceleration = Acceleration;
+}
+
+void AAscensionCharacter::ResetAcceleration()
+{
+	GetCharacterMovement()->MaxAcceleration = NormalAcceleration;
 }
 
 void AAscensionCharacter::StopTurning()
@@ -349,12 +381,12 @@ void AAscensionCharacter::StopTurning()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
 }
 
-void AAscensionCharacter::LimitTurning(float Rate)
+void AAscensionCharacter::SetTurningRate(float Rate)
 {
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, Rate, 0.0f);
 }
 
-void AAscensionCharacter::ResetTurning()
+void AAscensionCharacter::ResetTurningRate()
 {
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f);
 }
@@ -369,19 +401,9 @@ void AAscensionCharacter::ResetGravity()
 	GetCharacterMovement()->GravityScale = 1.0f;
 }
 
-void AAscensionCharacter::SetLaunchParams(float LaunchHForce, float LaunchVForce)
-{
-	LaunchForwardForce = LaunchHForce;
-	LaunchUpwardForce = LaunchVForce;
-}
-
 void AAscensionCharacter::TimelineMovement(float Speed)
 {
-	const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
-
-	// get forward vector
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	AddMovementInput(Direction, Speed);
+	AddMovementInput(ActionDirection, Speed);
 }
 
 void AAscensionCharacter::SelectAttack(FString AttackType)
@@ -465,8 +487,8 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
 	ShouldCharSwitch = false;
-	ResetMovement();
-	ResetTurning();
+	ResetMovementSpeed();
+	ResetTurningRate();
 }
 
 void AAscensionCharacter::ResetCombo_Implementation()
@@ -475,8 +497,9 @@ void AAscensionCharacter::ResetCombo_Implementation()
 	CharacterState = ECharacterState::CS_Idle;
 	ComboMeter = 0;
 	CanChain = false;
-	ResetMovement();
-	GetCharacterMovement()->MaxAcceleration = 2048;
+	ResetMovementSpeed();
+	ResetTurningRate();
+	ResetAcceleration();
 	CanMove = true;
 }
 
@@ -484,8 +507,8 @@ void AAscensionCharacter::ResetDodge_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("CALLED."))
 	CharacterState = ECharacterState::CS_Idle;
-	ResetMovement();
-	GetCharacterMovement()->MaxAcceleration = 2048;
+	ResetMovementSpeed();
+	ResetAcceleration();
 	CanMove = true;
 }
 
@@ -494,8 +517,6 @@ void AAscensionCharacter::DodgeMovement_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("DodgeMovement works!"))
 	if (TimelineToPlay != nullptr)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 1000;
-		GetCharacterMovement()->MaxAcceleration = 20000;
 		TimelineToPlay->PlayFromStart();
 	}
 }
@@ -504,8 +525,6 @@ void AAscensionCharacter::AttackMovement_Implementation()
 {
 	if (TimelineToPlay != nullptr)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 1500;
-		GetCharacterMovement()->MaxAcceleration = 20000;
 		TimelineToPlay->PlayFromStart();
 	}
 }
@@ -517,14 +536,7 @@ void AAscensionCharacter::LimitTurn_Implementation()
 
 void AAscensionCharacter::ResetTurn_Implementation()
 {
-	ResetTurning();
-}
-
-void AAscensionCharacter::LaunchChar_Implementation()
-{
-	SetGravity(100.0f);
-	FVector LaunchVeloctiy = (GetActorForwardVector() * LaunchForwardForce) + (GetActorUpVector() * LaunchUpwardForce);
-	LaunchCharacter(LaunchVeloctiy, true, false);
+	ResetTurningRate();
 }
 
 void AAscensionCharacter::CanChainAttack_Implementation()

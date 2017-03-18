@@ -57,13 +57,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float SprintSpeed;
 
-	/** Force with which the character is launched forward. */
+	/** Acceleration of the character. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float LaunchForwardForce;
-
-	/** Force with which the character is launched upwards. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float LaunchUpwardForce;
+	float NormalAcceleration;
 
 	/** Meter tracking the player's attack combo count. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
@@ -80,6 +76,22 @@ public:
 	/** Used to check if the character can be moved with player input. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool CanMove;
+
+	/** The vector which holds player's forward movement intent. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector ForwardIntent;
+
+	/** The vector which holds player's side movement intent. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector SideIntent;
+
+	/** The vector holding the player's movement intent. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector MovementIntent;
+
+	/** The direction the player should perform an action. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector ActionDirection;
 
 	/** The timeline to be played. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -132,44 +144,48 @@ protected:
 	void SwitchWeapon();
 
 	/** Called to stop player movement. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void StopMovement();
 
 	/** Called to limit player movement to a certain speed. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void LimitMovement(float Speed);
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetMovementSpeed(float Speed);
 
 	/** Called to reset player movement to normal speed. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void ResetMovement();
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void ResetMovementSpeed();
+
+	/** Called to set acceleration to a value. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetAcceleration(float Acceleration);
+
+	/** Called to reset acceleration. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void ResetAcceleration();
 
 	/** Called to stop player turning. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void StopTurning();
 
 	/** Called to limit player turning to a certain rate. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void LimitTurning(float Rate);
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetTurningRate(float Rate);
 
 	/** Called to reset player turning to normal rate. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void ResetTurning();
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void ResetTurningRate();
 
 	/** Called to set gravity to a value. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetGravity(float GravityValue);
 
 	/** Called to reset gravity. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ResetGravity();
 
 	/** Called to check if the player can attack. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	bool CanAttack();
-
-	/** Called to set parameters for launching the character. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetLaunchParams(float LaunchHForce, float LaunchVForce);
 
 	/** Function to handle the movement of the character in the timeline. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
@@ -304,12 +320,6 @@ public:
 	  */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetTurn();
-
-	/** Event called when character needs to be launch.
-	  * Launches the character.
-	  */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void LaunchChar();
 
 	/** Event called when character can chain an attack.
 	  * Sets CanChainAttack.

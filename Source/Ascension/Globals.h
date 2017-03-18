@@ -35,8 +35,8 @@ struct FPlayerAnimation
 	UAnimMontage* AnimMontage = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float LaunchForwardForce = 0.0f;
+	float AnimSpeed = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float LaunchUpwardForce = 0.0f;
+	float AnimAcceleration = 20000.0f;
 };
