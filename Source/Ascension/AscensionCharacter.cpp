@@ -140,9 +140,12 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 	MovementIntent = ForwardIntent + SideIntent;
 	if (MovementIntent.IsNearlyZero(0.01f))
 	{
-		
 		const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
 		MovementIntent = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	}
+	else
+	{
+		MovementIntent.Normalize();
 	}
 }
 
