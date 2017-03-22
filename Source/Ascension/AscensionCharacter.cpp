@@ -34,17 +34,15 @@ AAscensionCharacter::AAscensionCharacter()
 	ShouldCharSwitch = false;
 	CanMove = true;
 
-	// Set player anim structs.
-	DodgeAnim = nullptr;
-
+	// Setup the movement timelines.
 	TimelineToPlay = nullptr;
-	Light01Timeline = nullptr;
-	Light02Timeline = nullptr;
-	Light03Timeline = nullptr;
-	Strong01Timeline = nullptr;
-	Strong02Timeline = nullptr;
-	Strong03Timeline = nullptr;
-	DodgeTimeline = nullptr;
+	Light01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light01TimelineComponent"));;
+	Light02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light02TimelineComponent"));;
+	Light03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light03TimelineComponent"));;
+	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));;
+	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));;
+	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));;
+	DodgeTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("DodgeTimelineComponent"));;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -111,6 +109,19 @@ void AAscensionCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AAscensionCharacter::OnResetVR);
+}
+
+void AAscensionCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetupTimelineComponent(Light01Timeline, LightAttack01.MovementCurve);
+	SetupTimelineComponent(Light02Timeline, LightAttack02.MovementCurve);
+	SetupTimelineComponent(Light03Timeline, LightAttack03.MovementCurve);
+	SetupTimelineComponent(Strong01Timeline, StrongAttack01.MovementCurve);
+	SetupTimelineComponent(Strong02Timeline, StrongAttack02.MovementCurve);
+	SetupTimelineComponent(Strong03Timeline, StrongAttack03.MovementCurve);
+	SetupTimelineComponent(DodgeTimeline, DodgeMove.MovementCurve);
 }
 
 void AAscensionCharacter::Tick(float DeltaSeconds)
@@ -253,7 +264,7 @@ void AAscensionCharacter::LightAttack()
 			SetMovementSpeed(AttackToPerform.AnimSpeed);
 			SetAcceleration(AttackToPerform.AnimAcceleration);
 			PlayAnimMontage(AttackToPerform.AnimMontage);
-			ComboMeter++;
+			//ComboMeter++;
 		}
 	}
 }
@@ -274,7 +285,7 @@ void AAscensionCharacter::StrongAttack()
 			SetMovementSpeed(AttackToPerform.AnimSpeed);
 			SetAcceleration(AttackToPerform.AnimAcceleration);
 			PlayAnimMontage(AttackToPerform.AnimMontage);
-			ComboMeter++;
+			//ComboMeter++;
 		}
 	}
 }
@@ -286,17 +297,17 @@ void AAscensionCharacter::Dodge()
 		CharacterState = ECharacterState::CS_Dodging;
 		CanMove = false;
 		
-		if (DodgeAnim != nullptr)
+		if (DodgeMove.AnimMontage != nullptr)
 		{
 			if (TimelineToPlay != nullptr)
 			{
 				TimelineToPlay->Stop();
 			}
 			ActionDirection = MovementIntent;
-			SetMovementSpeed(1500.0f);
-			SetAcceleration(20000.0f);
+			SetMovementSpeed(DodgeMove.AnimSpeed);
+			SetAcceleration(DodgeMove.AnimAcceleration);
 			TimelineToPlay = DodgeTimeline;
-			PlayAnimMontage(DodgeAnim);
+			PlayAnimMontage(DodgeMove.AnimMontage);
 		}
 	}
 }
@@ -406,6 +417,17 @@ void AAscensionCharacter::TimelineMovement(float Speed)
 	AddMovementInput(ActionDirection, Speed);
 }
 
+void AAscensionCharacter::SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve)
+{
+	if (MovementCurve != nullptr)
+	{
+		FOnTimelineFloat ProgressFunction;
+		ProgressFunction.BindUFunction(this, FName("TimelineMovement"));
+
+		TimelineComponent->AddInterpFloat(MovementCurve, ProgressFunction);
+	}
+}
+
 void AAscensionCharacter::SelectAttack(FString AttackType)
 {
 	if (AttackType.Equals(FString("Light Attack")))
@@ -413,6 +435,7 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 		switch (ComboMeter)
 		{
 		case 0:
+			ComboMeter++;
 			AttackToPerform = LightAttack01;
 			if (TimelineToPlay != nullptr)
 			{
@@ -422,6 +445,7 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 			break;
 
 		case 1:
+			ComboMeter++;
 			AttackToPerform = LightAttack02;
 			if (TimelineToPlay != nullptr)
 			{
@@ -431,12 +455,23 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 			break;
 
 		case 2:
+			ComboMeter++;
 			AttackToPerform = LightAttack03;
 			if (TimelineToPlay != nullptr)
 			{
 				TimelineToPlay->Stop();
 			}
 			TimelineToPlay = Light03Timeline;
+			break;
+
+		default:
+			ComboMeter = 1;
+			AttackToPerform = LightAttack01;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Light01Timeline;
 			break;
 		}
 	}
@@ -446,6 +481,7 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 		switch (ComboMeter)
 		{
 		case 0:
+			ComboMeter++;
 			AttackToPerform = StrongAttack01;
 			if (TimelineToPlay != nullptr)
 			{
@@ -455,6 +491,7 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 			break;
 
 		case 1:
+			ComboMeter++;
 			AttackToPerform = StrongAttack02;
 			if (TimelineToPlay != nullptr)
 			{
@@ -464,6 +501,7 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 			break;
 
 		case 2:
+			ComboMeter++;
 			AttackToPerform = StrongAttack03;
 			if (TimelineToPlay != nullptr)
 			{
@@ -473,11 +511,22 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 			break;
 
 		case 3:
+			ComboMeter++;
 			AttackToPerform = StrongAttack04;
 			if (TimelineToPlay != nullptr)
 			{
 				TimelineToPlay->Stop();
 			}
+			break;
+
+		default:
+			ComboMeter = 1;
+			AttackToPerform = StrongAttack01;
+			if (TimelineToPlay != nullptr)
+			{
+				TimelineToPlay->Stop();
+			}
+			TimelineToPlay = Strong01Timeline;
 			break;
 		}
 	}

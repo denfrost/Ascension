@@ -22,7 +22,10 @@ class AAscensionCharacter : public ACharacter
 public:
 	AAscensionCharacter();
 
-	/** Character's tick function. */
+	/** Character's BeginPlay function. */
+	virtual void BeginPlay();
+
+	/** Character's Tick function. */
 	virtual void Tick(float DeltaSeconds);
 
 	/** State that the character is in. Determines whether the character can switch from one state to another. */
@@ -191,6 +194,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void TimelineMovement(float Speed);
 
+	/** A function that sets up the timeline for an attack move. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve);
+
 	/** Handler for when a touch input begins. */
 	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
@@ -236,9 +243,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
 	FPlayerAnimation NullAttack;
 
-	/** The dodge anim montage. */
+	/** Dodge anim montage. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimMontage* DodgeAnim;
+	FPlayerAnimation DodgeMove;
 
 	/** A timeline for movement. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")

@@ -39,4 +39,7 @@ struct FPlayerAnimation
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float AnimAcceleration = 20000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UCurveFloat* MovementCurve;
 };
