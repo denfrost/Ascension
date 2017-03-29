@@ -202,19 +202,13 @@ void AAscensionCharacter::MoveRight(float Value)
 void AAscensionCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
-	if (CanMove)
-	{
-		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-	}
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AAscensionCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
-	if (CanMove)
-	{
-		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-	}
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AAscensionCharacter::Sprint()
