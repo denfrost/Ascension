@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Globals.h"
 #include "Classes/Components/TimelineComponent.h"
+
 #include "AscensionCharacter.generated.h"
 
 
@@ -18,6 +19,12 @@ class AAscensionCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+
+	/** Enemy detection sphere. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	class USphereComponent* EnemyDetectionSphere
+
 
 public:
 	AAscensionCharacter();

@@ -34,6 +34,14 @@ enum class EHitEffect : uint8
 	HE_KnockBack		UMETA(DisplayName = "Knock Back")
 };
 
+UENUM(BlueprintType)
+enum class EAIState : uint8
+{
+	AIS_Patrolling		UMETA(DisplayName = "Patrolling"),
+	AIS_Observing		UMETA(DisplayName = "Observing"),
+	AIS_Attacking		UMETA(DisplayName = "Attacking")
+};
+
 USTRUCT(BlueprintType)
 struct FPlayerAnimation
 {

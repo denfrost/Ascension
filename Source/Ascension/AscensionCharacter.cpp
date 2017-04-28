@@ -3,6 +3,7 @@
 #include "Ascension.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
+#include "Classes/Components/SphereComponent.h"
 #include "AscensionCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,12 +28,19 @@ AAscensionCharacter::AAscensionCharacter()
 	NormalSpeed = 500.0f;
 	SprintSpeed = 800.0f;
 	NormalAcceleration = 2048.0f;
+	NormalTurnRate = 540.0f;
+	ActionTurnRate = 2048.0f;
 
 	// Set gameplay variables.
 	ComboMeter = 0;
 	CanChain = false;
 	ShouldCharSwitch = false;
 	CanMove = true;
+	DamageEnabled = false;
+
+	// Camera lock-on variables.
+	LockedOn = false;
+	LockedActor = nullptr;
 
 	// Setup the movement timelines.
 	TimelineToPlay = nullptr;
@@ -51,7 +59,7 @@ AAscensionCharacter::AAscensionCharacter()
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, NormalTurnRate, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
@@ -66,7 +74,7 @@ AAscensionCharacter::AAscensionCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
+	
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -257,9 +265,9 @@ void AAscensionCharacter::LightAttack()
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
 			ActionDirection = MovementIntent;
-			SetTurningRate(2048.0f);
-			SetMovementSpeed(AttackToPerform.AnimSpeed);
-			SetAcceleration(AttackToPerform.AnimAcceleration);
+			SetTurningRate(ActionTurnRate);
+			SetMovementSpeed(AttackToPerform.Speed);
+			SetAcceleration(AttackToPerform.Acceleration);
 			PlayAnimMontage(AttackToPerform.AnimMontage);
 			//ComboMeter++;
 		}
@@ -278,9 +286,9 @@ void AAscensionCharacter::StrongAttack()
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
 			ActionDirection = MovementIntent;
-			SetTurningRate(2048.0f);
-			SetMovementSpeed(AttackToPerform.AnimSpeed);
-			SetAcceleration(AttackToPerform.AnimAcceleration);
+			SetTurningRate(ActionTurnRate);
+			SetMovementSpeed(AttackToPerform.Speed);
+			SetAcceleration(AttackToPerform.Acceleration);
 			PlayAnimMontage(AttackToPerform.AnimMontage);
 			//ComboMeter++;
 		}
@@ -396,7 +404,7 @@ void AAscensionCharacter::SetTurningRate(float Rate)
 
 void AAscensionCharacter::ResetTurningRate()
 {
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 1080.0f, 0.0f);
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, NormalTurnRate, 0.0f);
 }
 
 void AAscensionCharacter::SetGravity(float GravityValue)
