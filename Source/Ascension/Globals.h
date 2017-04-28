@@ -26,6 +26,14 @@ enum class EMovementState : uint8
 	MS_InAir			UMETA(DisplayName = "InAir")
 };
 
+UENUM(BlueprintType)
+enum class EHitEffect : uint8
+{
+	HE_PushBack			UMETA(DisplayName = "Push Back"),
+	HE_LaunchUp			UMETA(DisplayName = "Launch Up"),
+	HE_KnockBack		UMETA(DisplayName = "Knock Back")
+};
+
 USTRUCT(BlueprintType)
 struct FPlayerAnimation
 {
@@ -42,4 +50,28 @@ struct FPlayerAnimation
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	UCurveFloat* MovementCurve;
+};
+
+USTRUCT(BlueprintType)
+struct FAttack
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UAnimMontage* AnimMontage = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float Speed = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float Acceleration = 20000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UCurveFloat* MovementCurve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	EHitEffect HitEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float Damage;
 };
