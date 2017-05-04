@@ -4,6 +4,7 @@
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Classes/Components/SphereComponent.h"
+#include "Damageable.h"
 #include "AscensionCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -22,6 +23,10 @@ AAscensionCharacter::AAscensionCharacter()
 	CharacterState = ECharacterState::CS_Idle;
 	MovementState = EMovementState::MS_OnGround;
 	WeaponState = EWeaponState::WS_Sheathed;
+
+	// Set character parameters.
+	Health = 100.0f;
+	MaxHealth = 100.0f;
 
 	// Set movement speeds.
 	WalkSpeed = 200.0f;
@@ -433,6 +438,11 @@ void AAscensionCharacter::SetupTimelineComponent(UTimelineComponent* TimelineCom
 	}
 }
 
+float AAscensionCharacter::GetHealthPercentage() const
+{
+	return Health / MaxHealth;
+}
+
 void AAscensionCharacter::SelectAttack(FString AttackType)
 {
 	if (AttackType.Equals(FString("Light Attack")))
@@ -537,6 +547,17 @@ void AAscensionCharacter::SelectAttack(FString AttackType)
 	}
 }
 
+void AAscensionCharacter::ApplySwordEffect(AActor* OtherActor)
+{
+	if (DamageEnabled)
+	{
+		if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+		{
+			IDamageable::Execute_ApplyHitEffect(OtherActor, AttackToPerform.Damage, AttackToPerform.HitEffect);
+		}
+	}
+}
+
 void AAscensionCharacter::SwitchComplete_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
@@ -547,7 +568,6 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 
 void AAscensionCharacter::ResetCombo_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CALLED."))
 	CharacterState = ECharacterState::CS_Idle;
 	ComboMeter = 0;
 	CanChain = false;
@@ -559,7 +579,6 @@ void AAscensionCharacter::ResetCombo_Implementation()
 
 void AAscensionCharacter::ResetDodge_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CALLED."))
 	CharacterState = ECharacterState::CS_Idle;
 	ResetMovementSpeed();
 	ResetAcceleration();
@@ -568,7 +587,6 @@ void AAscensionCharacter::ResetDodge_Implementation()
 
 void AAscensionCharacter::DodgeMovement_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("DodgeMovement works!"))
 	if (TimelineToPlay != nullptr)
 	{
 		TimelineToPlay->PlayFromStart();
@@ -606,6 +624,16 @@ void AAscensionCharacter::SetFlyable_Implementation()
 void AAscensionCharacter::ResetFlyable_Implementation()
 {
 	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+}
+
+void AAscensionCharacter::EnableDamage_Implementation()
+{
+	DamageEnabled = true;
+}
+
+void AAscensionCharacter::DisableDamage_Implementation()
+{
+	DamageEnabled = false;
 }
 
 void AAscensionCharacter::Sheathed_Implementation() {}

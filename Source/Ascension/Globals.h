@@ -37,10 +37,18 @@ enum class EHitEffect : uint8
 UENUM(BlueprintType)
 enum class EAIState : uint8
 {
-	AIS_Patrolling		UMETA(DisplayName = "Patrolling"),
-	AIS_Observing		UMETA(DisplayName = "Observing"),
-	AIS_Attacking		UMETA(DisplayName = "Attacking")
+	AIS_Patrol			UMETA(DisplayName = "Patrol"),
+	AIS_Combat			UMETA(DisplayName = "Combat")
 };
+
+UENUM(BlueprintType)
+enum class EEnemyState : uint8
+{
+	ES_Idle				UMETA(DisplayName = "Idle"),
+	ES_Dodging			UMETA(DisplayName = "Dodging"),
+	ES_Attacking		UMETA(DisplayName = "Attacking")
+};
+
 
 USTRUCT(BlueprintType)
 struct FPlayerAnimation
@@ -58,6 +66,18 @@ struct FPlayerAnimation
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	UCurveFloat* MovementCurve;
+};
+
+USTRUCT(BlueprintType)
+struct FAttackEffect
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float KnockbackForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float ZForce;
 };
 
 USTRUCT(BlueprintType)
@@ -82,4 +102,7 @@ struct FAttack
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	FAttackEffect AttackEffect;
 };

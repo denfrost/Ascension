@@ -6,6 +6,9 @@
 #include "AscensionCharacter.generated.h"
 
 
+/** AscensionCharacter
+ *	This is the character that the player controls and plays the game with.
+ */
 UCLASS(config=Game)
 class AAscensionCharacter : public ACharacter
 {
@@ -39,6 +42,16 @@ public:
 	/** State that the character's weapon is in. Determines whether the weapon is sheathed/unsheathed. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character State")
 	EWeaponState WeaponState;
+
+
+	/** Current health of the character.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
+	float Health;
+
+	/** Maximum health of the character.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
+	float MaxHealth;
+
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -300,9 +313,17 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+	/** Function that returns the percentage of health the character has left. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
+	float GetHealthPercentage() const;
+
 	/** Function to select the attack to perform next. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SelectAttack(FString AttackType);
+
+	/** Function to apply an attack's effects to the hit actor. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void ApplySwordEffect(AActor* OtherActor);
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -366,6 +387,14 @@ public:
 	*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetFlyable();
+
+	/** Enables sword damage. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void EnableDamage();
+
+	/** Disables sword damage. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void DisableDamage();
 
 public:
 	// The following are events whose functionality is implemented in blueprint.
