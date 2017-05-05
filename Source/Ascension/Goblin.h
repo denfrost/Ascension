@@ -3,9 +3,11 @@
 #pragma once
 
 #include "Enemy.h"
+#include "GameFramework/Character.h"
 #include "Damageable.h"
 #include "Lockable.h"
 #include "Goblin.generated.h"
+
 
 /** Goblin
  *  A greatsword wielding enemy controlled by the AI.
@@ -51,6 +53,38 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
 	bool IsDead();
 	virtual bool IsDead_Implementation() override;
+
+	/** Event called to play footstep sounds. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void FootstepSound();
+
+	/** Enables entity movement. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void EnableMovement();
+
+	/** Disables entity movement. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void DisableMovement();
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	bool CheckDead();
+
+	/** Displays the visuals required when the character is attacked. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ShowHitVisuals();
+
+	/** Applies the effects of an attack onto the character. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ApplyAttackEffects(float Damage);
+
+	/** Decrements the entity's health by the specified amount. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void DecrementHealth(float Damage);
+
+	/** Performs the necessary steps to kill the actor. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void KillActor();
 
 private:
 	
