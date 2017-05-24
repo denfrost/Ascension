@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include "Globals.h"
 #include "Damageable.generated.h"
+
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -26,7 +28,7 @@ public:
 
 	/** Applies the effects of the hit onto the entity. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
-	void ApplyHitEffect(const float Damage, const EHitEffect HitEffect);
+	void ApplyHitEffect(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect);
 
 	/** Displays the entity's health bar. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")

@@ -553,7 +553,7 @@ void AAscensionCharacter::ApplySwordEffect(AActor* OtherActor)
 	{
 		if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 		{
-			IDamageable::Execute_ApplyHitEffect(OtherActor, AttackToPerform.Damage, AttackToPerform.HitEffect);
+			IDamageable::Execute_ApplyHitEffect(OtherActor, this, AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
 		}
 	}
 }
@@ -571,6 +571,7 @@ void AAscensionCharacter::ResetCombo_Implementation()
 	CharacterState = ECharacterState::CS_Idle;
 	ComboMeter = 0;
 	CanChain = false;
+	TimelineToPlay = nullptr;
 	ResetMovementSpeed();
 	ResetTurningRate();
 	ResetAcceleration();
@@ -580,6 +581,7 @@ void AAscensionCharacter::ResetCombo_Implementation()
 void AAscensionCharacter::ResetDodge_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
+	TimelineToPlay = nullptr;
 	ResetMovementSpeed();
 	ResetAcceleration();
 	CanMove = true;

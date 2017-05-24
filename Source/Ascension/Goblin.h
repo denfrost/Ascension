@@ -28,6 +28,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float MaxHealth;
 
+public:
+	/* DAMAGEABLE INTERFACE FUNCTIONS */
 
 	/** Returns the percentage of health remaining. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
@@ -36,8 +38,8 @@ public:
 
 	/** Applies the effects of an attack to the entity. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
-	void ApplyHitEffect(const float Damage, const EHitEffect HitEffect);
-	virtual void ApplyHitEffect_Implementation(const float Damage, const EHitEffect HitEffect) override;
+	void ApplyHitEffect(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect);
+	virtual void ApplyHitEffect_Implementation(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect) override;
 
 	/** Shows the entity's health bar. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
@@ -54,6 +56,7 @@ public:
 	bool IsDead();
 	virtual bool IsDead_Implementation() override;
 
+public:
 	/** Event called to play footstep sounds. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void FootstepSound();
@@ -76,7 +79,7 @@ protected:
 
 	/** Applies the effects of an attack onto the character. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ApplyAttackEffects(float Damage);
+	void ApplyAttackEffects(const AActor* SourceActor, float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect);
 
 	/** Decrements the entity's health by the specified amount. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

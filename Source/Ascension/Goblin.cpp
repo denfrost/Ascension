@@ -16,7 +16,7 @@ void AGoblin::GetHealthPercent_Implementation(float& HealthPercent)
 	HealthPercent = Health / MaxHealth;
 }
 
-void AGoblin::ApplyHitEffect_Implementation(const float Damage, const EHitEffect HitEffect)
+void AGoblin::ApplyHitEffect_Implementation(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
 {
 }
 
@@ -54,7 +54,42 @@ bool AGoblin::CheckDead()
 }
 
 void AGoblin::ShowHitVisuals_Implementation() {}
-void AGoblin::ApplyAttackEffects_Implementation(float Damage) {}
+
+void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
+{
+	DecrementHealth(Damage);
+
+	if (SourceActor != nullptr)
+	{
+		// Find the direction in which we need to launch our character.
+		FVector SourceLocation = SourceActor->GetActorLocation();
+		FVector HitLocation = GetActorLocation();
+		FVector LaunchDirection = HitLocation - SourceLocation;
+		LaunchDirection.Normalize();
+
+		
+
+		// Calculate launch velocity.
+		FVector LaunchVelocity = LaunchDirection * AttackEffect.KnockbackForce;
+
+		switch (HitEffect)
+		{
+		// Launch character backwards.
+		case EHitEffect::HE_PushBack:
+			LaunchCharacter(LaunchVelocity, true, false);
+			break;
+
+		case EHitEffect::HE_KnockBack:
+			break;
+
+		case EHitEffect::HE_LaunchUp:
+			break;
+
+		default:
+			break;
+		}
+	}
+}
 
 void AGoblin::KillActor_Implementation()
 {
