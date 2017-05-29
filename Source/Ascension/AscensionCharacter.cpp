@@ -638,6 +638,11 @@ void AAscensionCharacter::DisableDamage_Implementation()
 	DamageEnabled = false;
 }
 
+void AAscensionCharacter::FinalizeAttackDirection_Implementation()
+{
+	ActionDirection = MovementIntent;
+}
+
 void AAscensionCharacter::Sheathed_Implementation() {}
 void AAscensionCharacter::Unsheathed_Implementation() {}
 void AAscensionCharacter::FootstepSound_Implementation() {}

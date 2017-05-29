@@ -49,6 +49,13 @@ enum class EEnemyState : uint8
 	ES_Attacking		UMETA(DisplayName = "Attacking")
 };
 
+UENUM(BlueprintType)
+enum class EEnemyCombatState : uint8
+{
+	ECS_Observing		UMETA(DisplayName = "Observing"),
+	ECS_Attacking		UMETA(DisplayName = "Attacking")
+};
+
 
 USTRUCT(BlueprintType)
 struct FPlayerAnimation

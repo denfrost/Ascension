@@ -396,6 +396,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void DisableDamage();
 
+	/** Finalizes player's attack direction. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void FinalizeAttackDirection();
+
 public:
 	// The following are events whose functionality is implemented in blueprint.
 
