@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Damageable.h"
 #include "Lockable.h"
+#include "Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h"
+#include "Runtime/AIModule/Classes/BehaviorTree/BlackboardComponent.h"
 #include "Goblin.generated.h"
 
 
@@ -27,6 +29,33 @@ public:
 	/** Maximum health of the character.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float MaxHealth;
+
+	/** General state of the AI.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
+	EAIState AIState;
+
+	/** Combat state of the AI. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
+	EEnemyCombatState CombatState;
+
+	/** State of actions being performed by the AI. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
+	EEnemyState ActionState;
+
+
+	/** Blackboard Key Names */
+
+	/** AI State key name.*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Blackboard Keys")
+	FName AIStateKeyName = FName("AIState");
+
+	/** AI Combat State key name.*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Blackboard Keys")
+	FName CombatStateKeyName = FName("AICombatState");
+
+	/** Enemy key name.*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Blackboard Keys")
+	FName EnemyKeyName = FName("Enemy");
 
 public:
 	/* DAMAGEABLE INTERFACE FUNCTIONS */
@@ -70,8 +99,17 @@ public:
 	void DisableMovement();
 
 protected:
+	/** Checks and updates whether the goblin is dead. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	bool CheckDead();
+
+	/** Makes changes to enter the combat state. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void EnterCombat(AActor* Enemy);
+
+	/** Makes changes to exit the combat state. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void ExitCombat();
 
 	/** Displays the visuals required when the character is attacked. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

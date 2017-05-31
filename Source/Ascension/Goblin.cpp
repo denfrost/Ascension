@@ -53,6 +53,29 @@ bool AGoblin::CheckDead()
 	return Dead;
 }
 
+void AGoblin::EnterCombat(AActor* Enemy)
+{
+	UBlackboardComponent* Blackboard = UAIBlueprintHelperLibrary::GetBlackboard(this);
+	
+	Blackboard->SetValueAsObject(EnemyKeyName, Enemy);
+
+	AIState = EAIState::AIS_Combat;
+	Blackboard->SetValueAsEnum(AIStateKeyName, (uint8) AIState);
+
+	CombatState = EEnemyCombatState::ECS_Observing;
+	Blackboard->SetValueAsEnum(CombatStateKeyName, (uint8) CombatState);
+}
+
+void AGoblin::ExitCombat()
+{
+	UBlackboardComponent* Blackboard = UAIBlueprintHelperLibrary::GetBlackboard(this);
+
+	Blackboard->ClearValue(EnemyKeyName);
+
+	AIState = EAIState::AIS_Patrol;
+	Blackboard->SetValueAsEnum(AIStateKeyName, (uint8) AIState);
+}
+
 void AGoblin::ShowHitVisuals_Implementation() {}
 
 void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
@@ -66,8 +89,6 @@ void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float
 		FVector HitLocation = GetActorLocation();
 		FVector LaunchDirection = HitLocation - SourceLocation;
 		LaunchDirection.Normalize();
-
-		
 
 		// Calculate launch velocity.
 		FVector LaunchVelocity = LaunchDirection * AttackEffect.KnockbackForce;
