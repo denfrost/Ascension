@@ -4,7 +4,7 @@
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Classes/Components/SphereComponent.h"
-#include "Damageable.h"
+#include "Interfaces/Damageable.h"
 #include "AscensionCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////

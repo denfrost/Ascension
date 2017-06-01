@@ -4,8 +4,8 @@
 
 #include "Enemy.h"
 #include "GameFramework/Character.h"
-#include "Damageable.h"
-#include "Lockable.h"
+#include "Interfaces/Damageable.h"
+#include "Interfaces/Lockable.h"
 #include "Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/AIModule/Classes/BehaviorTree/BlackboardComponent.h"
 #include "Goblin.generated.h"
@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	EEnemyState ActionState;
 
+	/** Points which the entity patrols. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
+	TArray<AActor*> PatrolPoints;
 
 	/** Blackboard Key Names */
 

@@ -2,7 +2,7 @@
 
 #include "Ascension.h"
 #include "AscensionGameMode.h"
-#include "AscensionCharacter.h"
+#include "Player/AscensionCharacter.h"
 
 AAscensionGameMode::AAscensionGameMode()
 {
