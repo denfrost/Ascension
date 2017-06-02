@@ -3,7 +3,7 @@
 #include "Ascension.h"
 #include "BTT_CyclePatrolPoints.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Enemy/Goblin.h"
+#include "Components/PatrolComponent.h"
 #include "AIController.h"
 
 
@@ -12,14 +12,16 @@ EBTNodeResult::Type UBTT_CyclePatrolPoints::ExecuteTask(UBehaviorTreeComponent& 
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	AActor* Owner = OwnerComp.GetAIOwner()->GetPawn();
 
-	AGoblin* Character = Cast<AGoblin>(Owner);
-	if (Character)
-	{
-		Character->PatrolPoints;
-		int NextIndex = (BlackboardComponent->GetValueAsInt(PatrolPointIndexKey.SelectedKeyName) + 1) % Character->PatrolPoints.Num();
+	UPatrolComponent* PatrolComponent = Owner->FindComponentByClass<UPatrolComponent>();
 
-		BlackboardComponent->SetValueAsObject(PatrolPointKey.SelectedKeyName, Character->PatrolPoints[NextIndex]);
-		BlackboardComponent->SetValueAsInt(PatrolPointIndexKey.SelectedKeyName, NextIndex);
+	if (PatrolComponent)
+	{
+		TArray<AActor*> Points = PatrolComponent->GetPatrolPoints();
+		int Index = BlackboardComponent->GetValueAsInt(NextPatrolPointIndexKey.SelectedKeyName);
+		BlackboardComponent->SetValueAsObject(PatrolPointKey.SelectedKeyName, Points[Index]);
+
+		int NextIndex = (Index + 1) % Points.Num();
+		BlackboardComponent->SetValueAsInt(NextPatrolPointIndexKey.SelectedKeyName, NextIndex);
 
 		return EBTNodeResult::Succeeded;
 	}

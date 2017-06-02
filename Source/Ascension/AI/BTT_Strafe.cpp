@@ -4,7 +4,7 @@
 #include "BTT_Strafe.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
-#include "Enemy/Goblin.h"
+#include "Components/StrafeComponent.h"
 
 
 UBTT_Strafe::UBTT_Strafe()
@@ -32,9 +32,12 @@ void UBTT_Strafe::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	}
 	else
 	{
-		AActor* Owner = OwnerComp.GetAIOwner()->GetPawn();
-		AGoblin* Character = Cast<AGoblin>(Owner);
-
 		AActor* Enemy = Cast<AActor>(BlackboardComponent->GetValueAsObject(EnemyKey.SelectedKeyName));
+		UStrafeComponent* StrafeComponent = OwnerComp.GetAIOwner()->GetPawn()->FindComponentByClass<UStrafeComponent>();
+
+		if (StrafeComponent)
+		{
+			StrafeComponent->Strafe(Enemy);
+		}
 	}
 }

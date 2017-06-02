@@ -6,8 +6,8 @@
 #include "BTT_CyclePatrolPoints.generated.h"
 
 /**
- * 
- */
+  * Task that sets the next point that a character has to patrol to.
+  */
 UCLASS()
 class ASCENSION_API UBTT_CyclePatrolPoints : public UBTTaskNode
 {
@@ -20,7 +20,7 @@ protected:
 
 	/** Key selector containing the index of the patrol point. */
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector PatrolPointIndexKey;
+	FBlackboardKeySelector NextPatrolPointIndexKey;
 
 protected:
 	/** Starts execution for the task. */

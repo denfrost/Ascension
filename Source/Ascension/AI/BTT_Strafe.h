@@ -6,8 +6,8 @@
 #include "BTT_Strafe.generated.h"
 
 /**
- * 
- */
+  * Task that makes a character strafe around a point/enemy.
+  */
 UCLASS()
 class ASCENSION_API UBTT_Strafe : public UBTTaskNode
 {
