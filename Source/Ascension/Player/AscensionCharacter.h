@@ -7,8 +7,8 @@
 
 
 /** AscensionCharacter
- *	This is the character that the player controls and plays the game with.
- */
+  *	This is the character that the player controls and plays the game with.
+  */
 UCLASS(config=Game)
 class AAscensionCharacter : public ACharacter
 {
@@ -22,6 +22,10 @@ class AAscensionCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	/** Component handling attacks. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UAttackComponent* AttackComponent;
+
 public:
 	AAscensionCharacter();
 
@@ -31,19 +35,33 @@ public:
 	/** Character's Tick function. */
 	virtual void Tick(float DeltaSeconds);
 
+protected:
 	/** State that the character is in. Determines whether the character can switch from one state to another. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
 	ECharacterState CharacterState;
 
 	/** State of character's movement. Determines whether the character can walk/run/jump. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
 	EMovementState MovementState;
 
 	/** State that the character's weapon is in. Determines whether the weapon is sheathed/unsheathed. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
 	EWeaponState WeaponState;
 
+public:
+	/** Gets the character state. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
+	ECharacterState GetCharacterState() const;
 
+	/** Gets the movement state. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
+	EMovementState GetMovementState() const;
+
+	/** Gets the weapon state. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
+	EWeaponState GetWeaponState() const;
+
+public:
 	/** Current health of the character.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float Health;

@@ -5,6 +5,7 @@
 #include "Globals.h"
 #include "Classes/Components/SphereComponent.h"
 #include "Interfaces/Damageable.h"
+#include "Components/AttackComponent.h"
 #include "AscensionCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -49,13 +50,16 @@ AAscensionCharacter::AAscensionCharacter()
 
 	// Setup the movement timelines.
 	TimelineToPlay = nullptr;
-	Light01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light01TimelineComponent"));;
-	Light02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light02TimelineComponent"));;
-	Light03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light03TimelineComponent"));;
-	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));;
-	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));;
-	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));;
-	DodgeTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("DodgeTimelineComponent"));;
+	Light01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light01TimelineComponent"));
+	Light02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light02TimelineComponent"));
+	Light03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light03TimelineComponent"));
+	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));
+	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));
+	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));
+	DodgeTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("DodgeTimelineComponent"));
+
+	// Setup attack component.
+	AttackComponent = CreateDefaultSubobject<UAttackComponent>(FName("Attack Component"));
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -162,6 +166,21 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+ECharacterState AAscensionCharacter::GetCharacterState() const
+{
+	return CharacterState;
+}
+
+EMovementState AAscensionCharacter::GetMovementState() const
+{
+	return MovementState;
+}
+
+EWeaponState AAscensionCharacter::GetWeaponState() const
+{
+	return WeaponState;
+}
+
 void AAscensionCharacter::OnResetVR()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
@@ -262,20 +281,26 @@ void AAscensionCharacter::LightAttack()
 {
 	if (CanAttack())
 	{
-		AttackToPerform = NullAttack;
-		SelectAttack(FString("Light Attack"));
-
-		if (AttackToPerform.AnimMontage != nullptr)
+		if (AttackComponent)
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			ActionDirection = MovementIntent;
-			SetTurningRate(ActionTurnRate);
-			SetMovementSpeed(AttackToPerform.Speed);
-			SetAcceleration(AttackToPerform.Acceleration);
-			PlayAnimMontage(AttackToPerform.AnimMontage);
-			//ComboMeter++;
+			AttackComponent->LightAttack(MovementIntent);
 		}
+
+		//AttackToPerform = NullAttack;
+		//SelectAttack(FString("Light Attack"));
+
+		//if (AttackToPerform.AnimMontage != nullptr)
+		//{
+		//	CharacterState = ECharacterState::CS_Attacking;
+		//	CanMove = false;
+		//	ActionDirection = MovementIntent;
+		//	SetTurningRate(ActionTurnRate);
+		//	SetMovementSpeed(AttackToPerform.Speed);
+		//	SetAcceleration(AttackToPerform.Acceleration);
+		//	PlayAnimMontage(AttackToPerform.AnimMontage);
+		//}
 	}
 }
 
@@ -283,20 +308,26 @@ void AAscensionCharacter::StrongAttack()
 {
 	if (CanAttack())
 	{
-		AttackToPerform = NullAttack;
-		SelectAttack(FString("Strong Attack"));
-		
-		if (AttackToPerform.AnimMontage != nullptr)
+		if (AttackComponent)
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			ActionDirection = MovementIntent;
-			SetTurningRate(ActionTurnRate);
-			SetMovementSpeed(AttackToPerform.Speed);
-			SetAcceleration(AttackToPerform.Acceleration);
-			PlayAnimMontage(AttackToPerform.AnimMontage);
-			//ComboMeter++;
+			AttackComponent->StrongAttack(MovementIntent);
 		}
+
+		//AttackToPerform = NullAttack;
+		//SelectAttack(FString("Strong Attack"));
+		//
+		//if (AttackToPerform.AnimMontage != nullptr)
+		//{
+		//	CharacterState = ECharacterState::CS_Attacking;
+		//	CanMove = false;
+		//	ActionDirection = MovementIntent;
+		//	SetTurningRate(ActionTurnRate);
+		//	SetMovementSpeed(AttackToPerform.Speed);
+		//	SetAcceleration(AttackToPerform.Acceleration);
+		//	PlayAnimMontage(AttackToPerform.AnimMontage);
+		//}
 	}
 }
 
@@ -551,10 +582,15 @@ void AAscensionCharacter::ApplySwordEffect(AActor* OtherActor)
 {
 	if (DamageEnabled)
 	{
-		if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+		if (AttackComponent)
 		{
-			IDamageable::Execute_ApplyHitEffect(OtherActor, this, AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
+			AttackComponent->ApplySwordEffect(this, OtherActor);
 		}
+
+		//if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+		//{
+		//	IDamageable::Execute_ApplyHitEffect(OtherActor, this, AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
+		//}
 	}
 }
 
@@ -569,13 +605,20 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 void AAscensionCharacter::ResetCombo_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
-	ComboMeter = 0;
-	CanChain = false;
-	TimelineToPlay = nullptr;
-	ResetMovementSpeed();
-	ResetTurningRate();
-	ResetAcceleration();
 	CanMove = true;
+
+	if (AttackComponent)
+	{
+		AttackComponent->ResetCombo();
+	}
+
+	CanChain = false;
+
+	//ComboMeter = 0;
+	//TimelineToPlay = nullptr;
+	//ResetMovementSpeed();
+	//ResetTurningRate();
+	//ResetAcceleration();
 }
 
 void AAscensionCharacter::ResetDodge_Implementation()
@@ -597,35 +640,60 @@ void AAscensionCharacter::DodgeMovement_Implementation()
 
 void AAscensionCharacter::AttackMovement_Implementation()
 {
-	if (TimelineToPlay != nullptr)
+	if (AttackComponent)
 	{
-		TimelineToPlay->PlayFromStart();
+		AttackComponent->AttackMovement();
 	}
+
+	//if (TimelineToPlay != nullptr)
+	//{
+	//	TimelineToPlay->PlayFromStart();
+	//}
 }
 
 void AAscensionCharacter::LimitTurn_Implementation()
 {
-	StopTurning();
+	if (AttackComponent)
+	{
+		AttackComponent->LimitTurn();
+	}
+	//StopTurning();
 }
 
 void AAscensionCharacter::ResetTurn_Implementation()
 {
-	ResetTurningRate();
+	if (AttackComponent)
+	{
+		AttackComponent->ResetTurn();
+	}
+	//ResetTurningRate();
 }
 
 void AAscensionCharacter::CanChainAttack_Implementation()
 {
+	if (AttackComponent)
+	{
+		AttackComponent->CanChainAttack();
+	}
 	CanChain = true;
 }
 
 void AAscensionCharacter::SetFlyable_Implementation()
 {
-	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
+	if (AttackComponent)
+	{
+		AttackComponent->SetFlyable();
+	}
+	//GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
 }
 
 void AAscensionCharacter::ResetFlyable_Implementation()
 {
-	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+	if (AttackComponent)
+	{
+		AttackComponent->ResetFlyable();
+	}
+	//GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 }
 
 void AAscensionCharacter::EnableDamage_Implementation()
@@ -640,7 +708,11 @@ void AAscensionCharacter::DisableDamage_Implementation()
 
 void AAscensionCharacter::FinalizeAttackDirection_Implementation()
 {
-	ActionDirection = MovementIntent;
+	if (AttackComponent)
+	{
+		AttackComponent->FinalizeAttackDirection(MovementIntent);
+	}
+	//ActionDirection = MovementIntent;
 }
 
 void AAscensionCharacter::Sheathed_Implementation() {}
