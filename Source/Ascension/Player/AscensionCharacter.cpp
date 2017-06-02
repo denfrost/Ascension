@@ -38,7 +38,6 @@ AAscensionCharacter::AAscensionCharacter()
 	ActionTurnRate = 2048.0f;
 
 	// Set gameplay variables.
-	ComboMeter = 0;
 	CanChain = false;
 	ShouldCharSwitch = false;
 	CanMove = true;
@@ -48,18 +47,8 @@ AAscensionCharacter::AAscensionCharacter()
 	LockedOn = false;
 	LockedActor = nullptr;
 
-	// Setup the movement timelines.
-	TimelineToPlay = nullptr;
-	Light01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light01TimelineComponent"));
-	Light02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light02TimelineComponent"));
-	Light03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light03TimelineComponent"));
-	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));
-	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));
-	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));
+	// Setup dodge movement timeline.
 	DodgeTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("DodgeTimelineComponent"));
-
-	// Setup attack component.
-	AttackComponent = CreateDefaultSubobject<UAttackComponent>(FName("Attack Component"));
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -84,6 +73,9 @@ AAscensionCharacter::AAscensionCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 	
+	// Setup attack component.
+	AttackComponent = CreateDefaultSubobject<UAttackComponent>(FName("AttackComponent"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -132,12 +124,6 @@ void AAscensionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupTimelineComponent(Light01Timeline, LightAttack01.MovementCurve);
-	SetupTimelineComponent(Light02Timeline, LightAttack02.MovementCurve);
-	SetupTimelineComponent(Light03Timeline, LightAttack03.MovementCurve);
-	SetupTimelineComponent(Strong01Timeline, StrongAttack01.MovementCurve);
-	SetupTimelineComponent(Strong02Timeline, StrongAttack02.MovementCurve);
-	SetupTimelineComponent(Strong03Timeline, StrongAttack03.MovementCurve);
 	SetupTimelineComponent(DodgeTimeline, DodgeMove.MovementCurve);
 }
 
@@ -287,20 +273,6 @@ void AAscensionCharacter::LightAttack()
 			CanMove = false;
 			AttackComponent->LightAttack(MovementIntent);
 		}
-
-		//AttackToPerform = NullAttack;
-		//SelectAttack(FString("Light Attack"));
-
-		//if (AttackToPerform.AnimMontage != nullptr)
-		//{
-		//	CharacterState = ECharacterState::CS_Attacking;
-		//	CanMove = false;
-		//	ActionDirection = MovementIntent;
-		//	SetTurningRate(ActionTurnRate);
-		//	SetMovementSpeed(AttackToPerform.Speed);
-		//	SetAcceleration(AttackToPerform.Acceleration);
-		//	PlayAnimMontage(AttackToPerform.AnimMontage);
-		//}
 	}
 }
 
@@ -314,20 +286,6 @@ void AAscensionCharacter::StrongAttack()
 			CanMove = false;
 			AttackComponent->StrongAttack(MovementIntent);
 		}
-
-		//AttackToPerform = NullAttack;
-		//SelectAttack(FString("Strong Attack"));
-		//
-		//if (AttackToPerform.AnimMontage != nullptr)
-		//{
-		//	CharacterState = ECharacterState::CS_Attacking;
-		//	CanMove = false;
-		//	ActionDirection = MovementIntent;
-		//	SetTurningRate(ActionTurnRate);
-		//	SetMovementSpeed(AttackToPerform.Speed);
-		//	SetAcceleration(AttackToPerform.Acceleration);
-		//	PlayAnimMontage(AttackToPerform.AnimMontage);
-		//}
 	}
 }
 
@@ -474,110 +432,6 @@ float AAscensionCharacter::GetHealthPercentage() const
 	return Health / MaxHealth;
 }
 
-void AAscensionCharacter::SelectAttack(FString AttackType)
-{
-	if (AttackType.Equals(FString("Light Attack")))
-	{
-		switch (ComboMeter)
-		{
-		case 0:
-			ComboMeter++;
-			AttackToPerform = LightAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light01Timeline;
-			break;
-
-		case 1:
-			ComboMeter++;
-			AttackToPerform = LightAttack02;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light02Timeline;
-			break;
-
-		case 2:
-			ComboMeter++;
-			AttackToPerform = LightAttack03;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light03Timeline;
-			break;
-
-		default:
-			ComboMeter = 1;
-			AttackToPerform = LightAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light01Timeline;
-			break;
-		}
-	}
-	
-	else if (AttackType.Equals(FString("Strong Attack")))
-	{
-		switch (ComboMeter)
-		{
-		case 0:
-			ComboMeter++;
-			AttackToPerform = StrongAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong01Timeline;
-			break;
-
-		case 1:
-			ComboMeter++;
-			AttackToPerform = StrongAttack02;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong02Timeline;
-			break;
-
-		case 2:
-			ComboMeter++;
-			AttackToPerform = StrongAttack03;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong03Timeline;
-			break;
-
-		case 3:
-			ComboMeter++;
-			AttackToPerform = StrongAttack04;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			break;
-
-		default:
-			ComboMeter = 1;
-			AttackToPerform = StrongAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong01Timeline;
-			break;
-		}
-	}
-}
-
 void AAscensionCharacter::ApplySwordEffect(AActor* OtherActor)
 {
 	if (DamageEnabled)
@@ -586,11 +440,6 @@ void AAscensionCharacter::ApplySwordEffect(AActor* OtherActor)
 		{
 			AttackComponent->ApplySwordEffect(this, OtherActor);
 		}
-
-		//if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
-		//{
-		//	IDamageable::Execute_ApplyHitEffect(OtherActor, this, AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
-		//}
 	}
 }
 
@@ -613,12 +462,6 @@ void AAscensionCharacter::ResetCombo_Implementation()
 	}
 
 	CanChain = false;
-
-	//ComboMeter = 0;
-	//TimelineToPlay = nullptr;
-	//ResetMovementSpeed();
-	//ResetTurningRate();
-	//ResetAcceleration();
 }
 
 void AAscensionCharacter::ResetDodge_Implementation()
@@ -644,11 +487,6 @@ void AAscensionCharacter::AttackMovement_Implementation()
 	{
 		AttackComponent->AttackMovement();
 	}
-
-	//if (TimelineToPlay != nullptr)
-	//{
-	//	TimelineToPlay->PlayFromStart();
-	//}
 }
 
 void AAscensionCharacter::LimitTurn_Implementation()
@@ -657,7 +495,6 @@ void AAscensionCharacter::LimitTurn_Implementation()
 	{
 		AttackComponent->LimitTurn();
 	}
-	//StopTurning();
 }
 
 void AAscensionCharacter::ResetTurn_Implementation()
@@ -666,7 +503,6 @@ void AAscensionCharacter::ResetTurn_Implementation()
 	{
 		AttackComponent->ResetTurn();
 	}
-	//ResetTurningRate();
 }
 
 void AAscensionCharacter::CanChainAttack_Implementation()
@@ -684,7 +520,6 @@ void AAscensionCharacter::SetFlyable_Implementation()
 	{
 		AttackComponent->SetFlyable();
 	}
-	//GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
 }
 
 void AAscensionCharacter::ResetFlyable_Implementation()
@@ -693,7 +528,6 @@ void AAscensionCharacter::ResetFlyable_Implementation()
 	{
 		AttackComponent->ResetFlyable();
 	}
-	//GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 }
 
 void AAscensionCharacter::EnableDamage_Implementation()
@@ -712,7 +546,6 @@ void AAscensionCharacter::FinalizeAttackDirection_Implementation()
 	{
 		AttackComponent->FinalizeAttackDirection(MovementIntent);
 	}
-	//ActionDirection = MovementIntent;
 }
 
 void AAscensionCharacter::Sheathed_Implementation() {}

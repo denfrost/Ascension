@@ -23,7 +23,7 @@ class AAscensionCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 	/** Component handling attacks. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UAttackComponent* AttackComponent;
 
 public:
@@ -102,10 +102,6 @@ public:
 	/** Turn rate of the character when performing an action. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float ActionTurnRate;
-
-	/** Meter tracking the player's attack combo count. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	int ComboMeter;
 
 	/** Set to true if the character can chain an attack. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
@@ -246,7 +242,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void TimelineMovement(float Speed);
 
-	/** A function that sets up the timeline for an attack move. */
+	/** A function that sets up the timeline for an attack/dodge move. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve);
 
@@ -257,71 +253,9 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 protected:
-	// TODO: Move attacks into a separate component.
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack LightAttack01;
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack LightAttack02;
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack LightAttack03;
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack StrongAttack01;
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack StrongAttack02;
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack StrongAttack03;
-
-	/** Attack anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack StrongAttack04;
-
-	/** Attack to be performed. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack AttackToPerform;
-
-	/** Used for comparison purposes. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack NullAttack;
-
 	/** Dodge anim montage. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	FPlayerAnimation DodgeMove;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* Light01Timeline;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* Light02Timeline;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* Light03Timeline;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* Strong01Timeline;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* Strong02Timeline;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* Strong03Timeline;
 
 	/** A timeline for movement. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
@@ -334,10 +268,6 @@ protected:
 	/** Function that returns the percentage of health the character has left. */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
 	float GetHealthPercentage() const;
-
-	/** Function to select the attack to perform next. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SelectAttack(FString AttackType);
 
 	/** Function to apply an attack's effects to the hit actor. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")

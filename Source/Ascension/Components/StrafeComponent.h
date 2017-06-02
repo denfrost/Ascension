@@ -6,7 +6,7 @@
 #include "StrafeComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ASCENSION_API UStrafeComponent : public UActorComponent
 {
 	GENERATED_BODY()

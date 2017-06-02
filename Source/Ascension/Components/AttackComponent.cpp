@@ -32,8 +32,6 @@ UAttackComponent::UAttackComponent()
 	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));
 	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));
 	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));
-
-	// ...
 }
 
 
@@ -255,7 +253,6 @@ void UAttackComponent::SelectAttack(FString AttackType)
 }
 
 
-
 void UAttackComponent::ResetCombo_Implementation()
 {
 	ComboMeter = 0;
@@ -265,6 +262,7 @@ void UAttackComponent::ResetCombo_Implementation()
 	ResetTurningRate();
 	ResetAcceleration();
 }
+
 
 void UAttackComponent::AttackMovement_Implementation()
 {
