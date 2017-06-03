@@ -171,27 +171,35 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	/** Called for the player to sprint. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Sprint();
 
 	/** Called for the player to stop sprinting. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void StopSprinting();
 
 	/** Called for the player to jump. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Jump();
 
 	/** Called for the player to stop jumping. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void StopJumping();
 
 	/** Called for the player to perform a light attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void LightAttack();
 
 	/** Called for the player to perform a strong attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void StrongAttack();
 
 	/** Called for the player to dodge. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Dodge();
 
 	/** Called for the character to sheath/unsheath weapon. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SwitchWeapon();
 
 	/** Called to stop player movement. */
@@ -270,7 +278,7 @@ protected:
 	float GetHealthPercentage() const;
 
 	/** Function to apply an attack's effects to the hit actor. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ApplySwordEffect(AActor* OtherActor);
 
 public:

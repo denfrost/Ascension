@@ -61,6 +61,7 @@ void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, co
 	int AttackIndex = Attacks.Num() - 1;
 
 	UTimelineComponent* AttackTimeline = NewObject<UTimelineComponent>(this, FName(*AttackName));
+	AttackTimeline->RegisterComponent();
 	SetupTimelineComponent(AttackTimeline, Attack.MovementCurve);
 	AttackTimelines.Add(AttackTimeline);
 
@@ -134,7 +135,7 @@ void UAttackComponent::SetupTimelineComponent(UTimelineComponent* TimelineCompon
 }
 
 
-void UAttackComponent::LightAttack(FVector MovementIntent)
+void UAttackComponent::LightAttack_Implementation(const FVector& MovementIntent)
 {
 	AttackToPerform = NullAttack;
 	SelectAttack(FString("Light Attack"));
@@ -149,7 +150,7 @@ void UAttackComponent::LightAttack(FVector MovementIntent)
 	}
 }
 
-void UAttackComponent::StrongAttack(FVector MovementIntent)
+void UAttackComponent::StrongAttack_Implementation(const FVector& MovementIntent)
 {
 	AttackToPerform = NullAttack;
 	SelectAttack(FString("Strong Attack"));
@@ -285,6 +286,10 @@ void UAttackComponent::AttackMovement_Implementation()
 	{
 		TimelineToPlay->PlayFromStart();
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Timeline not created properly."))
+	}
 }
 
 void UAttackComponent::LimitTurn_Implementation()
@@ -318,7 +323,7 @@ void UAttackComponent::FinalizeAttackDirection_Implementation(FVector MovementIn
 	ActionDirection = MovementIntent;
 }
 
-void UAttackComponent::ApplySwordEffect(AActor* Source, AActor* OtherActor)
+void UAttackComponent::ApplySwordEffect_Implementation(AActor* Source, AActor* OtherActor)
 {
 	if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{

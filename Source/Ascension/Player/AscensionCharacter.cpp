@@ -230,7 +230,7 @@ void AAscensionCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AAscensionCharacter::Sprint()
+void AAscensionCharacter::Sprint_Implementation()
 {
 	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
 	{
@@ -264,7 +264,7 @@ void AAscensionCharacter::StopJumping()
 	}
 }
 
-void AAscensionCharacter::LightAttack()
+void AAscensionCharacter::LightAttack_Implementation()
 {
 	if (CanAttack())
 	{
@@ -277,7 +277,7 @@ void AAscensionCharacter::LightAttack()
 	}
 }
 
-void AAscensionCharacter::StrongAttack()
+void AAscensionCharacter::StrongAttack_Implementation()
 {
 	if (CanAttack())
 	{
@@ -290,7 +290,7 @@ void AAscensionCharacter::StrongAttack()
 	}
 }
 
-void AAscensionCharacter::Dodge()
+void AAscensionCharacter::Dodge_Implementation()
 {
 	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
 	{
@@ -433,7 +433,7 @@ float AAscensionCharacter::GetHealthPercentage() const
 	return Health / MaxHealth;
 }
 
-void AAscensionCharacter::ApplySwordEffect(AActor* OtherActor)
+void AAscensionCharacter::ApplySwordEffect_Implementation(AActor* OtherActor)
 {
 	if (DamageEnabled)
 	{

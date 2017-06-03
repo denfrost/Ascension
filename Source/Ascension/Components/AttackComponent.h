@@ -65,12 +65,12 @@ public:
 
 public:
 	/** Called for the player to perform a light attack. */
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void LightAttack(FVector MovementIntent);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
+	void LightAttack(const FVector& MovementIntent);
 
 	/** Called for the player to perform a strong attack. */
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StrongAttack(FVector MovementIntent);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
+	void StrongAttack(const FVector& MovementIntent);
 
 	/** Function to select the attack to perform next. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
@@ -123,7 +123,7 @@ public:
 	void FinalizeAttackDirection(FVector MovementIntent);
 
 	/** Function to apply an attack's effects to the hit actor. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ApplySwordEffect(AActor* Source, AActor* OtherActor);
 
 protected:
