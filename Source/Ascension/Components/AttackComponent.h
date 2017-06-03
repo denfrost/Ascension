@@ -8,7 +8,7 @@
 #include "AttackComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ASCENSION_API UAttackComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -60,6 +60,10 @@ public:
 	FVector ActionDirection;
 
 public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Initialization")
+	void CreateAttack(const FString& AttackName, const FAttack& Attack);
+
+public:
 	/** Called for the player to perform a light attack. */
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void LightAttack(FVector MovementIntent);
@@ -69,8 +73,8 @@ public:
 	void StrongAttack(FVector MovementIntent);
 
 	/** Function to select the attack to perform next. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SelectAttack(FString AttackType);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void SelectAttack(const FString& AttackType);
 
 	/** Event called when a combo is finished/reset.
 	* Performs necessary actions after a combo is completed.
@@ -237,6 +241,19 @@ protected:
 	/** A timeline for movement. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timelines")
 	UTimelineComponent* Strong03Timeline;
+
+protected:
+	/** Array containing the attacks. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
+	TArray<FAttack> Attacks;
+
+	/** Array containing movement timlines. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timelines")
+	TArray<UTimelineComponent*> AttackTimelines;
+
+	/** Structure that maps attack names to their respective indices. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
+	TMap<FString, int> AttackNameMap;
 
 private:
 	/** The component's owner. */

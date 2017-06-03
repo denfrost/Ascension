@@ -32,6 +32,11 @@ UAttackComponent::UAttackComponent()
 	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));
 	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));
 	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));
+
+	// Clear maps and arrays.
+	Attacks.Empty();
+	AttackTimelines.Empty();
+	AttackNameMap.Empty();
 }
 
 
@@ -50,6 +55,17 @@ void UAttackComponent::BeginPlay()
 	SetupTimelineComponent(Strong03Timeline, StrongAttack03.MovementCurve);
 }
 
+void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttack& Attack)
+{
+	//Attacks.Add(Attack);
+	int AttackIndex = Attacks.Num() - 1;
+
+	//UTimelineComponent* AttackTimeline = NewObject<UTimelineComponent>(this, FName(*AttackName));
+	//SetupTimelineComponent(AttackTimeline, Attack.MovementCurve);
+	//AttackTimelines.Add(AttackTimeline);
+
+	AttackNameMap.Add(AttackName, AttackIndex);
+}
 
 void UAttackComponent::StopMovement()
 {
@@ -148,7 +164,7 @@ void UAttackComponent::StrongAttack(FVector MovementIntent)
 	}
 }
 
-void UAttackComponent::SelectAttack(FString AttackType)
+void UAttackComponent::SelectAttack_Implementation(const FString& AttackType)
 {
 	if (AttackType.Equals(FString("Light Attack")))
 	{
@@ -251,7 +267,6 @@ void UAttackComponent::SelectAttack(FString AttackType)
 		}
 	}
 }
-
 
 void UAttackComponent::ResetCombo_Implementation()
 {
