@@ -244,15 +244,15 @@ protected:
 
 protected:
 	/** Array containing the attacks. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TArray<FAttack> Attacks;
 
 	/** Array containing movement timlines. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
 	TArray<UTimelineComponent*> AttackTimelines;
 
 	/** Structure that maps attack names to their respective indices. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TMap<FString, int> AttackNameMap;
 
 private:

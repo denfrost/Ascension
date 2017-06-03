@@ -57,12 +57,12 @@ void UAttackComponent::BeginPlay()
 
 void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttack& Attack)
 {
-	//Attacks.Add(Attack);
+	Attacks.Add(Attack);
 	int AttackIndex = Attacks.Num() - 1;
 
-	//UTimelineComponent* AttackTimeline = NewObject<UTimelineComponent>(this, FName(*AttackName));
-	//SetupTimelineComponent(AttackTimeline, Attack.MovementCurve);
-	//AttackTimelines.Add(AttackTimeline);
+	UTimelineComponent* AttackTimeline = NewObject<UTimelineComponent>(this, FName(*AttackName));
+	SetupTimelineComponent(AttackTimeline, Attack.MovementCurve);
+	AttackTimelines.Add(AttackTimeline);
 
 	AttackNameMap.Add(AttackName, AttackIndex);
 }
