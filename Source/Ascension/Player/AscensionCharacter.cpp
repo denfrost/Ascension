@@ -72,10 +72,8 @@ AAscensionCharacter::AAscensionCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-	
-	// Setup attack component.
-	AttackComponent = CreateDefaultSubobject<UAttackComponent>(FName("AttackComponent"));
-	AttackComponent->RegisterComponent();
+
+	AttackComponent = nullptr;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -272,7 +270,7 @@ void AAscensionCharacter::LightAttack_Implementation()
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			AttackComponent->LightAttack(MovementIntent);
+			AttackComponent->Attack(FString("Light Attack"), MovementIntent);
 		}
 	}
 }
@@ -285,7 +283,7 @@ void AAscensionCharacter::StrongAttack_Implementation()
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			AttackComponent->StrongAttack(MovementIntent);
+			AttackComponent->Attack(FString("Strong Attack"), MovementIntent);
 		}
 	}
 }
@@ -433,13 +431,13 @@ float AAscensionCharacter::GetHealthPercentage() const
 	return Health / MaxHealth;
 }
 
-void AAscensionCharacter::ApplySwordEffect_Implementation(AActor* OtherActor)
+void AAscensionCharacter::ApplyDamageEffect_Implementation(AActor* OtherActor)
 {
 	if (DamageEnabled)
 	{
 		if (AttackComponent)
 		{
-			AttackComponent->ApplySwordEffect(this, OtherActor);
+			AttackComponent->ApplyDamageEffect(this, OtherActor);
 		}
 	}
 }
@@ -452,14 +450,14 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 	ResetTurningRate();
 }
 
-void AAscensionCharacter::ResetCombo_Implementation()
+void AAscensionCharacter::Reset_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
 	CanMove = true;
 
 	if (AttackComponent)
 	{
-		AttackComponent->ResetCombo();
+		AttackComponent->Reset();
 	}
 
 	CanChain = false;
@@ -508,10 +506,6 @@ void AAscensionCharacter::ResetTurn_Implementation()
 
 void AAscensionCharacter::CanChainAttack_Implementation()
 {
-	if (AttackComponent)
-	{
-		AttackComponent->CanChainAttack();
-	}
 	CanChain = true;
 }
 

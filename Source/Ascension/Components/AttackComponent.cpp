@@ -22,16 +22,9 @@ UAttackComponent::UAttackComponent()
 
 	// Set gameplay variables.
 	ComboMeter = 0;
-	CanChain = false;
 
 	// Setup the movement timelines.
 	TimelineToPlay = nullptr;
-	Light01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light01TimelineComponent"));
-	Light02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light02TimelineComponent"));
-	Light03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Light03TimelineComponent"));
-	Strong01Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong01TimelineComponent"));
-	Strong02Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong02TimelineComponent"));
-	Strong03Timeline = CreateDefaultSubobject<UTimelineComponent>(FName("Strong03TimelineComponent"));
 
 	// Clear maps and arrays.
 	Attacks.Empty();
@@ -46,13 +39,6 @@ void UAttackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Owner = Cast<ACharacter>(GetOwner());
-
-	SetupTimelineComponent(Light01Timeline, LightAttack01.MovementCurve);
-	SetupTimelineComponent(Light02Timeline, LightAttack02.MovementCurve);
-	SetupTimelineComponent(Light03Timeline, LightAttack03.MovementCurve);
-	SetupTimelineComponent(Strong01Timeline, StrongAttack01.MovementCurve);
-	SetupTimelineComponent(Strong02Timeline, StrongAttack02.MovementCurve);
-	SetupTimelineComponent(Strong03Timeline, StrongAttack03.MovementCurve);
 }
 
 void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttack& Attack)
@@ -135,10 +121,10 @@ void UAttackComponent::SetupTimelineComponent(UTimelineComponent* TimelineCompon
 }
 
 
-void UAttackComponent::LightAttack_Implementation(const FVector& MovementIntent)
+void UAttackComponent::Attack_Implementation(const FString& AttackName, const FVector& MovementIntent)
 {
 	AttackToPerform = NullAttack;
-	SelectAttack(FString("Light Attack"));
+	SelectAttack(AttackName);
 
 	if (AttackToPerform.AnimMontage != nullptr)
 	{
@@ -150,129 +136,11 @@ void UAttackComponent::LightAttack_Implementation(const FVector& MovementIntent)
 	}
 }
 
-void UAttackComponent::StrongAttack_Implementation(const FVector& MovementIntent)
-{
-	AttackToPerform = NullAttack;
-	SelectAttack(FString("Strong Attack"));
+void UAttackComponent::SelectAttack_Implementation(const FString& AttackType) {}
 
-	if (AttackToPerform.AnimMontage != nullptr)
-	{
-		ActionDirection = MovementIntent;
-		SetTurningRate(ActionTurnRate);
-		SetMovementSpeed(AttackToPerform.Speed);
-		SetAcceleration(AttackToPerform.Acceleration);
-		Owner->PlayAnimMontage(AttackToPerform.AnimMontage);
-	}
-}
-
-void UAttackComponent::SelectAttack_Implementation(const FString& AttackType)
-{
-	if (AttackType.Equals(FString("Light Attack")))
-	{
-		switch (ComboMeter)
-		{
-		case 0:
-			ComboMeter++;
-			AttackToPerform = LightAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light01Timeline;
-			break;
-
-		case 1:
-			ComboMeter++;
-			AttackToPerform = LightAttack02;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light02Timeline;
-			break;
-
-		case 2:
-			ComboMeter++;
-			AttackToPerform = LightAttack03;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light03Timeline;
-			break;
-
-		default:
-			ComboMeter = 1;
-			AttackToPerform = LightAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Light01Timeline;
-			break;
-		}
-	}
-
-	else if (AttackType.Equals(FString("Strong Attack")))
-	{
-		switch (ComboMeter)
-		{
-		case 0:
-			ComboMeter++;
-			AttackToPerform = StrongAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong01Timeline;
-			break;
-
-		case 1:
-			ComboMeter++;
-			AttackToPerform = StrongAttack02;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong02Timeline;
-			break;
-
-		case 2:
-			ComboMeter++;
-			AttackToPerform = StrongAttack03;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong03Timeline;
-			break;
-
-		case 3:
-			ComboMeter++;
-			AttackToPerform = StrongAttack04;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			break;
-
-		default:
-			ComboMeter = 1;
-			AttackToPerform = StrongAttack01;
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
-			TimelineToPlay = Strong01Timeline;
-			break;
-		}
-	}
-}
-
-void UAttackComponent::ResetCombo_Implementation()
+void UAttackComponent::Reset_Implementation()
 {
 	ComboMeter = 0;
-	CanChain = false;
 	TimelineToPlay = nullptr;
 	ResetMovementSpeed();
 	ResetTurningRate();
@@ -302,12 +170,6 @@ void UAttackComponent::ResetTurn_Implementation()
 	ResetTurningRate();
 }
 
-void UAttackComponent::CanChainAttack_Implementation()
-{
-	CanChain = true;
-}
-
-
 void UAttackComponent::SetFlyable_Implementation()
 {
 	Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
@@ -323,7 +185,7 @@ void UAttackComponent::FinalizeAttackDirection_Implementation(FVector MovementIn
 	ActionDirection = MovementIntent;
 }
 
-void UAttackComponent::ApplySwordEffect_Implementation(AActor* Source, AActor* OtherActor)
+void UAttackComponent::ApplyDamageEffect_Implementation(AActor* Source, AActor* OtherActor)
 {
 	if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{

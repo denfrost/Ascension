@@ -23,7 +23,7 @@ class AAscensionCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 	/** Component handling attacks. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UAttackComponent* AttackComponent;
 
 public:
@@ -279,7 +279,7 @@ protected:
 
 	/** Function to apply an attack's effects to the hit actor. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ApplySwordEffect(AActor* OtherActor);
+	void ApplyDamageEffect(AActor* OtherActor);
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -292,7 +292,7 @@ public:
 	  * Performs necessary actions after a combo is completed.
 	  */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ResetCombo();
+	void Reset();
 
 	/** Event called when a dodge is finished.
 	 * Performs necessary actions after a dodge is completed.
