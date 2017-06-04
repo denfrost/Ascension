@@ -22,17 +22,9 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
-	/** Speed at which the character walks. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float WalkSpeed;
-
 	/** Normal speed of the character. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalSpeed;
-
-	/** Speed at which the character runs. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float SprintSpeed;
 
 	/** Acceleration of the character. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -46,32 +38,36 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float ActionTurnRate;
 
-	/** Meter tracking the character's attack combo count. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	int ComboMeter;
-
 	/** The direction the character should perform an action. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector ActionDirection;
 
 public:
+	/** Creates an attack and adds it's details to the respective lists. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Initialization")
 	void CreateAttack(const FString& AttackName, const FAttack& Attack);
+
+	/** Retrieves the specified attack. Found is set to true if the attack is valid. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void GetAttack(const FString& AttackName, bool& Found, FAttack& Attack, UTimelineComponent*& AttackTimeline);
 
 public:
 	/** Called for the character to perform the specified attack. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
 	void Attack(const FString& AttackName, const FVector& MovementIntent);
+	virtual void Attack_Implementation(const FString& AttackName, const FVector& MovementIntent);
 
 	/** Function to select the attack to perform next. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void SelectAttack(const FString& AttackType);
+	virtual void SelectAttack_Implementation(const FString& AttackType);
 
 	/** Event called when a combo is finished/reset.
 	* Performs necessary actions after a combo is completed.
 	*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Reset();
+	virtual void Reset_Implementation();
 
 	/** Plays the timeline for attack movement. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
@@ -110,6 +106,7 @@ public:
 	/** Function to apply an attack's effects to the hit actor. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ApplyDamageEffect(AActor* Source, AActor* OtherActor);
+	virtual void ApplyDamageEffect_Implementation(AActor* Source, AActor* OtherActor);
 
 protected:
 	/** Called to stop character movement. */
@@ -163,15 +160,21 @@ protected:
 
 
 protected:
-	/** Array containing the attacks. */
+	/** Array containing the attacks.
+	  * Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
+	  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TArray<FAttack> Attacks;
 
-	/** Array containing movement timlines. */
+	/** Array containing movement timlines.
+	  * Do NOT directly modify this. Use CreateAttack to add attack timelines to this instead.
+	  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
 	TArray<UTimelineComponent*> AttackTimelines;
 
-	/** Structure that maps attack names to their respective indices. */
+	/** Structure that maps attack names to their respective indices.
+	  * Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
+	  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TMap<FString, int> AttackNameMap;
 

@@ -13,15 +13,10 @@ UAttackComponent::UAttackComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// Set movement speeds.
-	WalkSpeed = 200.0f;
 	NormalSpeed = 500.0f;
-	SprintSpeed = 800.0f;
 	NormalAcceleration = 2048.0f;
 	NormalTurnRate = 540.0f;
 	ActionTurnRate = 2048.0f;
-
-	// Set gameplay variables.
-	ComboMeter = 0;
 
 	// Setup the movement timelines.
 	TimelineToPlay = nullptr;
@@ -52,6 +47,23 @@ void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, co
 	AttackTimelines.Add(AttackTimeline);
 
 	AttackNameMap.Add(AttackName, AttackIndex);
+}
+
+void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttack& Attack, UTimelineComponent*& AttackTimeline)
+{
+	int* Index = AttackNameMap.Find(AttackName);
+	if (Index)
+	{
+		Attack = Attacks[*Index];
+		AttackTimeline = AttackTimelines[*Index];
+		Found = true;
+	}
+	else
+	{
+		Attack = NullAttack;
+		AttackTimeline = nullptr;
+		Found = false;
+	}
 }
 
 void UAttackComponent::StopMovement()
@@ -140,7 +152,6 @@ void UAttackComponent::SelectAttack_Implementation(const FString& AttackType) {}
 
 void UAttackComponent::Reset_Implementation()
 {
-	ComboMeter = 0;
 	TimelineToPlay = nullptr;
 	ResetMovementSpeed();
 	ResetTurningRate();
