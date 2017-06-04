@@ -24,7 +24,7 @@ class AAscensionCharacter : public ACharacter
 
 	/** Component handling attacks. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UAttackComponent* AttackComponent;
+	class UPlayerAttackComponent* AttackComponent;
 
 public:
 	AAscensionCharacter();

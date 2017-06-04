@@ -5,7 +5,7 @@
 #include "Globals.h"
 #include "Classes/Components/SphereComponent.h"
 #include "Interfaces/Damageable.h"
-#include "Components/AttackComponent.h"
+#include "Components/PlayerAttackComponent.h"
 #include "AscensionCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////
