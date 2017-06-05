@@ -51,6 +51,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	void GetAttack(const FString& AttackName, bool& Found, FAttack& Attack, UTimelineComponent*& AttackTimeline);
 
+	/** Sets the specified attack as the attack to perform and sets movement-related parameters. */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void SetAttack(const bool& Found, const FAttack& Attack, UTimelineComponent* AttackTimeline);
+
 public:
 	/** Called for the character to perform the specified attack. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")

@@ -65,6 +65,25 @@ void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttack
 	}
 }
 
+void UAttackComponent::SetAttack(const bool& Found, const FAttack& Attack, UTimelineComponent* AttackTimeline)
+{
+	if (Found)
+	{
+		AttackToPerform = Attack;
+
+		if (TimelineToPlay != nullptr)
+		{
+			TimelineToPlay->Stop();
+		}
+
+		TimelineToPlay = AttackTimeline;
+	}
+	else
+	{
+		AttackToPerform = NullAttack;
+	}
+}
+
 void UAttackComponent::StopMovement()
 {
 	Owner->GetCharacterMovement()->MaxWalkSpeed = 0.0f;

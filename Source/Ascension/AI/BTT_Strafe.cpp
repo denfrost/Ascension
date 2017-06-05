@@ -14,6 +14,15 @@ UBTT_Strafe::UBTT_Strafe()
 
 EBTNodeResult::Type UBTT_Strafe::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
+	UStrafeComponent* StrafeComponent = OwnerComp.GetAIOwner()->GetPawn()->FindComponentByClass<UStrafeComponent>();
+	AActor* Enemy = Cast<AActor>(BlackboardComponent->GetValueAsObject(EnemyKey.SelectedKeyName));
+
+	if (StrafeComponent)
+	{
+		StrafeComponent->StrafeStart(Enemy);
+	}
+
 	return EBTNodeResult::InProgress;
 }
 
@@ -27,6 +36,12 @@ void UBTT_Strafe::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 		StrafeElapsedTime = 0.0f;
 
 		BlackboardComponent->SetValueAsBool(WantsAttackKey.SelectedKeyName, true);
+
+		UStrafeComponent* StrafeComponent = OwnerComp.GetAIOwner()->GetPawn()->FindComponentByClass<UStrafeComponent>();
+		if (StrafeComponent)
+		{
+			StrafeComponent->StrafeEnd();
+		}
 
 		OwnerComp.OnTaskFinished(this, EBTNodeResult::Succeeded);
 	}

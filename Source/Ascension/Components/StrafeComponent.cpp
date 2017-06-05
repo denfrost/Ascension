@@ -17,17 +17,44 @@ void UStrafeComponent::BeginPlay()
 {
 	Owner = Cast<ACharacter>(GetOwner());
 	Controller = Owner->GetController();
+	AIController = Cast<AAIController>(Controller);
+}
+
+void UStrafeComponent::StrafeStart(AActor* Enemy)
+{
+	if (AIController)
+	{
+		AIController->SetFocus(Enemy);
+	}
+	else
+	{
+		Owner->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	}
 }
 
 void UStrafeComponent::Strafe(AActor* Enemy)
 {
-	// Finding the direction to look at while strafing.
-	FRotator Direction = UKismetMathLibrary::FindLookAtRotation(Owner->GetActorLocation(), Enemy->GetActorLocation());
+	if (!AIController)
+	{
+		// Finding the direction to look at while strafing.
+		FRotator Direction = UKismetMathLibrary::FindLookAtRotation(Owner->GetActorLocation(), Enemy->GetActorLocation());
 
-	// Turn toward the enemy.
-	Controller->SetControlRotation(Direction);
-	Owner->SetActorRotation(Direction);
-
-	// Move around them.
+		// Turn toward the enemy.
+		Controller->SetControlRotation(Direction);
+	}
+	
+	// Move around enemy.
 	Owner->AddMovementInput(Owner->GetActorRightVector());
+}
+
+void UStrafeComponent::StrafeEnd()
+{
+	if (AIController)
+	{
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
+	else
+	{
+		Owner->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
 }
