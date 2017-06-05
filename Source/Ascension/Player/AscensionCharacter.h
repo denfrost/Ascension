@@ -198,6 +198,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Dodge();
 
+	/** Called for clearing damaged actors. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ClearDamagedActors();
+
 	/** Called for the character to sheath/unsheath weapon. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SwitchWeapon();
@@ -277,10 +281,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
 	float GetHealthPercentage() const;
 
-	/** Function to apply an attack's effects to the hit actor. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ApplyDamageEffect(AActor* OtherActor);
-
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -292,7 +292,7 @@ public:
 	  * Performs necessary actions after a combo is completed.
 	  */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void Reset();
+	void ResetAttack();
 
 	/** Event called when a dodge is finished.
 	 * Performs necessary actions after a dodge is completed.

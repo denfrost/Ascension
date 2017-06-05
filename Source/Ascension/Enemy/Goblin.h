@@ -19,6 +19,10 @@ class ASCENSION_API AGoblin : public AEnemy, public IDamageable, public ILockabl
 {
 	GENERATED_BODY()
 	
+	/** Component handling attacks. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UAttackComponent* AttackComponent;
+
 public:
 	AGoblin();
 
@@ -87,6 +91,19 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
 	bool IsDead();
 	virtual bool IsDead_Implementation() override;
+
+public:
+	/** Event called for character to attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Attack();
+
+	/** Event called for character to reset attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ResetAttack();
+
+	/** Event called when an attack is complete. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void AttackComplete();
 
 public:
 	/** Event called to play footstep sounds. */

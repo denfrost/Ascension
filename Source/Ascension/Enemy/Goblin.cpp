@@ -2,6 +2,7 @@
 
 #include "Ascension.h"
 #include "Goblin.h"
+#include "Components/AttackComponent.h"
 
 
 AGoblin::AGoblin()
@@ -9,6 +10,9 @@ AGoblin::AGoblin()
 	// Set character parameters.
 	Health = 100.0f;
 	MaxHealth = 100.0f;
+
+	// Initialize components.
+	AttackComponent = nullptr;
 }
 
 void AGoblin::GetHealthPercent_Implementation(float& HealthPercent)
@@ -77,6 +81,35 @@ void AGoblin::ExitCombat()
 }
 
 void AGoblin::ShowHitVisuals_Implementation() {}
+
+void AGoblin::Attack_Implementation()
+{
+	if (AttackComponent)
+	{
+		if (ActionState == EEnemyState::ES_Idle)
+		{
+			ActionState = EEnemyState::ES_Attacking;
+			GetCharacterMovement()->StopMovementImmediately();
+
+			AttackComponent->Attack(FString(), GetActorForwardVector());
+		}
+	}
+}
+
+void AGoblin::ResetAttack_Implementation()
+{
+	ActionState = EEnemyState::ES_Idle;
+
+	if (AttackComponent)
+	{
+		AttackComponent->Reset();
+	}
+}
+
+void AGoblin::AttackComplete_Implementation()
+{
+
+}
 
 void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
 {

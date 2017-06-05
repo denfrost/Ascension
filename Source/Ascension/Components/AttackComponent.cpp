@@ -9,13 +9,17 @@
 UAttackComponent::UAttackComponent()
 {
 	// Set this component to be initialized when the game starts, and to not be ticked every frame.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	// Set movement speeds.
 	NormalSpeed = 500.0f;
 	NormalAcceleration = 2048.0f;
 	NormalTurnRate = 540.0f;
 	ActionTurnRate = 2048.0f;
+
+	// Set gameplay variables.
+	AttackHitBox = nullptr;
+	DamagedActors.Empty();
 
 	// Setup the movement timelines.
 	TimelineToPlay = nullptr;
@@ -27,12 +31,19 @@ UAttackComponent::UAttackComponent()
 }
 
 
-// Called when the game starts
+// Called when the actor is in play.
 void UAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	Owner = Cast<ACharacter>(GetOwner());
+}
+
+void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttack& Attack)
@@ -171,6 +182,7 @@ void UAttackComponent::SelectAttack_Implementation(const FString& AttackType) {}
 void UAttackComponent::Reset_Implementation()
 {
 	TimelineToPlay = nullptr;
+	ClearDamagedActors();
 	ResetMovementSpeed();
 	ResetTurningRate();
 	ResetAcceleration();
@@ -187,6 +199,47 @@ void UAttackComponent::AttackMovement_Implementation()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Timeline not created properly."))
 	}
+}
+
+void UAttackComponent::EnableDamage_Implementation()
+{
+	GetWorld()->GetTimerManager().SetTimer(DamageTickTimerHandle, this, &UAttackComponent::AttackDamageTick, DamageTickDelay, true);
+}
+
+void UAttackComponent::AttackDamageTick_Implementation()
+{
+	if (AttackHitBox)
+	{
+		TArray<AActor*> OverlappingActors;
+		AttackHitBox->GetOverlappingActors(OverlappingActors);
+
+		for (int i = 0; i < OverlappingActors.Num(); i++)
+		{
+			AActor* OtherActor = OverlappingActors[i];
+
+			if (DamagedActors.Find(OtherActor) == INDEX_NONE && OtherActor != GetOwner())
+			{
+				if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+				{
+					IDamageable::Execute_ApplyHitEffect(OtherActor, GetOwner(), AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
+
+					UE_LOG(LogTemp, Warning, TEXT("Damaged another actor!"))
+
+					DamagedActors.Add(OtherActor);
+				}
+			}
+		}
+	}
+}
+
+void UAttackComponent::DisableDamage_Implementation()
+{
+	GetWorld()->GetTimerManager().ClearTimer(DamageTickTimerHandle);
+}
+
+void UAttackComponent::ClearDamagedActors_Implementation()
+{
+	DamagedActors.Empty();
 }
 
 void UAttackComponent::LimitTurn_Implementation()
@@ -212,12 +265,4 @@ void UAttackComponent::ResetFlyable_Implementation()
 void UAttackComponent::FinalizeAttackDirection_Implementation(FVector MovementIntent)
 {
 	ActionDirection = MovementIntent;
-}
-
-void UAttackComponent::ApplyDamageEffect_Implementation(AActor* Source, AActor* OtherActor)
-{
-	if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
-	{
-		IDamageable::Execute_ApplyHitEffect(OtherActor, Source, AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
-	}
 }

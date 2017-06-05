@@ -310,6 +310,14 @@ void AAscensionCharacter::Dodge_Implementation()
 	}
 }
 
+void AAscensionCharacter::ClearDamagedActors_Implementation()
+{
+	if (AttackComponent)
+	{
+		AttackComponent->ClearDamagedActors();
+	}
+}
+
 void AAscensionCharacter::SwitchWeapon()
 {
 	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
@@ -431,17 +439,6 @@ float AAscensionCharacter::GetHealthPercentage() const
 	return Health / MaxHealth;
 }
 
-void AAscensionCharacter::ApplyDamageEffect_Implementation(AActor* OtherActor)
-{
-	if (DamageEnabled)
-	{
-		if (AttackComponent)
-		{
-			AttackComponent->ApplyDamageEffect(this, OtherActor);
-		}
-	}
-}
-
 void AAscensionCharacter::SwitchComplete_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
@@ -450,7 +447,7 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 	ResetTurningRate();
 }
 
-void AAscensionCharacter::Reset_Implementation()
+void AAscensionCharacter::ResetAttack_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
 	CanMove = true;
@@ -528,11 +525,19 @@ void AAscensionCharacter::ResetFlyable_Implementation()
 void AAscensionCharacter::EnableDamage_Implementation()
 {
 	DamageEnabled = true;
+	if (AttackComponent)
+	{
+		AttackComponent->EnableDamage();
+	}
 }
 
 void AAscensionCharacter::DisableDamage_Implementation()
 {
 	DamageEnabled = false;
+	if (AttackComponent)
+	{
+		AttackComponent->DisableDamage();
+	}
 }
 
 void AAscensionCharacter::FinalizeAttackDirection_Implementation()

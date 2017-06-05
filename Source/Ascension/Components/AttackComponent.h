@@ -18,9 +18,61 @@ public:
 	UAttackComponent();
 
 protected:
-	// Called when the game starts
+	// Called when the component is in play.
 	virtual void BeginPlay() override;
+
+	// Called when the component exits play.
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
+protected:
+	/** Array containing the attacks.
+	* Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	TArray<FAttack> Attacks;
+
+	/** Array containing movement timlines.
+	* Do NOT directly modify this. Use CreateAttack to add attack timelines to this instead.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	TArray<UTimelineComponent*> AttackTimelines;
+
+	/** Structure that maps attack names to their respective indices.
+	* Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	TMap<FString, int> AttackNameMap;
+
+	/** Collision box that checks what actors are hit. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
+	UBoxComponent* AttackHitBox;
+
+	/** Array containing actors that have been damaged by this attack. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	TArray<AActor*> DamagedActors;
+
+protected:
+	/** Attack to be performed. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+	FAttack AttackToPerform;
+
+	/** Used for comparison purposes. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+	FAttack NullAttack;
+
+protected:
+	/** The timeline to be played. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	UTimelineComponent* TimelineToPlay;
+
+	/** Timer handle used for checking if characters are hit during the attack. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timers")
+	FTimerHandle DamageTickTimerHandle;
+
+	/** Delay between damage ticks. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Timers")
+	float DamageTickDelay = 0.025f;
+
 public:
 	/** Normal speed of the character. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -77,6 +129,22 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void AttackMovement();
 
+	/** Enables the attack to deal damage. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
+	void EnableDamage();
+
+	/** Checks which characters are overlapped by hit-box and damage them. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
+	void AttackDamageTick();
+
+	/** Disables the attack to stop dealing damage. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
+	void DisableDamage();
+
+	/** Clears the actors that have been damaged by the attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
+	void ClearDamagedActors();
+
 public:
 	/** Event called when rotation rate needs to be limited.
 	* Limits rotation rate.
@@ -106,11 +174,6 @@ public:
 	/** Finalizes character's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void FinalizeAttackDirection(FVector MovementIntent);
-
-	/** Function to apply an attack's effects to the hit actor. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ApplyDamageEffect(AActor* Source, AActor* OtherActor);
-	virtual void ApplyDamageEffect_Implementation(AActor* Source, AActor* OtherActor);
 
 protected:
 	/** Called to stop character movement. */
@@ -161,40 +224,6 @@ protected:
 	/** A function that sets up the timeline for an attack move. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve);
-
-
-protected:
-	/** Array containing the attacks.
-	  * Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
-	  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
-	TArray<FAttack> Attacks;
-
-	/** Array containing movement timlines.
-	  * Do NOT directly modify this. Use CreateAttack to add attack timelines to this instead.
-	  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	TArray<UTimelineComponent*> AttackTimelines;
-
-	/** Structure that maps attack names to their respective indices.
-	  * Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
-	  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
-	TMap<FString, int> AttackNameMap;
-
-protected:
-	/** Attack to be performed. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack AttackToPerform;
-
-	/** Used for comparison purposes. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack NullAttack;
-
-protected:
-	/** The timeline to be played. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	UTimelineComponent* TimelineToPlay;
 
 private:
 	/** The component's owner. */
