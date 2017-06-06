@@ -93,9 +93,8 @@ public:
 	virtual bool IsDead_Implementation() override;
 
 public:
-	/** Event called for character to attack. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void Attack();
+	/** Implementation of attack. */
+	virtual void Attack_Implementation() override;
 
 	/** Event called for character to reset attack. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
@@ -117,6 +116,10 @@ public:
 	/** Disables entity movement. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void DisableMovement();
+
+	/** Signals when character has recovered from a hit. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Recovered();
 
 protected:
 	/** Checks and updates whether the goblin is dead. */

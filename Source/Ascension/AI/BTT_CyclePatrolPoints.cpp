@@ -18,7 +18,11 @@ EBTNodeResult::Type UBTT_CyclePatrolPoints::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		TArray<AActor*> Points = PatrolComponent->GetPatrolPoints();
 		int Index = BlackboardComponent->GetValueAsInt(NextPatrolPointIndexKey.SelectedKeyName);
-		BlackboardComponent->SetValueAsObject(PatrolPointKey.SelectedKeyName, Points[Index]);
+
+		if (Points.IsValidIndex(Index))
+		{
+			BlackboardComponent->SetValueAsObject(PatrolPointKey.SelectedKeyName, Points[Index]);
+		}
 
 		int NextIndex = (Index + 1) % Points.Num();
 		BlackboardComponent->SetValueAsInt(NextPatrolPointIndexKey.SelectedKeyName, NextIndex);

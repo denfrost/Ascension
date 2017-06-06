@@ -8,6 +8,9 @@
 #include "AttackComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttackComplete, bool, Successful);
+
+
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ASCENSION_API UAttackComponent : public UActorComponent
 {
@@ -50,6 +53,11 @@ protected:
 	/** Array containing actors that have been damaged by this attack. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TArray<AActor*> DamagedActors;
+
+public:
+	/** Event that is broadcasted when an attack succeeds/fails. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers")
+	FOnAttackComplete OnAttackComplete;
 
 protected:
 	/** Attack to be performed. */

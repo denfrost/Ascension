@@ -51,6 +51,11 @@ void AGoblin::DisableMovement_Implementation()
 	GetCharacterMovement()->StopMovementImmediately();
 }
 
+void AGoblin::Recovered_Implementation()
+{
+	OnRecovered.Broadcast();
+}
+
 bool AGoblin::CheckDead()
 {
 	Health <= 0 ? Dead = true : Dead = false;

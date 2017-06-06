@@ -5,6 +5,11 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRecovered);
+
+
 UCLASS()
 class ASCENSION_API AEnemy : public ACharacter
 {
@@ -17,6 +22,21 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+public:
+	/** Event fired when enemy is hit. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers")
+	FOnHit OnHit;
+
+	/** Event fired when enemy has recovered from a hit. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers")
+	FOnRecovered OnRecovered;
+
+protected:
+	/** Function to use an attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Attack();
+	virtual void Attack_Implementation();
 
 public:	
 	/** Variable that indicates whether the entity is dead/alive. */
