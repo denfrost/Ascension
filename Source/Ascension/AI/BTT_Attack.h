@@ -21,9 +21,12 @@ public:
 protected:
 	/** Starts execution for the task. */
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Progress")
 	void AttackComplete(const bool Successful);
+
+public:
+	UBTT_Attack();
 
 private:
 	UBlackboardComponent* BlackboardComponent;

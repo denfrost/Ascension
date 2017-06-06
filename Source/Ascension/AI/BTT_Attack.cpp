@@ -8,8 +8,14 @@
 #include "Components/AttackComponent.h"
 
 
+UBTT_Attack::UBTT_Attack()
+{
+	bNotifyTick = true;
+}
+
 EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	
 	BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	ACharacter* ControlledPawn = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetControlledPawn());
 	AEnemy* Enemy = Cast<AEnemy>(ControlledPawn);
@@ -22,10 +28,17 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 		AttackComponent->OnAttackComplete.AddDynamic(this, &UBTT_Attack::AttackComplete);
 	}
 
+	FinishLatentTask(OwnerComp, EBTNodeResult::InProgress);
 	return EBTNodeResult::InProgress;
 }
 
 void UBTT_Attack::AttackComplete_Implementation(const bool Successful)
 {
 	BlackboardComponent->SetValueAsBool(WantsObserveKey.SelectedKeyName, true);
+
+	UBehaviorTreeComponent* OwnerComp = Cast<UBehaviorTreeComponent>(GetOuter()->GetOuter());
+	if (OwnerComp)
+	{
+		OwnerComp->OnTaskFinished(this, EBTNodeResult::Succeeded);
+	}
 }
