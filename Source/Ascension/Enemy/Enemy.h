@@ -32,7 +32,7 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers")
 	FOnRecovered OnRecovered;
 
-protected:
+public:
 	/** Function to use an attack. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Attack();
