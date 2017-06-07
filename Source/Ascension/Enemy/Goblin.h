@@ -12,8 +12,8 @@
 
 
 /** Goblin
- *  A greatsword wielding enemy controlled by the AI.
- */
+  * A greatsword wielding enemy controlled by AI.
+  */
 UCLASS()
 class ASCENSION_API AGoblin : public AEnemy, public IDamageable, public ILockable
 {

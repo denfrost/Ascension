@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Globals.h"
 #include "Classes/Components/TimelineComponent.h"
+#include "Interfaces/Damageable.h"
 #include "AscensionCharacter.generated.h"
 
 
@@ -10,7 +11,7 @@
   *	This is the character that the player controls and plays the game with.
   */
 UCLASS(config=Game)
-class AAscensionCharacter : public ACharacter
+class AAscensionCharacter : public ACharacter, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -69,6 +70,10 @@ public:
 	/** Maximum health of the character.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float MaxHealth;
+
+	/** Set to true when the character is dead. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Parameters")
+	bool Dead;
 
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -136,10 +141,6 @@ public:
 	UTimelineComponent* TimelineToPlay;
 
 
-	/** Variable to check if the player can deal damage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	bool DamageEnabled;
-
 	/** Variable to detect if player is locked on to an enemy. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool LockedOn;
@@ -205,6 +206,14 @@ protected:
 	/** Called for the character to sheath/unsheath weapon. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SwitchWeapon();
+
+	/** Called to enable movement through player input. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void EnableMovement();
+
+	/** Called to disable movement through player input. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void DisableMovement();
 
 	/** Called to stop player movement. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -280,6 +289,10 @@ protected:
 	/** Function that returns the percentage of health the character has left. */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
 	float GetHealthPercentage() const;
+
+	/** Function that checks and sets whether the character is dead. */
+	UFUNCTION(BlueprintCallable, Category = "Checking")
+	bool CheckIsDead();
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -374,5 +387,33 @@ public:
 	/** Event called to play a sword slash sound. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void SlashSound();
+
+public:
+	/* DAMAGEABLE INTERFACE FUNCTIONS */
+
+	/** Returns the percentage of health remaining. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	void GetHealthPercent(float& HealthPercent);
+	virtual void GetHealthPercent_Implementation(float& HealthPercent) override;
+
+	/** Applies the effects of an attack to the entity. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	void ApplyHitEffect(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect);
+	virtual void ApplyHitEffect_Implementation(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect) override;
+
+	/** Shows the entity's health bar. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	void ShowHealthBar();
+	virtual void ShowHealthBar_Implementation() override;
+
+	/** Hides the entity's health bar. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	void HideHealthBar();
+	virtual void HideHealthBar_Implementation() override;
+
+	/** To check whether the entity is alive or not. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	bool IsDead();
+	virtual bool IsDead_Implementation() override;
 };
 

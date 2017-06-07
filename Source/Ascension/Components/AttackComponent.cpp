@@ -181,11 +181,14 @@ void UAttackComponent::SelectAttack_Implementation(const FString& AttackType) {}
 
 void UAttackComponent::Reset_Implementation()
 {
+	StopAttackMovement();
 	TimelineToPlay = nullptr;
+	DisableDamage();
 	ClearDamagedActors();
 	ResetMovementSpeed();
 	ResetTurningRate();
 	ResetAcceleration();
+	ResetFlyable();
 }
 
 
@@ -198,6 +201,14 @@ void UAttackComponent::AttackMovement_Implementation()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Timeline not created properly."))
+	}
+}
+
+void UAttackComponent::StopAttackMovement_Implementation()
+{
+	if (TimelineToPlay != nullptr && TimelineToPlay->IsPlaying())
+	{
+		TimelineToPlay->Stop();
 	}
 }
 
@@ -254,12 +265,18 @@ void UAttackComponent::ResetTurn_Implementation()
 
 void UAttackComponent::SetFlyable_Implementation()
 {
-	Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
+	if (Owner->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Flying)
+	{
+		Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
+	}
 }
 
 void UAttackComponent::ResetFlyable_Implementation()
 {
-	Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+	if (Owner->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying)
+	{
+		Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+	}
 }
 
 void UAttackComponent::FinalizeAttackDirection_Implementation(FVector MovementIntent)

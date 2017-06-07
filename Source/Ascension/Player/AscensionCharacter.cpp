@@ -3,8 +3,6 @@
 #include "Ascension.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
-#include "Classes/Components/SphereComponent.h"
-#include "Interfaces/Damageable.h"
 #include "Components/PlayerAttackComponent.h"
 #include "AscensionCharacter.h"
 
@@ -41,7 +39,6 @@ AAscensionCharacter::AAscensionCharacter()
 	CanChain = false;
 	ShouldCharSwitch = false;
 	CanMove = true;
-	DamageEnabled = false;
 
 	// Camera lock-on variables.
 	LockedOn = false;
@@ -270,7 +267,18 @@ void AAscensionCharacter::LightAttack_Implementation()
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			AttackComponent->Attack(FString("Light Attack"), MovementIntent);
+
+			if (LockedOn && LockedActor != nullptr)
+			{
+				FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
+				TargetDirection.Normalize();
+				AttackComponent->Attack(FString("Light Attack"), TargetDirection);
+			}
+
+			else
+			{
+				AttackComponent->Attack(FString("Light Attack"), MovementIntent);
+			}
 		}
 	}
 }
@@ -283,7 +291,18 @@ void AAscensionCharacter::StrongAttack_Implementation()
 		{
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			AttackComponent->Attack(FString("Strong Attack"), MovementIntent);
+			
+			if (LockedOn && LockedActor != nullptr)
+			{
+				FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
+				TargetDirection.Normalize();
+				AttackComponent->Attack(FString("Strong Attack"), TargetDirection);
+			}
+
+			else
+			{
+				AttackComponent->Attack(FString("Strong Attack"), MovementIntent);
+			}
 		}
 	}
 }
@@ -368,6 +387,16 @@ bool AAscensionCharacter::CanAttack()
 	}
 }
 
+void AAscensionCharacter::EnableMovement()
+{
+	CanMove = true;
+}
+
+void AAscensionCharacter::DisableMovement()
+{
+	CanMove = false;
+}
+
 void AAscensionCharacter::StopMovement()
 {
 	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
@@ -439,6 +468,12 @@ float AAscensionCharacter::GetHealthPercentage() const
 	return Health / MaxHealth;
 }
 
+bool AAscensionCharacter::CheckIsDead()
+{
+	Health <= 0 ? Dead = true : Dead = false;
+	return Dead;
+}
+
 void AAscensionCharacter::SwitchComplete_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
@@ -451,22 +486,27 @@ void AAscensionCharacter::ResetAttack_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
 	CanMove = true;
+	CanChain = false;
 
 	if (AttackComponent)
 	{
 		AttackComponent->Reset();
 	}
-
-	CanChain = false;
 }
 
 void AAscensionCharacter::ResetDodge_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
+	CanMove = true;
+
+	if (TimelineToPlay != nullptr && TimelineToPlay->IsPlaying())
+	{
+		TimelineToPlay->Stop();
+	}
+
 	TimelineToPlay = nullptr;
 	ResetMovementSpeed();
 	ResetAcceleration();
-	CanMove = true;
 }
 
 void AAscensionCharacter::DodgeMovement_Implementation()
@@ -524,7 +564,6 @@ void AAscensionCharacter::ResetFlyable_Implementation()
 
 void AAscensionCharacter::EnableDamage_Implementation()
 {
-	DamageEnabled = true;
 	if (AttackComponent)
 	{
 		AttackComponent->EnableDamage();
@@ -533,7 +572,6 @@ void AAscensionCharacter::EnableDamage_Implementation()
 
 void AAscensionCharacter::DisableDamage_Implementation()
 {
-	DamageEnabled = false;
 	if (AttackComponent)
 	{
 		AttackComponent->DisableDamage();
@@ -544,7 +582,17 @@ void AAscensionCharacter::FinalizeAttackDirection_Implementation()
 {
 	if (AttackComponent)
 	{
-		AttackComponent->FinalizeAttackDirection(MovementIntent);
+		if (LockedOn && LockedActor != nullptr)
+		{
+			FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
+			TargetDirection.Normalize();
+			AttackComponent->FinalizeAttackDirection(TargetDirection);
+		}
+
+		else
+		{
+			AttackComponent->FinalizeAttackDirection(MovementIntent);
+		}
 	}
 }
 
@@ -552,3 +600,21 @@ void AAscensionCharacter::Sheathed_Implementation() {}
 void AAscensionCharacter::Unsheathed_Implementation() {}
 void AAscensionCharacter::FootstepSound_Implementation() {}
 void AAscensionCharacter::SlashSound_Implementation() {}
+
+void AAscensionCharacter::GetHealthPercent_Implementation(float& HealthPercent)
+{
+	HealthPercent = GetHealthPercentage();
+}
+
+void AAscensionCharacter::ApplyHitEffect_Implementation(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
+{
+
+}
+
+bool AAscensionCharacter::IsDead_Implementation()
+{
+	return Dead;
+}
+
+void AAscensionCharacter::ShowHealthBar_Implementation() {}
+void AAscensionCharacter::HideHealthBar_Implementation() {}

@@ -16,7 +16,8 @@ enum class ECharacterState : uint8
 	CS_Idle				UMETA(DisplayName = "Idle"),
 	CS_Switching		UMETA(DisplayName = "Switching"),
 	CS_Dodging			UMETA(DisplayName = "Dodging"),
-	CS_Attacking		UMETA(DisplayName = "Attacking")
+	CS_Attacking		UMETA(DisplayName = "Attacking"),
+	CS_Stunned			UMETA(DisplayName = "Stunned")
 };
 
 UENUM(BlueprintType)

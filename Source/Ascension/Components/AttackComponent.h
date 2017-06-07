@@ -137,6 +137,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void AttackMovement();
 
+	/** Stops the timeline for attack movement. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void StopAttackMovement();
+
 	/** Enables the attack to deal damage. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	void EnableDamage();
