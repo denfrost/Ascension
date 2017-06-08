@@ -221,22 +221,26 @@ void UAttackComponent::AttackDamageTick_Implementation()
 {
 	if (AttackHitBox)
 	{
-		TArray<AActor*> OverlappingActors;
-		AttackHitBox->GetOverlappingActors(OverlappingActors);
+		TArray<UPrimitiveComponent*> OverlappingComponents;
+		AttackHitBox->GetOverlappingComponents(OverlappingComponents);
 
-		for (int i = 0; i < OverlappingActors.Num(); i++)
+		for (int i = 0; i < OverlappingComponents.Num(); i++)
 		{
-			AActor* OtherActor = OverlappingActors[i];
-
-			if (DamagedActors.Find(OtherActor) == INDEX_NONE && OtherActor != GetOwner())
+			UPrimitiveComponent* OtherComponent = OverlappingComponents[i];
+			if (OtherComponent->ComponentHasTag(FName("Hitbox")))
 			{
-				if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+				AActor* OtherActor = OtherComponent->GetOwner();
+
+				if (DamagedActors.Find(OtherActor) == INDEX_NONE && OtherActor != GetOwner())
 				{
-					IDamageable::Execute_ApplyHitEffect(OtherActor, GetOwner(), AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
+					if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+					{
+						IDamageable::Execute_ApplyHitEffect(OtherActor, GetOwner(), AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
 
-					UE_LOG(LogTemp, Warning, TEXT("Damaged another actor!"))
+						UE_LOG(LogTemp, Warning, TEXT("Damaged another actor!"))
 
-					DamagedActors.Add(OtherActor);
+							DamagedActors.Add(OtherActor);
+					}
 				}
 			}
 		}

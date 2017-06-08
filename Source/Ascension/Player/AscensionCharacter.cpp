@@ -596,6 +596,35 @@ void AAscensionCharacter::FinalizeAttackDirection_Implementation()
 	}
 }
 
+void AAscensionCharacter::Impact_Implementation(const FVector& Direction)
+{
+	switch (CharacterState)
+	{
+	case ECharacterState::CS_Idle:
+		break;
+	case ECharacterState::CS_Attacking:
+		ResetAttack();
+		break;
+	case ECharacterState::CS_Dodging:
+		ResetDodge();
+		break;
+	case ECharacterState::CS_Switching:
+		SwitchComplete();
+		break;
+	case ECharacterState::CS_Stunned:
+		break;
+	}
+
+	CharacterState = ECharacterState::CS_Stunned;
+	//LaunchCharacter(Direction, true, false);
+}
+
+void AAscensionCharacter::Recovered_Implementation()
+{
+	EnableMovement();
+	CharacterState = ECharacterState::CS_Idle;
+}
+
 void AAscensionCharacter::Sheathed_Implementation() {}
 void AAscensionCharacter::Unsheathed_Implementation() {}
 void AAscensionCharacter::FootstepSound_Implementation() {}
@@ -608,7 +637,35 @@ void AAscensionCharacter::GetHealthPercent_Implementation(float& HealthPercent)
 
 void AAscensionCharacter::ApplyHitEffect_Implementation(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
 {
+	if (!Dead)
+	{
+		FVector AttackDirection = GetActorForwardVector() * -1;
 
+		if (SourceActor != nullptr)
+		{
+			// Find the direction in which we need to launch our character.
+			FVector SourceLocation = SourceActor->GetActorLocation();
+			FVector HitLocation = GetActorLocation();
+			FVector Direction = HitLocation - SourceLocation;
+			Direction.Normalize();
+
+			// Calculate launch velocity.
+			AttackDirection = Direction * AttackEffect.KnockbackForce;
+		}
+		
+		switch (HitEffect)
+		{
+		case EHitEffect::HE_PushBack:
+			Impact(AttackDirection);
+			break;
+		case EHitEffect::HE_KnockBack:
+			break;
+		case EHitEffect::HE_LaunchUp:
+			break;
+		}
+		
+		Health -= Damage;
+	}
 }
 
 bool AAscensionCharacter::IsDead_Implementation()

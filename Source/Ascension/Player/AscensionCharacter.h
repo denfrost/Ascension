@@ -369,6 +369,14 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void FinalizeAttackDirection();
 
+	/** Event called when character is hit by something. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Impact(const FVector& Direction);
+
+	/** Event called when recovering from an impact. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void Recovered();
+
 public:
 	// The following are events whose functionality is implemented in blueprint.
 
