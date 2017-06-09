@@ -245,7 +245,7 @@ void AAscensionCharacter::StopSprinting()
 
 void AAscensionCharacter::Jump()
 {
-	if (CharacterState == ECharacterState::CS_Idle)
+	if (CharacterState == ECharacterState::CS_Idle && !Dead)
 	{
 		ACharacter::Jump();
 	}
@@ -261,7 +261,7 @@ void AAscensionCharacter::StopJumping()
 
 void AAscensionCharacter::LightAttack_Implementation()
 {
-	if (CanAttack())
+	if (CanAttack() && !Dead)
 	{
 		if (AttackComponent)
 		{
@@ -285,7 +285,7 @@ void AAscensionCharacter::LightAttack_Implementation()
 
 void AAscensionCharacter::StrongAttack_Implementation()
 {
-	if (CanAttack())
+	if (CanAttack() && !Dead)
 	{
 		if (AttackComponent)
 		{
@@ -309,7 +309,7 @@ void AAscensionCharacter::StrongAttack_Implementation()
 
 void AAscensionCharacter::Dodge_Implementation()
 {
-	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
+	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround && !Dead)
 	{
 		CharacterState = ECharacterState::CS_Dodging;
 		CanMove = false;
@@ -339,7 +339,7 @@ void AAscensionCharacter::ClearDamagedActors_Implementation()
 
 void AAscensionCharacter::SwitchWeapon()
 {
-	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
+	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround && !Dead)
 	{
 		switch (WeaponState)
 		{
@@ -362,7 +362,7 @@ void AAscensionCharacter::SwitchWeapon()
 bool AAscensionCharacter::CanAttack()
 {
 	if ((CharacterState == ECharacterState::CS_Idle || CharacterState == ECharacterState::CS_Attacking) &&
-		(MovementState == EMovementState::MS_OnGround) && (WeaponState == EWeaponState::WS_Unsheathed))
+		(MovementState == EMovementState::MS_OnGround) && (WeaponState == EWeaponState::WS_Unsheathed) && !Dead)
 	{
 		if (CharacterState == ECharacterState::CS_Attacking)
 		{
@@ -616,7 +616,7 @@ void AAscensionCharacter::Impact_Implementation(const FVector& Direction)
 	}
 
 	CharacterState = ECharacterState::CS_Stunned;
-	//LaunchCharacter(Direction, true, false);
+	LaunchCharacter(Direction, true, false);
 }
 
 void AAscensionCharacter::Recovered_Implementation()
@@ -647,6 +647,7 @@ void AAscensionCharacter::ApplyHitEffect_Implementation(const AActor* SourceActo
 			FVector SourceLocation = SourceActor->GetActorLocation();
 			FVector HitLocation = GetActorLocation();
 			FVector Direction = HitLocation - SourceLocation;
+			Direction.Z = 0.0f;		// Do not want to launch the character up/down.
 			Direction.Normalize();
 
 			// Calculate launch velocity.

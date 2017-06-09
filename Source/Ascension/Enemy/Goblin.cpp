@@ -87,6 +87,14 @@ void AGoblin::ExitCombat()
 
 void AGoblin::ShowHitVisuals_Implementation() {}
 
+void AGoblin::AttackMovement_Implementation()
+{
+	if (AttackComponent)
+	{
+		AttackComponent->AttackMovement();
+	}
+}
+
 void AGoblin::Attack_Implementation()
 {
 	if (AttackComponent)
@@ -94,7 +102,7 @@ void AGoblin::Attack_Implementation()
 		if (ActionState == EEnemyState::ES_Idle)
 		{
 			ActionState = EEnemyState::ES_Attacking;
-			GetCharacterMovement()->StopMovementImmediately();
+			//GetCharacterMovement()->StopMovementImmediately();
 
 			AttackComponent->Attack(FString(), GetActorForwardVector());
 		}
@@ -126,6 +134,7 @@ void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float
 		FVector SourceLocation = SourceActor->GetActorLocation();
 		FVector HitLocation = GetActorLocation();
 		FVector LaunchDirection = HitLocation - SourceLocation;
+		LaunchDirection.Z = 0.0f;		// Do not want to launch the character up/down.
 		LaunchDirection.Normalize();
 
 		// Calculate launch velocity.

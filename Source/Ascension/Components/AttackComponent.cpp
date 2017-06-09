@@ -236,10 +236,7 @@ void UAttackComponent::AttackDamageTick_Implementation()
 					if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 					{
 						IDamageable::Execute_ApplyHitEffect(OtherActor, GetOwner(), AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
-
-						UE_LOG(LogTemp, Warning, TEXT("Damaged another actor!"))
-
-							DamagedActors.Add(OtherActor);
+						DamagedActors.Add(OtherActor);
 					}
 				}
 			}
