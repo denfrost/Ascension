@@ -3,6 +3,7 @@
 #include "Ascension.h"
 #include "AttackComponent.h"
 #include "Interfaces/Damageable.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values for this component's properties
@@ -53,7 +54,20 @@ void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, co
 
 	UTimelineComponent* AttackTimeline = NewObject<UTimelineComponent>(this, FName(*AttackName));
 	AttackTimeline->RegisterComponent();
-	SetupTimelineComponent(AttackTimeline, Attack.MovementCurve);
+
+	if (Attack.MovementType == "2D")
+	{
+		SetupTimelineComponent2D(AttackTimeline, Attack.MovementCurve3D, Attack.AnimMontage->GetPlayLength());
+	}
+	else if (Attack.MovementType == "3D")
+	{
+		SetupTimelineComponent3D(AttackTimeline, Attack.MovementCurve3D, Attack.AnimMontage->GetPlayLength());
+	}
+	else
+	{
+		SetupTimelineComponent(AttackTimeline, Attack.MovementCurve, Attack.AnimMontage->GetPlayLength());
+	}
+
 	AttackTimelines.Add(AttackTimeline);
 
 	AttackNameMap.Add(AttackName, AttackIndex);
@@ -150,7 +164,32 @@ void UAttackComponent::TimelineMovement(float Speed)
 	Owner->AddMovementInput(ActionDirection, Speed);
 }
 
-void UAttackComponent::SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve)
+void UAttackComponent::TimelineMovement2D_Implementation(FVector MovementVector)
+{
+	FRotator AttackRotation = ActionDirection.Rotation();
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
+	FVector SideVector = UKismetMathLibrary::GetRightVector(AttackRotation) * MovementVector.Y;
+
+	FVector Direction = ForwardVector + SideVector;
+	Direction.Normalize();
+	
+	Owner->AddMovementInput(Direction, MovementVector.X);
+}
+
+void UAttackComponent::TimelineMovement3D_Implementation(FVector MovementVector)
+{
+	FRotator AttackRotation = ActionDirection.Rotation();
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
+	FVector SideVector = UKismetMathLibrary::GetRightVector(AttackRotation) * MovementVector.Y;
+	FVector UpVector = UKismetMathLibrary::GetUpVector(AttackRotation) * MovementVector.Z;
+
+	FVector Direction = ForwardVector + SideVector + UpVector;
+	Direction.Normalize();
+
+	Owner->AddMovementInput(Direction, MovementVector.X);
+}
+
+void UAttackComponent::SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve, float Duration)
 {
 	if (MovementCurve != nullptr)
 	{
@@ -158,6 +197,31 @@ void UAttackComponent::SetupTimelineComponent(UTimelineComponent* TimelineCompon
 		ProgressFunction.BindUFunction(this, FName("TimelineMovement"));
 
 		TimelineComponent->AddInterpFloat(MovementCurve, ProgressFunction);
+		TimelineComponent->SetTimelineLength(Duration);
+	}
+}
+
+void UAttackComponent::SetupTimelineComponent2D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration)
+{
+	if (MovementCurve != nullptr)
+	{
+		FOnTimelineVector ProgressFunction;
+		ProgressFunction.BindUFunction(this, FName("TimelineMovement2D"));
+
+		TimelineComponent->AddInterpVector(MovementCurve, ProgressFunction);
+		TimelineComponent->SetTimelineLength(Duration);
+	}
+}
+
+void UAttackComponent::SetupTimelineComponent3D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration)
+{
+	if (MovementCurve != nullptr)
+	{
+		FOnTimelineVector ProgressFunction;
+		ProgressFunction.BindUFunction(this, FName("TimelineMovement3D"));
+
+		TimelineComponent->AddInterpVector(MovementCurve, ProgressFunction);
+		TimelineComponent->SetTimelineLength(Duration);
 	}
 }
 

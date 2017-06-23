@@ -229,13 +229,29 @@ protected:
 	void ResetGravity();
 
 protected:
-	/** Function to handle the movement of the character in the timeline. */
+	/** Function to handle the movement of the character in the timeline (front/back movement). */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void TimelineMovement(float Speed);
 
-	/** A function that sets up the timeline for an attack move. */
+	/** Function to handle the 2D movement of the character in the timeline (forward/side movement). */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void TimelineMovement2D(FVector MovementVector);
+
+	/** Function to handle the 3D movement of the character in the timeline (front/side/up movement). */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void TimelineMovement3D(FVector MovementVector);
+
+	/** A function that sets up the timeline for an attack's movement (1D). */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve);
+	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve, float Duration);
+
+	/** A function that sets up the timeline for an attack's movement (2D). */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void SetupTimelineComponent2D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration);
+
+	/** A function that sets up the timeline for an attack's movement (3D). */
+	UFUNCTION(BlueprintCallable, Category = "Helper")
+	void SetupTimelineComponent3D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration);
 
 private:
 	/** The component's owner. */

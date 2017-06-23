@@ -93,24 +93,39 @@ struct FAttack
 {
 	GENERATED_BODY()
 
+	// Animation montage of the attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	UAnimMontage* AnimMontage = nullptr;
 
+	// Speed of movement during attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float Speed = 0.0f;
 
+	// Max acceleration during this attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float Acceleration = 20000.0f;
 
+	// 2D for forward/backward movement. 3D for 3D movement. Special for specific movement.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	FString MovementType;
+
+	// 2D Movement Curve.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	UCurveFloat* MovementCurve;
 
+	// 3D Movement Curve.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UCurveVector* MovementCurve3D;
+
+	// Type of effect on the enemy (Push back, knock back etc.)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	EHitEffect HitEffect;
 
+	// Damage dealt by the attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float Damage;
 
+	// Effect of the attack on the enemy.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	FAttackEffect AttackEffect;
 };
