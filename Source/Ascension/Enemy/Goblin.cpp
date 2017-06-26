@@ -102,7 +102,6 @@ void AGoblin::Attack_Implementation()
 		if (ActionState == EEnemyState::ES_Idle)
 		{
 			ActionState = EEnemyState::ES_Attacking;
-			//GetCharacterMovement()->StopMovementImmediately();
 
 			AttackComponent->Attack(FString(), GetActorForwardVector());
 		}
@@ -171,4 +170,26 @@ void AGoblin::DecrementHealth_Implementation(float Damage)
 	Health -= Damage;
 }
 
+void AGoblin::EnableDamage_Implementation()
+{
+	if (AttackComponent)
+	{
+		AttackComponent->EnableDamage();
+	}
+}
 
+void AGoblin::DisableDamage_Implementation()
+{
+	if (AttackComponent)
+	{
+		AttackComponent->DisableDamage();
+	}
+}
+
+void AGoblin::ClearDamagedActors_Implementation()
+{
+	if (AttackComponent)
+	{
+		AttackComponent->ClearDamagedActors();
+	}
+}

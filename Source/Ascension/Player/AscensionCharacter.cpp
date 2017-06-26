@@ -4,6 +4,7 @@
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Components/PlayerAttackComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "AscensionCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -649,6 +650,9 @@ void AAscensionCharacter::ApplyHitEffect_Implementation(const AActor* SourceActo
 			FVector Direction = HitLocation - SourceLocation;
 			Direction.Z = 0.0f;		// Do not want to launch the character up/down.
 			Direction.Normalize();
+
+			// Turn the character to the direction of the attack.
+			SetActorRotation((Direction * -1).Rotation());
 
 			// Calculate launch velocity.
 			AttackDirection = Direction * AttackEffect.KnockbackForce;
