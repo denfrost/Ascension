@@ -154,18 +154,6 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void KillActor();
 
-	/** Enables weapon damage. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void EnableDamage();
-
-	/** Disables weapon damage. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void DisableDamage();
-
-	/** Clears the list of actors damaged by the attack. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ClearDamagedActors();
-
 private:
 	
 };

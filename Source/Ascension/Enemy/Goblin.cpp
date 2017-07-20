@@ -169,27 +169,3 @@ void AGoblin::DecrementHealth_Implementation(float Damage)
 {
 	Health -= Damage;
 }
-
-void AGoblin::EnableDamage_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->EnableDamage();
-	}
-}
-
-void AGoblin::DisableDamage_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->DisableDamage();
-	}
-}
-
-void AGoblin::ClearDamagedActors_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->ClearDamagedActors();
-	}
-}

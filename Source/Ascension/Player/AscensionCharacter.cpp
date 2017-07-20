@@ -330,14 +330,6 @@ void AAscensionCharacter::Dodge_Implementation()
 	}
 }
 
-void AAscensionCharacter::ClearDamagedActors_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->ClearDamagedActors();
-	}
-}
-
 void AAscensionCharacter::SwitchWeapon()
 {
 	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround && !Dead)
@@ -563,19 +555,19 @@ void AAscensionCharacter::ResetFlyable_Implementation()
 	}
 }
 
-void AAscensionCharacter::EnableDamage_Implementation()
+void AAscensionCharacter::ResetDetection()
 {
 	if (AttackComponent)
 	{
-		AttackComponent->EnableDamage();
+		AttackComponent->ClearDamagedActors();
 	}
 }
 
-void AAscensionCharacter::DisableDamage_Implementation()
+void AAscensionCharacter::DetectHit()
 {
 	if (AttackComponent)
 	{
-		AttackComponent->DisableDamage();
+		AttackComponent->DetectHit();
 	}
 }
 

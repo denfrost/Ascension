@@ -18,7 +18,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 {
 	
 	BlackboardComponent = OwnerComp.GetBlackboardComponent();
-	ACharacter* ControlledPawn = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetControlledPawn());
+	ACharacter* ControlledPawn = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetPawn());
 	AEnemy* Enemy = Cast<AEnemy>(ControlledPawn);
 
 	Enemy->Attack();
@@ -39,7 +39,7 @@ void UBTT_Attack::AttackComplete_Implementation(const bool Successful)
 	UBehaviorTreeComponent* OwnerComp = Cast<UBehaviorTreeComponent>(GetOuter());
 	if (OwnerComp)
 	{
-		ACharacter* ControlledPawn = Cast<ACharacter>(OwnerComp->GetAIOwner()->GetControlledPawn());
+		ACharacter* ControlledPawn = Cast<ACharacter>(OwnerComp->GetAIOwner()->GetPawn());
 		AEnemy* Enemy = Cast<AEnemy>(ControlledPawn);
 		UAttackComponent* AttackComponent = Enemy->FindComponentByClass<UAttackComponent>();
 

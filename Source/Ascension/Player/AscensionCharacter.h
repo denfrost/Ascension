@@ -199,10 +199,6 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Dodge();
 
-	/** Called for clearing damaged actors. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ClearDamagedActors();
-
 	/** Called for the character to sheath/unsheath weapon. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SwitchWeapon();
@@ -357,13 +353,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetFlyable();
 
-	/** Enables sword damage. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void EnableDamage();
+	/** Function that resets hit detection. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void ResetDetection();
 
-	/** Disables sword damage. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void DisableDamage();
+	/** Function to perform hit detection. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void DetectHit();
 
 	/** Finalizes player's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

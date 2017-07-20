@@ -32,6 +32,14 @@ UAttackComponent::UAttackComponent()
 }
 
 
+void UAttackComponent::Initialize(const float NormalSpeed, const float NormalAcceleration, const float NormalTurnRate, const float ActionTurnRate)
+{
+	this->NormalSpeed = NormalSpeed;
+	this->NormalAcceleration = NormalAcceleration;
+	this->NormalTurnRate = NormalTurnRate;
+	this->ActionTurnRate = ActionTurnRate;
+}
+
 // Called when the actor is in play.
 void UAttackComponent::BeginPlay()
 {
@@ -247,8 +255,6 @@ void UAttackComponent::Reset_Implementation()
 {
 	StopAttackMovement();
 	TimelineToPlay = nullptr;
-	DisableDamage();
-	ClearDamagedActors();
 	ResetMovementSpeed();
 	ResetTurningRate();
 	ResetAcceleration();
@@ -276,12 +282,7 @@ void UAttackComponent::StopAttackMovement_Implementation()
 	}
 }
 
-void UAttackComponent::EnableDamage_Implementation()
-{
-	GetWorld()->GetTimerManager().SetTimer(DamageTickTimerHandle, this, &UAttackComponent::AttackDamageTick, DamageTickDelay, true);
-}
-
-void UAttackComponent::AttackDamageTick_Implementation()
+void UAttackComponent::DetectHit()
 {
 	if (AttackHitBox)
 	{
@@ -306,11 +307,6 @@ void UAttackComponent::AttackDamageTick_Implementation()
 			}
 		}
 	}
-}
-
-void UAttackComponent::DisableDamage_Implementation()
-{
-	GetWorld()->GetTimerManager().ClearTimer(DamageTickTimerHandle);
 }
 
 void UAttackComponent::ClearDamagedActors_Implementation()

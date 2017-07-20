@@ -19,6 +19,12 @@ class ASCENSION_API UAttackComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UAttackComponent();
+	
+	/** Function called to initialize the attack component.
+	  * To be called from main entity to initialize these variables.
+	  */
+	UFUNCTION(BlueprintCallable, Category = "Initialization")
+	void Initialize(const float NormalSpeed, const float NormalAcceleration, const float NormalTurnRate, const float ActionTurnRate);
 
 protected:
 	// Called when the component is in play.
@@ -31,27 +37,27 @@ protected:
 	/** Array containing the attacks.
 	* Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TArray<FAttack> Attacks;
 
 	/** Array containing movement timlines.
 	* Do NOT directly modify this. Use CreateAttack to add attack timelines to this instead.
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timelines")
 	TArray<UTimelineComponent*> AttackTimelines;
 
 	/** Structure that maps attack names to their respective indices.
 	* Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TMap<FString, int> AttackNameMap;
 
 	/** Collision box that checks what actors are hit. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Collision")
 	UBoxComponent* AttackHitBox;
 
 	/** Array containing actors that have been damaged by this attack. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Damage")
 	TArray<AActor*> DamagedActors;
 
 public:
@@ -81,21 +87,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Timers")
 	float DamageTickDelay = 0.025f;
 
-public:
+protected:
 	/** Normal speed of the character. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalSpeed;
 
 	/** Acceleration of the character. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalAcceleration;
 
 	/** Base turn rate of the charater. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalTurnRate;
 
 	/** Turn rate of the character when performing an action. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float ActionTurnRate;
 
 	/** The direction the character should perform an action. */
@@ -141,17 +147,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void StopAttackMovement();
 
-	/** Enables the attack to deal damage. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
-	void EnableDamage();
-
-	/** Checks which characters are overlapped by hit-box and damage them. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
-	void AttackDamageTick();
-
-	/** Disables the attack to stop dealing damage. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
-	void DisableDamage();
+	/** Scans and detects if the attack hits. */
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void DetectHit();
 
 	/** Clears the actors that have been damaged by the attack. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
