@@ -22,12 +22,8 @@ UAttackComponent::UAttackComponent()
 	AttackHitBox = nullptr;
 	DamagedActors.Empty();
 
-	// Setup the movement timelines.
-	TimelineToPlay = nullptr;
-
 	// Clear maps and arrays.
 	Attacks.Empty();
-	AttackTimelines.Empty();
 	AttackNameMap.Empty();
 }
 
@@ -51,8 +47,6 @@ void UAttackComponent::BeginPlay()
 void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttack& Attack)
@@ -60,56 +54,29 @@ void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, co
 	Attacks.Add(Attack);
 	int AttackIndex = Attacks.Num() - 1;
 
-	UTimelineComponent* AttackTimeline = NewObject<UTimelineComponent>(this, FName(*AttackName));
-	AttackTimeline->RegisterComponent();
-
-	if (Attack.MovementType == "2D")
-	{
-		SetupTimelineComponent2D(AttackTimeline, Attack.MovementCurve3D, Attack.AnimMontage->GetPlayLength());
-	}
-	else if (Attack.MovementType == "3D")
-	{
-		SetupTimelineComponent3D(AttackTimeline, Attack.MovementCurve3D, Attack.AnimMontage->GetPlayLength());
-	}
-	else
-	{
-		SetupTimelineComponent(AttackTimeline, Attack.MovementCurve, Attack.AnimMontage->GetPlayLength());
-	}
-
-	AttackTimelines.Add(AttackTimeline);
-
 	AttackNameMap.Add(AttackName, AttackIndex);
 }
 
-void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttack& Attack, UTimelineComponent*& AttackTimeline)
+void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttack& Attack)
 {
 	int* Index = AttackNameMap.Find(AttackName);
 	if (Index)
 	{
 		Attack = Attacks[*Index];
-		AttackTimeline = AttackTimelines[*Index];
 		Found = true;
 	}
 	else
 	{
 		Attack = NullAttack;
-		AttackTimeline = nullptr;
 		Found = false;
 	}
 }
 
-void UAttackComponent::SetAttack(const bool& Found, const FAttack& Attack, UTimelineComponent* AttackTimeline)
+void UAttackComponent::SetAttack(const bool& Found, const FAttack& Attack)
 {
 	if (Found)
 	{
 		AttackToPerform = Attack;
-
-		if (TimelineToPlay != nullptr)
-		{
-			TimelineToPlay->Stop();
-		}
-
-		TimelineToPlay = AttackTimeline;
 	}
 	else
 	{
@@ -167,24 +134,17 @@ void UAttackComponent::ResetGravity()
 	Owner->GetCharacterMovement()->GravityScale = 1.0f;
 }
 
-void UAttackComponent::TimelineMovement(float Speed)
+void UAttackComponent::SetupMotion()
 {
-	Owner->AddMovementInput(ActionDirection, Speed);
+	if (AttackToPerform.AnimMontage != nullptr)
+	{
+		SetTurningRate(ActionTurnRate);
+		SetMovementSpeed(AttackToPerform.Speed);
+		SetAcceleration(AttackToPerform.Acceleration);
+	}
 }
 
-void UAttackComponent::TimelineMovement2D_Implementation(FVector MovementVector)
-{
-	FRotator AttackRotation = ActionDirection.Rotation();
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
-	FVector SideVector = UKismetMathLibrary::GetRightVector(AttackRotation) * MovementVector.Y;
-
-	FVector Direction = ForwardVector + SideVector;
-	Direction.Normalize();
-	
-	Owner->AddMovementInput(Direction, MovementVector.X);
-}
-
-void UAttackComponent::TimelineMovement3D_Implementation(FVector MovementVector)
+void UAttackComponent::AttackMotion(FVector MovementVector)
 {
 	FRotator AttackRotation = ActionDirection.Rotation();
 	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
@@ -194,43 +154,16 @@ void UAttackComponent::TimelineMovement3D_Implementation(FVector MovementVector)
 	FVector Direction = ForwardVector + SideVector + UpVector;
 	Direction.Normalize();
 
+	// For now X indicates the magnitude of the motion to occur.
+	// Need to refactor this to accept a separate magnitude value.
 	Owner->AddMovementInput(Direction, MovementVector.X);
 }
 
-void UAttackComponent::SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve, float Duration)
+void UAttackComponent::FinishMotion()
 {
-	if (MovementCurve != nullptr)
-	{
-		FOnTimelineFloat ProgressFunction;
-		ProgressFunction.BindUFunction(this, FName("TimelineMovement"));
-
-		TimelineComponent->AddInterpFloat(MovementCurve, ProgressFunction);
-		TimelineComponent->SetTimelineLength(Duration);
-	}
-}
-
-void UAttackComponent::SetupTimelineComponent2D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration)
-{
-	if (MovementCurve != nullptr)
-	{
-		FOnTimelineVector ProgressFunction;
-		ProgressFunction.BindUFunction(this, FName("TimelineMovement2D"));
-
-		TimelineComponent->AddInterpVector(MovementCurve, ProgressFunction);
-		TimelineComponent->SetTimelineLength(Duration);
-	}
-}
-
-void UAttackComponent::SetupTimelineComponent3D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration)
-{
-	if (MovementCurve != nullptr)
-	{
-		FOnTimelineVector ProgressFunction;
-		ProgressFunction.BindUFunction(this, FName("TimelineMovement3D"));
-
-		TimelineComponent->AddInterpVector(MovementCurve, ProgressFunction);
-		TimelineComponent->SetTimelineLength(Duration);
-	}
+	ResetMovementSpeed();
+	ResetTurningRate();
+	ResetAcceleration();
 }
 
 
@@ -242,9 +175,6 @@ void UAttackComponent::Attack_Implementation(const FString& AttackName, const FV
 	if (AttackToPerform.AnimMontage != nullptr)
 	{
 		ActionDirection = MovementIntent;
-		SetTurningRate(ActionTurnRate);
-		SetMovementSpeed(AttackToPerform.Speed);
-		SetAcceleration(AttackToPerform.Acceleration);
 		Owner->PlayAnimMontage(AttackToPerform.AnimMontage);
 	}
 }
@@ -253,33 +183,7 @@ void UAttackComponent::SelectAttack_Implementation(const FString& AttackType) {}
 
 void UAttackComponent::Reset_Implementation()
 {
-	StopAttackMovement();
-	TimelineToPlay = nullptr;
-	ResetMovementSpeed();
-	ResetTurningRate();
-	ResetAcceleration();
 	ResetFlyable();
-}
-
-
-void UAttackComponent::AttackMovement_Implementation()
-{
-	if (TimelineToPlay != nullptr)
-	{
-		TimelineToPlay->PlayFromStart();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Timeline not created properly."))
-	}
-}
-
-void UAttackComponent::StopAttackMovement_Implementation()
-{
-	if (TimelineToPlay != nullptr && TimelineToPlay->IsPlaying())
-	{
-		TimelineToPlay->Stop();
-	}
 }
 
 void UAttackComponent::DetectHit()

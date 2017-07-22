@@ -45,9 +45,6 @@ AAscensionCharacter::AAscensionCharacter()
 	LockedOn = false;
 	LockedActor = nullptr;
 
-	// Setup dodge movement timeline.
-	DodgeTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("DodgeTimelineComponent"));
-
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -120,8 +117,6 @@ void AAscensionCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 void AAscensionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetupTimelineComponent(DodgeTimeline, DodgeMove.MovementCurve);
 }
 
 void AAscensionCharacter::Tick(float DeltaSeconds)
@@ -317,14 +312,7 @@ void AAscensionCharacter::Dodge_Implementation()
 		
 		if (DodgeMove.AnimMontage != nullptr)
 		{
-			if (TimelineToPlay != nullptr)
-			{
-				TimelineToPlay->Stop();
-			}
 			ActionDirection = MovementIntent;
-			SetMovementSpeed(DodgeMove.AnimSpeed);
-			SetAcceleration(DodgeMove.AnimAcceleration);
-			TimelineToPlay = DodgeTimeline;
 			PlayAnimMontage(DodgeMove.AnimMontage);
 		}
 	}
@@ -440,22 +428,6 @@ void AAscensionCharacter::ResetGravity()
 	GetCharacterMovement()->GravityScale = 1.0f;
 }
 
-void AAscensionCharacter::TimelineMovement(float Speed)
-{
-	AddMovementInput(ActionDirection, Speed);
-}
-
-void AAscensionCharacter::SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve)
-{
-	if (MovementCurve != nullptr)
-	{
-		FOnTimelineFloat ProgressFunction;
-		ProgressFunction.BindUFunction(this, FName("TimelineMovement"));
-
-		TimelineComponent->AddInterpFloat(MovementCurve, ProgressFunction);
-	}
-}
-
 float AAscensionCharacter::GetHealthPercentage() const
 {
 	return Health / MaxHealth;
@@ -491,31 +463,34 @@ void AAscensionCharacter::ResetDodge_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
 	CanMove = true;
+}
 
-	if (TimelineToPlay != nullptr && TimelineToPlay->IsPlaying())
-	{
-		TimelineToPlay->Stop();
-	}
 
-	TimelineToPlay = nullptr;
+void AAscensionCharacter::SetupDodgeMotion()
+{
+	SetMovementSpeed(DodgeMove.AnimSpeed);
+	SetAcceleration(DodgeMove.AnimAcceleration);
+}
+
+void AAscensionCharacter::DodgeMotion(FVector MovementVector)
+{
+	FRotator DodgeRotation = ActionDirection.Rotation();
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(DodgeRotation) * MovementVector.X;
+	FVector SideVector = UKismetMathLibrary::GetRightVector(DodgeRotation) * MovementVector.Y;
+	FVector UpVector = UKismetMathLibrary::GetUpVector(DodgeRotation) * MovementVector.Z;
+
+	FVector Direction = ForwardVector + SideVector + UpVector;
+	Direction.Normalize();
+
+	// For now X indicates the magnitude of the motion to occur.
+	// Need to refactor this to accept a separate magnitude value.
+	AddMovementInput(Direction, MovementVector.X);
+}
+
+void AAscensionCharacter::FinishDodgeMotion()
+{
 	ResetMovementSpeed();
 	ResetAcceleration();
-}
-
-void AAscensionCharacter::DodgeMovement_Implementation()
-{
-	if (TimelineToPlay != nullptr)
-	{
-		TimelineToPlay->PlayFromStart();
-	}
-}
-
-void AAscensionCharacter::AttackMovement_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->AttackMovement();
-	}
 }
 
 void AAscensionCharacter::LimitTurn_Implementation()
@@ -552,22 +527,6 @@ void AAscensionCharacter::ResetFlyable_Implementation()
 	if (AttackComponent)
 	{
 		AttackComponent->ResetFlyable();
-	}
-}
-
-void AAscensionCharacter::ResetDetection()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->ClearDamagedActors();
-	}
-}
-
-void AAscensionCharacter::DetectHit()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->DetectHit();
 	}
 }
 

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "Classes/Components/TimelineComponent.h"
 #include "Globals.h"
 #include "AttackComponent.generated.h"
 
@@ -40,12 +39,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TArray<FAttack> Attacks;
 
-	/** Array containing movement timlines.
-	* Do NOT directly modify this. Use CreateAttack to add attack timelines to this instead.
-	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timelines")
-	TArray<UTimelineComponent*> AttackTimelines;
-
 	/** Structure that maps attack names to their respective indices.
 	* Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
 	*/
@@ -75,19 +68,6 @@ protected:
 	FAttack NullAttack;
 
 protected:
-	/** The timeline to be played. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	UTimelineComponent* TimelineToPlay;
-
-	/** Timer handle used for checking if characters are hit during the attack. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Timers")
-	FTimerHandle DamageTickTimerHandle;
-
-	/** Delay between damage ticks. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Timers")
-	float DamageTickDelay = 0.025f;
-
-protected:
 	/** Normal speed of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalSpeed;
@@ -115,11 +95,11 @@ public:
 
 	/** Retrieves the specified attack. Found is set to true if the attack is valid. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void GetAttack(const FString& AttackName, bool& Found, FAttack& Attack, UTimelineComponent*& AttackTimeline);
+	void GetAttack(const FString& AttackName, bool& Found, FAttack& Attack);
 
 	/** Sets the specified attack as the attack to perform and sets movement-related parameters. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetAttack(const bool& Found, const FAttack& Attack, UTimelineComponent* AttackTimeline);
+	void SetAttack(const bool& Found, const FAttack& Attack);
 
 public:
 	/** Called for the character to perform the specified attack. */
@@ -138,14 +118,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Reset();
 	virtual void Reset_Implementation();
-
-	/** Plays the timeline for attack movement. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void AttackMovement();
-
-	/** Stops the timeline for attack movement. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void StopAttackMovement();
 
 	/** Scans and detects if the attack hits. */
 	UFUNCTION(BlueprintCallable, Category = "Damage")
@@ -227,29 +199,17 @@ protected:
 	void ResetGravity();
 
 protected:
-	/** Function to handle the movement of the character in the timeline (front/back movement). */
+	/** Function to setup variables for attack motion. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void TimelineMovement(float Speed);
+	void SetupMotion();
 
-	/** Function to handle the 2D movement of the character in the timeline (forward/side movement). */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void TimelineMovement2D(FVector MovementVector);
+	/** Function that makes the character move in the specified direction. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void AttackMotion(FVector MovementVector);
 
-	/** Function to handle the 3D movement of the character in the timeline (front/side/up movement). */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void TimelineMovement3D(FVector MovementVector);
-
-	/** A function that sets up the timeline for an attack's movement (1D). */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve, float Duration);
-
-	/** A function that sets up the timeline for an attack's movement (2D). */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetupTimelineComponent2D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration);
-
-	/** A function that sets up the timeline for an attack's movement (3D). */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetupTimelineComponent3D(UTimelineComponent* TimelineComponent, UCurveVector* MovementCurve, float Duration);
+	/** Function that resets variables to normal values when the attack completes. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void FinishMotion();
 
 private:
 	/** The component's owner. */

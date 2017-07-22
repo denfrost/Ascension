@@ -138,10 +138,6 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ShowHitVisuals();
 
-	/** Moves the character during the attack. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void AttackMovement();
-
 	/** Applies the effects of an attack onto the character. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ApplyAttackEffects(const AActor* SourceActor, float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect);

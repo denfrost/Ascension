@@ -71,9 +71,6 @@ struct FPlayerAnimation
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float AnimAcceleration = 20000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	UCurveFloat* MovementCurve;
 };
 
 USTRUCT(BlueprintType)
@@ -104,18 +101,6 @@ struct FAttack
 	// Max acceleration during this attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float Acceleration = 20000.0f;
-
-	// 2D for forward/backward movement. 3D for 3D movement. Special for specific movement.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	FString MovementType;
-
-	// 2D Movement Curve.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	UCurveFloat* MovementCurve;
-
-	// 3D Movement Curve.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	UCurveVector* MovementCurve3D;
 
 	// Type of effect on the enemy (Push back, knock back etc.)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")

@@ -2,7 +2,6 @@
 #pragma once
 #include "GameFramework/Character.h"
 #include "Globals.h"
-#include "Classes/Components/TimelineComponent.h"
 #include "Interfaces/Damageable.h"
 #include "AscensionCharacter.generated.h"
 
@@ -136,11 +135,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector ActionDirection;
 
-	/** The timeline to be played. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	UTimelineComponent* TimelineToPlay;
-
-
 	/** Variable to detect if player is locked on to an enemy. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool LockedOn;
@@ -255,14 +249,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Helper")
 	bool CanAttack();
 
-	/** Function to handle the movement of the character in the timeline. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void TimelineMovement(float Speed);
-
-	/** A function that sets up the timeline for an attack/dodge move. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetupTimelineComponent(UTimelineComponent* TimelineComponent, UCurveFloat* MovementCurve);
-
 	/** Handler for when a touch input begins. */
 	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
@@ -273,10 +259,6 @@ protected:
 	/** Dodge anim montage. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	FPlayerAnimation DodgeMove;
-
-	/** A timeline for movement. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timelines")
-	UTimelineComponent* DodgeTimeline;
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -309,13 +291,19 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetDodge();
 
-	/** Plays the timeline for dodge movement. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void DodgeMovement();
+	// TODO: Refactor the dodge into a separate component like attacks.
 
-	/** Plays the timeline for attack movement. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void AttackMovement();
+	/** Function to setup variables for dodge motion. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void SetupDodgeMotion();
+
+	/** Function that makes the character move in the specified direction while dodging. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void DodgeMotion(FVector MovementVector);
+
+	/** Function that resets variables to normal values when the dodge completes. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void FinishDodgeMotion();
 
 	/** Event called when the character completes switching.
 	  * Performs necessary actions after a switch is completed.
@@ -352,14 +340,6 @@ public:
 	*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetFlyable();
-
-	/** Function that resets hit detection. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void ResetDetection();
-
-	/** Function to perform hit detection. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void DetectHit();
 
 	/** Finalizes player's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

@@ -87,14 +87,6 @@ void AGoblin::ExitCombat()
 
 void AGoblin::ShowHitVisuals_Implementation() {}
 
-void AGoblin::AttackMovement_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->AttackMovement();
-	}
-}
-
 void AGoblin::Attack_Implementation()
 {
 	if (AttackComponent)
