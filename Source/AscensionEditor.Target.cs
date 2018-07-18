@@ -5,21 +5,13 @@ using System.Collections.Generic;
 
 public class AscensionEditorTarget : TargetRules
 {
-	public AscensionEditorTarget(TargetInfo Target)
+	public AscensionEditorTarget(TargetInfo Target) : base (Target)
 	{
 		Type = TargetType.Editor;
+		ExtraModuleNames.Add("Ascension");
 	}
 
 	//
 	// TargetRules interface.
 	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.Add("Ascension");
-	}
 }

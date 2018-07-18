@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class Ascension : ModuleRules
 {
-	public Ascension(TargetInfo Target)
+	public Ascension(ReadOnlyTargetRules Target) : base (Target)
 	{
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "AIModule", "GameplayTasks" });
 	}

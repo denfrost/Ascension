@@ -5,21 +5,13 @@ using System.Collections.Generic;
 
 public class AscensionTarget : TargetRules
 {
-	public AscensionTarget(TargetInfo Target)
+	public AscensionTarget(TargetInfo Target) : base (Target)
 	{
 		Type = TargetType.Game;
+		ExtraModuleNames.Add("Ascension");
 	}
 
 	//
 	// TargetRules interface.
 	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.Add("Ascension");
-	}
 }
