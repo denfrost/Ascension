@@ -1,7 +1,7 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 #include "Ascension.h"
-#include "Kismet/HeadMountedDisplayFunctionLibrary.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Components/PlayerAttackComponent.h"
 #include "Kismet/KismetMathLibrary.h"

@@ -174,11 +174,9 @@ protected:
 	void StopSprinting();
 
 	/** Called for the player to jump. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Jump();
 
 	/** Called for the player to stop jumping. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void StopJumping();
 
 	/** Called for the player to perform a light attack. */
