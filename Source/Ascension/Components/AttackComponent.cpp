@@ -152,11 +152,8 @@ void UAttackComponent::AttackMotion(FVector MovementVector)
 	FVector UpVector = UKismetMathLibrary::GetUpVector(AttackRotation) * MovementVector.Z;
 
 	FVector Direction = ForwardVector + SideVector + UpVector;
-	Direction.Normalize();
 
-	// For now X indicates the magnitude of the motion to occur.
-	// Need to refactor this to accept a separate magnitude value.
-	Owner->AddMovementInput(Direction, MovementVector.X);
+	Owner->AddMovementInput(Direction);
 }
 
 void UAttackComponent::FinishMotion()
