@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Ascension.h"
-#include "PreciseMovementComponent.h"
+#include "GameMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
-UPreciseMovementComponent::UPreciseMovementComponent()
+UGameMovementComponent::UGameMovementComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -17,7 +17,7 @@ UPreciseMovementComponent::UPreciseMovementComponent()
 	BaseTurnRate = 540.0f;
 }
 
-void UPreciseMovementComponent::Initialize(const float DefaultSpeed, const float DefaultAcceleration, const float DefaultTurnRate)
+void UGameMovementComponent::Initialize(const float DefaultSpeed, const float DefaultAcceleration, const float DefaultTurnRate)
 {
 	BaseSpeed = DefaultSpeed;
 	BaseAcceleration = DefaultAcceleration;
@@ -25,21 +25,21 @@ void UPreciseMovementComponent::Initialize(const float DefaultSpeed, const float
 }
 
 // Called when the game starts
-void UPreciseMovementComponent::BeginPlay()
+void UGameMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	Owner = Cast<ACharacter>(GetOwner());
 }
 
-void UPreciseMovementComponent::SetupMovement(float Speed, float Acceleration, float TurnRate)
+void UGameMovementComponent::SetupMovement(float Speed, float Acceleration, float TurnRate)
 {
 	SetMovementSpeed(Speed);
 	SetAcceleration(Acceleration);
 	SetTurningRate(TurnRate);
 }
 
-void UPreciseMovementComponent::Move(FVector BaseDirection, FVector MovementVector)
+void UGameMovementComponent::Move(FVector BaseDirection, FVector MovementVector)
 {
 	FRotator AttackRotation = BaseDirection.Rotation();
 	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
@@ -51,54 +51,54 @@ void UPreciseMovementComponent::Move(FVector BaseDirection, FVector MovementVect
 	Owner->AddMovementInput(Direction);
 }
 
-void UPreciseMovementComponent::FinishMovement()
+void UGameMovementComponent::FinishMovement()
 {
 	ResetMovementSpeed();
 	ResetTurningRate();
 	ResetAcceleration();
 }
 
-void UPreciseMovementComponent::SetMovementSpeed(float Speed)
+void UGameMovementComponent::SetMovementSpeed(float Speed)
 {
 	Owner->GetCharacterMovement()->MaxWalkSpeed = Speed;
 }
 
-void UPreciseMovementComponent::ResetMovementSpeed()
+void UGameMovementComponent::ResetMovementSpeed()
 {
 	Owner->GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
 }
 
-void UPreciseMovementComponent::SetAcceleration(float Acceleration)
+void UGameMovementComponent::SetAcceleration(float Acceleration)
 {
 	Owner->GetCharacterMovement()->MaxAcceleration = Acceleration;
 }
 
-void UPreciseMovementComponent::ResetAcceleration()
+void UGameMovementComponent::ResetAcceleration()
 {
 	Owner->GetCharacterMovement()->MaxAcceleration = BaseAcceleration;
 }
 
-void UPreciseMovementComponent::SetTurningRate(float Rate)
+void UGameMovementComponent::SetTurningRate(float Rate)
 {
 	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, Rate, 0.0f);
 }
 
-void UPreciseMovementComponent::ResetTurningRate()
+void UGameMovementComponent::ResetTurningRate()
 {
 	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, BaseTurnRate, 0.0f);
 }
 
-void UPreciseMovementComponent::SetGravity(float GravityValue)
+void UGameMovementComponent::SetGravity(float GravityValue)
 {
 	Owner->GetCharacterMovement()->GravityScale = GravityValue;
 }
 
-void UPreciseMovementComponent::ResetGravity()
+void UGameMovementComponent::ResetGravity()
 {
 	Owner->GetCharacterMovement()->GravityScale = 1.0f;
 }
 
-void UPreciseMovementComponent::SetFlyable()
+void UGameMovementComponent::SetFlyable()
 {
 	if (Owner->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Flying)
 	{
@@ -106,7 +106,7 @@ void UPreciseMovementComponent::SetFlyable()
 	}
 }
 
-void UPreciseMovementComponent::ResetFlyable()
+void UGameMovementComponent::ResetFlyable()
 {
 	if (Owner->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying)
 	{

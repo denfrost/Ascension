@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PreciseMovementComponent.generated.h"
+#include "GameMovementComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ASCENSION_API UPreciseMovementComponent : public UActorComponent
+class ASCENSION_API UGameMovementComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UPreciseMovementComponent();
+	UGameMovementComponent();
 
 protected:
 	/** Normal speed of the character. */
