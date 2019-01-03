@@ -1,6 +1,6 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 #pragma once
-#include "GameFramework/Character.h"
+#include "Entities/Characters/GameCharacter.h"
 #include "Globals.h"
 #include "Interfaces/Damageable.h"
 #include "AscensionCharacter.generated.h"
@@ -10,7 +10,7 @@
   *	This is the character that the player controls and plays the game with.
   */
 UCLASS(config=Game)
-class AAscensionCharacter : public ACharacter, public IDamageable
+class AAscensionCharacter : public AGameCharacter, public IDamageable
 {
 	GENERATED_BODY()
 

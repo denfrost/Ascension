@@ -3,7 +3,7 @@
 #include "Ascension.h"
 #include "BTT_Attack.h"
 #include "AIController.h"
-#include "Enemy/Enemy.h"
+#include "Entities/Characters/Enemies/Enemy.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/AttackComponent.h"
 

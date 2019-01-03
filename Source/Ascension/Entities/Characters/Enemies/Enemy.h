@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "Entities/Characters/GameCharacter.h"
 #include "Enemy.generated.h"
 
 
@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRecovered);
 
 
 UCLASS()
-class ASCENSION_API AEnemy : public ACharacter
+class ASCENSION_API AEnemy : public AGameCharacter
 {
 	GENERATED_BODY()
 
