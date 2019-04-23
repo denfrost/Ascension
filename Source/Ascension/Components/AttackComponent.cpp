@@ -2,6 +2,7 @@
 
 #include "Ascension.h"
 #include "AttackComponent.h"
+#include "GameMovementComponent.h"
 #include "Interfaces/Damageable.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -84,83 +85,34 @@ void UAttackComponent::SetAttack(const bool& Found, const FAttack& Attack)
 	}
 }
 
-void UAttackComponent::StopMovement()
-{
-	Owner->GetCharacterMovement()->MaxWalkSpeed = 0.0f;
-}
-
-void UAttackComponent::SetMovementSpeed(float Speed)
-{
-	Owner->GetCharacterMovement()->MaxWalkSpeed = Speed;
-}
-
-void UAttackComponent::ResetMovementSpeed()
-{
-	Owner->GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
-}
-
-void UAttackComponent::SetAcceleration(float Acceleration)
-{
-	Owner->GetCharacterMovement()->MaxAcceleration = Acceleration;
-}
-
-void UAttackComponent::ResetAcceleration()
-{
-	Owner->GetCharacterMovement()->MaxAcceleration = NormalAcceleration;
-}
-
-void UAttackComponent::StopTurning()
-{
-	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 0.0f);
-}
-
-void UAttackComponent::SetTurningRate(float Rate)
-{
-	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, Rate, 0.0f);
-}
-
-void UAttackComponent::ResetTurningRate()
-{
-	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, NormalTurnRate, 0.0f);
-}
-
-void UAttackComponent::SetGravity(float GravityValue)
-{
-	Owner->GetCharacterMovement()->GravityScale = GravityValue;
-}
-
-void UAttackComponent::ResetGravity()
-{
-	Owner->GetCharacterMovement()->GravityScale = 1.0f;
-}
-
 void UAttackComponent::SetupMotion()
 {
 	if (AttackToPerform.AnimMontage != nullptr)
 	{
-		SetTurningRate(ActionTurnRate);
-		SetMovementSpeed(AttackToPerform.Speed);
-		SetAcceleration(AttackToPerform.Acceleration);
+		UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
+		if (MovementComponent != nullptr)
+		{
+			MovementComponent->SetupMovement(AttackToPerform.Speed, AttackToPerform.Acceleration, ActionTurnRate);
+		}
 	}
 }
 
 void UAttackComponent::AttackMotion(FVector MovementVector)
 {
-	FRotator AttackRotation = ActionDirection.Rotation();
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
-	FVector SideVector = UKismetMathLibrary::GetRightVector(AttackRotation) * MovementVector.Y;
-	FVector UpVector = UKismetMathLibrary::GetUpVector(AttackRotation) * MovementVector.Z;
-
-	FVector Direction = ForwardVector + SideVector + UpVector;
-
-	Owner->AddMovementInput(Direction);
+	UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
+	if (MovementComponent != nullptr)
+	{
+		MovementComponent->Move(ActionDirection, MovementVector);
+	}
 }
 
 void UAttackComponent::FinishMotion()
 {
-	ResetMovementSpeed();
-	ResetTurningRate();
-	ResetAcceleration();
+	UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
+	if (MovementComponent != nullptr)
+	{
+		MovementComponent->FinishMovement();
+	}
 }
 
 
@@ -213,16 +165,6 @@ void UAttackComponent::DetectHit()
 void UAttackComponent::ClearDamagedActors_Implementation()
 {
 	DamagedActors.Empty();
-}
-
-void UAttackComponent::LimitTurn_Implementation()
-{
-	StopTurning();
-}
-
-void UAttackComponent::ResetTurn_Implementation()
-{
-	ResetTurningRate();
 }
 
 void UAttackComponent::SetFlyable_Implementation()

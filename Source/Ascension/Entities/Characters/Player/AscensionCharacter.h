@@ -26,6 +26,10 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
 
+	/** Component handling precise movement. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UGameMovementComponent* GameMovementComponent;
+
 public:
 	AAscensionCharacter();
 
@@ -308,18 +312,6 @@ public:
 	  */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void SwitchComplete();
-
-	/** Event called when rotation rate needs to be limited.
-	  * Limits rotation rate.
-	  */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void LimitTurn();
-
-	/** Event called when rotation rate needs to be reset.
-	  * Resets rotation rate.
-	  */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ResetTurn();
 
 	/** Event called when character can chain an attack.
 	  * Sets CanChainAttack.

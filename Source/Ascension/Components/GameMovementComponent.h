@@ -40,7 +40,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Initialization")
 	void Initialize(const float DefaultSpeed, const float DefaultAcceleration, const float DefaultTurnRate);
 
-protected:
 	/** Function to setup variables for precise motion. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SetupMovement(float Speed, float Acceleration, float TurnRate);

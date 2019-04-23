@@ -128,18 +128,6 @@ public:
 	void ClearDamagedActors();
 
 public:
-	/** Event called when rotation rate needs to be limited.
-	* Limits rotation rate.
-	*/
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void LimitTurn();
-
-	/** Event called when rotation rate needs to be reset.
-	* Resets rotation rate.
-	*/
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ResetTurn();
-
 	/** Event called when character's movement needs to be set to flying.
 	* Sets movement mode to flying.
 	*/
@@ -156,47 +144,6 @@ public:
 	/** Finalizes character's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void FinalizeAttackDirection(FVector MovementIntent);
-
-protected:
-	/** Called to stop character movement. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void StopMovement();
-
-	/** Called to limit character movement to a certain speed. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetMovementSpeed(float Speed);
-
-	/** Called to reset character movement to normal speed. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ResetMovementSpeed();
-
-	/** Called to set acceleration to a value. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetAcceleration(float Acceleration);
-
-	/** Called to reset acceleration. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ResetAcceleration();
-
-	/** Called to stop character turning. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void StopTurning();
-
-	/** Called to limit character turning to a certain rate. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetTurningRate(float Rate);
-
-	/** Called to reset character turning to normal rate. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ResetTurningRate();
-
-	/** Called to set gravity to a value. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetGravity(float GravityValue);
-
-	/** Called to reset gravity. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ResetGravity();
 
 protected:
 	/** Function to setup variables for attack motion. */
