@@ -3,3 +3,11 @@
 #include "Ascension.h"
 #include "Ability.h"
 
+
+void UAbility::Initialize() {}
+
+void UAbility::Activate() {}
+
+void UAbility::Tick() {}
+
+void UAbility::Finish() {}
