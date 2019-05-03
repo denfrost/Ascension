@@ -14,9 +14,6 @@ UAttackComponent::UAttackComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// Set movement speeds.
-	NormalSpeed = 500.0f;
-	NormalAcceleration = 2048.0f;
-	NormalTurnRate = 540.0f;
 	ActionTurnRate = 2048.0f;
 
 	// Set gameplay variables.
@@ -29,11 +26,8 @@ UAttackComponent::UAttackComponent()
 }
 
 
-void UAttackComponent::Initialize(const float NormalSpeed, const float NormalAcceleration, const float NormalTurnRate, const float ActionTurnRate)
+void UAttackComponent::Initialize(const float ActionTurnRate)
 {
-	this->NormalSpeed = NormalSpeed;
-	this->NormalAcceleration = NormalAcceleration;
-	this->NormalTurnRate = NormalTurnRate;
 	this->ActionTurnRate = ActionTurnRate;
 }
 

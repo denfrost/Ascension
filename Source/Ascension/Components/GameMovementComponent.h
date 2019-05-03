@@ -8,41 +8,35 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ASCENSION_API UGameMovementComponent : public UActorComponent
+class ASCENSION_API UGameMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UGameMovementComponent();
+	UGameMovementComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	/** Normal speed of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float BaseSpeed;
+	float DefaultSpeed;
 
 	/** Acceleration of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float BaseAcceleration;
+	float DefaultAcceleration;
 
 	/** Base turn rate of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float BaseTurnRate;
+	float DefaultTurnRate;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
-	/** Function called to initialize the precise movement component.
-	  * To be called from main entity to initialize these variables.
-	  */
-	UFUNCTION(BlueprintCallable, Category = "Initialization")
-	void Initialize(const float DefaultSpeed, const float DefaultAcceleration, const float DefaultTurnRate);
-
 	/** Function to setup variables for precise motion. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SetupMovement(float Speed, float Acceleration, float TurnRate);
+	void SetupMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate);
 
 	/** Function that makes the character move in the specified direction. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
@@ -63,7 +57,7 @@ protected:
 
 	/** Called to set acceleration to a value. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetAcceleration(float Acceleration);
+	void SetAcceleration(float TargetAcceleration);
 
 	/** Called to reset acceleration. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -92,9 +86,4 @@ protected:
 	/** Called to reset gravity. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ResetGravity();
-	
-private:
-	/** The component's owner. */
-	UPROPERTY(VisibleAnywhere, Category = "Owner")
-	ACharacter* Owner;
 };

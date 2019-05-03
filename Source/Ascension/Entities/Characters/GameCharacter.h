@@ -13,7 +13,7 @@ class ASCENSION_API AGameCharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	AGameCharacter();
+	AGameCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	// Called when the game starts or when spawned

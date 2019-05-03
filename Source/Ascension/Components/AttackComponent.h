@@ -23,7 +23,7 @@ public:
 	  * To be called from main entity to initialize these variables.
 	  */
 	UFUNCTION(BlueprintCallable, Category = "Initialization")
-	void Initialize(const float NormalSpeed, const float NormalAcceleration, const float NormalTurnRate, const float ActionTurnRate);
+	void Initialize(const float ActionTurnRate);
 
 protected:
 	// Called when the component is in play.
@@ -68,18 +68,6 @@ protected:
 	FAttack NullAttack;
 
 protected:
-	/** Normal speed of the character. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float NormalSpeed;
-
-	/** Acceleration of the character. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float NormalAcceleration;
-
-	/** Base turn rate of the charater. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float NormalTurnRate;
-
 	/** Turn rate of the character when performing an action. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float ActionTurnRate;

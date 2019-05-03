@@ -15,23 +15,25 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable
 	GENERATED_BODY()
 
 	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	/** Component handling attacks. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	/** Component handling attacks. 
+	 * TODO: Make this a default subobject.
+	 */
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
 
-	/** Component handling precise movement. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UGameMovementComponent* GameMovementComponent;
+public:
+	/** Name of the attack component. */
+	static FName AttackComponentName;
 
 public:
-	AAscensionCharacter();
+	AAscensionCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	/** Character's BeginPlay function. */
 	virtual void BeginPlay();

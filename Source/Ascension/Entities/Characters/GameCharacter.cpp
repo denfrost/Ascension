@@ -2,9 +2,11 @@
 
 #include "Ascension.h"
 #include "GameCharacter.h"
+#include "Components/GameMovementComponent.h"
 
 // Sets default values
-AGameCharacter::AGameCharacter()
+AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGameMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

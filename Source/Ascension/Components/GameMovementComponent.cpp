@@ -5,38 +5,30 @@
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
-UGameMovementComponent::UGameMovementComponent()
+UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// Set movement speeds.
-	BaseSpeed = 500.0f;
-	BaseAcceleration = 2048.0f;
-	BaseTurnRate = 540.0f;
-}
-
-void UGameMovementComponent::Initialize(const float DefaultSpeed, const float DefaultAcceleration, const float DefaultTurnRate)
-{
-	BaseSpeed = DefaultSpeed;
-	BaseAcceleration = DefaultAcceleration;
-	BaseTurnRate = DefaultTurnRate;
+	DefaultSpeed = MaxWalkSpeed;
+	DefaultAcceleration = MaxAcceleration;
+	DefaultTurnRate = RotationRate.Yaw;
 }
 
 // Called when the game starts
 void UGameMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Owner = Cast<ACharacter>(GetOwner());
 }
 
-void UGameMovementComponent::SetupMovement(float Speed, float Acceleration, float TurnRate)
+void UGameMovementComponent::SetupMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate)
 {
-	SetMovementSpeed(Speed);
-	SetAcceleration(Acceleration);
-	SetTurningRate(TurnRate);
+	SetMovementSpeed(TargetSpeed);
+	SetAcceleration(TargetAcceleration);
+	SetTurningRate(TargetTurnRate);
 }
 
 void UGameMovementComponent::Move(FVector BaseDirection, FVector MovementVector)
@@ -48,7 +40,7 @@ void UGameMovementComponent::Move(FVector BaseDirection, FVector MovementVector)
 
 	FVector Direction = ForwardVector + SideVector + UpVector;
 
-	Owner->AddMovementInput(Direction);
+	AddInputVector(Direction, false);
 }
 
 void UGameMovementComponent::FinishMovement()
@@ -60,56 +52,56 @@ void UGameMovementComponent::FinishMovement()
 
 void UGameMovementComponent::SetMovementSpeed(float Speed)
 {
-	Owner->GetCharacterMovement()->MaxWalkSpeed = Speed;
+	MaxWalkSpeed = Speed;
 }
 
 void UGameMovementComponent::ResetMovementSpeed()
 {
-	Owner->GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	MaxWalkSpeed = DefaultSpeed;
 }
 
-void UGameMovementComponent::SetAcceleration(float Acceleration)
+void UGameMovementComponent::SetAcceleration(float TargetAcceleration)
 {
-	Owner->GetCharacterMovement()->MaxAcceleration = Acceleration;
+	MaxAcceleration = TargetAcceleration;
 }
 
 void UGameMovementComponent::ResetAcceleration()
 {
-	Owner->GetCharacterMovement()->MaxAcceleration = BaseAcceleration;
+	MaxAcceleration = DefaultAcceleration;
 }
 
 void UGameMovementComponent::SetTurningRate(float Rate)
 {
-	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, Rate, 0.0f);
+	RotationRate = FRotator(0.0f, Rate, 0.0f);
 }
 
 void UGameMovementComponent::ResetTurningRate()
 {
-	Owner->GetCharacterMovement()->RotationRate = FRotator(0.0f, BaseTurnRate, 0.0f);
+	RotationRate = FRotator(0.0f, DefaultTurnRate, 0.0f);
 }
 
 void UGameMovementComponent::SetGravity(float GravityValue)
 {
-	Owner->GetCharacterMovement()->GravityScale = GravityValue;
+	GravityScale = GravityValue;
 }
 
 void UGameMovementComponent::ResetGravity()
 {
-	Owner->GetCharacterMovement()->GravityScale = 1.0f;
+	GravityScale = 1.0f;
 }
 
 void UGameMovementComponent::SetFlyable()
 {
-	if (Owner->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Flying)
+	if (MovementMode != EMovementMode::MOVE_Flying)
 	{
-		Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
+		MovementMode = EMovementMode::MOVE_Flying;
 	}
 }
 
 void UGameMovementComponent::ResetFlyable()
 {
-	if (Owner->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying)
+	if (MovementMode == EMovementMode::MOVE_Flying)
 	{
-		Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+		MovementMode = EMovementMode::MOVE_Walking;
 	}
 }

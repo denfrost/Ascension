@@ -10,7 +10,10 @@
 //////////////////////////////////////////////////////////////////////////
 // AAscensionCharacter
 
-AAscensionCharacter::AAscensionCharacter()
+FName AAscensionCharacter::AttackComponentName(TEXT("AttackComp"));
+
+AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Set size for collision capsule.
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -69,7 +72,6 @@ AAscensionCharacter::AAscensionCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	AttackComponent = nullptr;
-	GameMovementComponent = nullptr;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
