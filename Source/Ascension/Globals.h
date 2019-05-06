@@ -86,7 +86,7 @@ struct FAttackEffect
 };
 
 USTRUCT(BlueprintType)
-struct FAttack
+struct FAttackStruct
 {
 	GENERATED_BODY()
 

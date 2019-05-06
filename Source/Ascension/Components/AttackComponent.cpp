@@ -44,7 +44,7 @@ void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttack& Attack)
+void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttackStruct& Attack)
 {
 	Attacks.Add(Attack);
 	int AttackIndex = Attacks.Num() - 1;
@@ -52,7 +52,7 @@ void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, co
 	AttackNameMap.Add(AttackName, AttackIndex);
 }
 
-void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttack& Attack)
+void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttackStruct& Attack)
 {
 	int* Index = AttackNameMap.Find(AttackName);
 	if (Index)
@@ -67,7 +67,7 @@ void UAttackComponent::GetAttack(const FString& AttackName, bool& Found, FAttack
 	}
 }
 
-void UAttackComponent::SetAttack(const bool& Found, const FAttack& Attack)
+void UAttackComponent::SetAttack(const bool& Found, const FAttackStruct& Attack)
 {
 	if (Found)
 	{

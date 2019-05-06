@@ -29,11 +29,6 @@ public:
 	virtual void Activate();
 
 	/**
-	 * Called to update the ability every frame.
-	 */
-	virtual void Tick();
-
-	/**
 	 * This method finishes the execution of ability.
 	 */
 	virtual void Finish();

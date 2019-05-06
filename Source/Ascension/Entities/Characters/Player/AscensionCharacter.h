@@ -22,9 +22,7 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	/** Component handling attacks. 
-	 * TODO: Make this a default subobject.
-	 */
+	/** Component handling attacks. */
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
 

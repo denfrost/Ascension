@@ -37,7 +37,7 @@ protected:
 	* Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
 	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
-	TArray<FAttack> Attacks;
+	TArray<FAttackStruct> Attacks;
 
 	/** Structure that maps attack names to their respective indices.
 	* Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
@@ -61,11 +61,11 @@ public:
 protected:
 	/** Attack to be performed. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack AttackToPerform;
+	FAttackStruct AttackToPerform;
 
 	/** Used for comparison purposes. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttack NullAttack;
+	FAttackStruct NullAttack;
 
 protected:
 	/** Turn rate of the character when performing an action. */
@@ -79,15 +79,15 @@ protected:
 public:
 	/** Creates an attack and adds it's details to the respective lists. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Initialization")
-	void CreateAttack(const FString& AttackName, const FAttack& Attack);
+	void CreateAttack(const FString& AttackName, const FAttackStruct& Attack);
 
 	/** Retrieves the specified attack. Found is set to true if the attack is valid. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void GetAttack(const FString& AttackName, bool& Found, FAttack& Attack);
+	void GetAttack(const FString& AttackName, bool& Found, FAttackStruct& Attack);
 
 	/** Sets the specified attack as the attack to perform and sets movement-related parameters. */
 	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetAttack(const bool& Found, const FAttack& Attack);
+	void SetAttack(const bool& Found, const FAttackStruct& Attack);
 
 public:
 	/** Called for the character to perform the specified attack. */
