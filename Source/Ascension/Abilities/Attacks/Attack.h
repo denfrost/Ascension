@@ -10,7 +10,7 @@
 /**
  * Class for implementing attacks which can be performed by entities.
  */
-UCLASS()
+UCLASS(Blueprintable, ClassGroup = (Attacks))
 class ASCENSION_API UAttack : public UAbility
 {
 	GENERATED_BODY()
@@ -18,6 +18,12 @@ class ASCENSION_API UAttack : public UAbility
 public:
 	/** Sets the default values for this object's properties. */
 	UAttack();
+
+public:
+	/**
+	 * Function to check whether an attack can be activated.
+	 */
+	virtual bool CanActivate() const = 0;
 
 protected:
 	/** Animation montage of the attack. */

@@ -4,6 +4,7 @@
 #include "AttackComponent.h"
 #include "GameMovementComponent.h"
 #include "Interfaces/Damageable.h"
+#include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -42,6 +43,11 @@ void UAttackComponent::BeginPlay()
 void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+}
+
+bool UAttackComponent::CanAttack()
+{
+	return false;
 }
 
 void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttackStruct& Attack)
@@ -112,6 +118,16 @@ void UAttackComponent::FinishMotion()
 
 void UAttackComponent::Attack_Implementation(const FString& AttackName, const FVector& MovementIntent)
 {
+	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+	UAttack* Attack = SelectAttack(AttackName);
+
+	if (Attack != nullptr)
+	{
+		ActionDirection = MovementIntent;
+		AbilitySystem->ActivateAbility(Attack->AbilityName);
+	}
+
+	/*
 	AttackToPerform = NullAttack;
 	SelectAttack(AttackName);
 
@@ -120,9 +136,21 @@ void UAttackComponent::Attack_Implementation(const FString& AttackName, const FV
 		ActionDirection = MovementIntent;
 		Owner->PlayAnimMontage(AttackToPerform.AnimMontage);
 	}
+	*/
 }
 
-void UAttackComponent::SelectAttack_Implementation(const FString& AttackType) {}
+UAttack* UAttackComponent::SelectAttack_Implementation(const FString& AttackType)
+{
+	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+	UAttack* Attack = nullptr;
+
+	if (AbilitySystem)
+	{
+		Attack = Cast<UAttack>(AbilitySystem->GetAbility(AttackType));
+	}
+
+	return Attack;
+}
 
 void UAttackComponent::Reset_Implementation()
 {

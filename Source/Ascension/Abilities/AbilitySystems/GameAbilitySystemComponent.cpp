@@ -12,7 +12,7 @@ UGameAbilitySystemComponent::UGameAbilitySystemComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	Abilities.Empty();
-	ActiveAbility = nullptr;
+	ActiveAbilities.Empty();
 	Owner = nullptr;
 }
 
@@ -55,8 +55,13 @@ UAbility* UGameAbilitySystemComponent::GetAbility(FString AbilityName)
 	return nullptr;
 }
 
-bool UGameAbilitySystemComponent::CanActivateAbility()
+bool UGameAbilitySystemComponent::CanActivateAbility(const UAbility* Ability)
 {
+	if (Ability != nullptr)
+	{
+		return Ability->CanActivate();
+	}
+
 	return false;
 }
 
@@ -66,8 +71,23 @@ void UGameAbilitySystemComponent::ActivateAbility(FString AbilityName)
 
 	if (Ability != nullptr)
 	{
-		Ability->Activate();
+		if (CanActivateAbility(Ability))
+		{
+			Ability->Activate();
+			ActiveAbilities.Add(Ability);
+		}
 	}
 }
 
-void UGameAbilitySystemComponent::FinishAbility() {}
+void UGameAbilitySystemComponent::FinishAbility(FString AbilityName)
+{
+	for (int i = 0; i < ActiveAbilities.Num(); i++)
+	{
+		if (ActiveAbilities[i]->AbilityName.Equals(AbilityName))
+		{
+			ActiveAbilities[i]->Finish();
+			ActiveAbilities.RemoveAt(i);
+			i--;
+		}
+	}
+}

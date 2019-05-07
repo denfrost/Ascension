@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/AttackComponent.h"
+#include "Abilities/Attacks/Attack.h"
 #include "PlayerAttackComponent.generated.h"
 
 
@@ -24,9 +25,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combos")
 	int ComboMeter;
 	
+protected:
+	/** Set to true if the character can chain an attack. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool CanChain;
+
 public:
+	/** Function to check whether the player can attack. */
+	UFUNCTION(BlueprintCallable, Category = "Validations")
+	bool CanAttack();
+
+	/** Function to check whether the player can attack. */
+	UFUNCTION(BlueprintCallable, Category = "Setters")
+	void SetCanChain(bool Chain);
+
 	/** Implementation for selecting attacks. */
-	virtual void SelectAttack_Implementation(const FString& AttackType);
+	virtual UAttack* SelectAttack_Implementation(const FString& AttackType);
 
 	/** Implementation for resetting attacks. */
 	virtual void Reset_Implementation();

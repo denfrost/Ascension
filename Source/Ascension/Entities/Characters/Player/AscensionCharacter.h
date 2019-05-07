@@ -26,9 +26,16 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
 
+	/** Component handling abilities. */
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UPlayerAbilitySystemComponent* AbilitySystemComponent;
+
 public:
 	/** Name of the attack component. */
 	static FName AttackComponentName;
+
+	/** Name of the ability system component. */
+	static FName AbilitySystemComponentName;
 
 public:
 	AAscensionCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -110,10 +117,6 @@ public:
 	/** Turn rate of the character when performing an action. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float ActionTurnRate;
-
-	/** Set to true if the character can chain an attack. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	bool CanChain;
 
 	/** Used to indicate to the animation blueprint whether the character should switch weapons. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -247,10 +250,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ResetGravity();
 
-	/** Called to check if the player can attack. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	bool CanAttack();
-
 	/** Handler for when a touch input begins. */
 	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
@@ -314,7 +313,7 @@ public:
 	void SwitchComplete();
 
 	/** Event called when character can chain an attack.
-	  * Sets CanChainAttack.
+	  * Tells the attack component that it can chain an attack.
 	  */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void CanChainAttack();

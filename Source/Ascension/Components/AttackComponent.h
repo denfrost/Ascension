@@ -4,6 +4,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Globals.h"
+#include "Abilities/Attacks/Attack.h"
 #include "AttackComponent.generated.h"
 
 
@@ -34,14 +35,14 @@ protected:
 	
 protected:
 	/** Array containing the attacks.
-	* Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
-	*/
+	 * Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TArray<FAttackStruct> Attacks;
 
 	/** Structure that maps attack names to their respective indices.
-	* Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
-	*/
+	 * Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
 	TMap<FString, int> AttackNameMap;
 
@@ -49,7 +50,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Collision")
 	UBoxComponent* AttackHitBox;
 
-	/** Array containing actors that have been damaged by this attack. */
+	/** Array containing actors that have been damaged by this attack. 
+	 * TODO: Move to Ability.
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Damage")
 	TArray<AActor*> DamagedActors;
 
@@ -77,6 +80,10 @@ protected:
 	FVector ActionDirection;
 
 public:
+	/** Function to check whether this component's owner can attack. */
+	UFUNCTION(BlueprintCallable, Category = "Validations")
+	virtual bool CanAttack();
+
 	/** Creates an attack and adds it's details to the respective lists. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Initialization")
 	void CreateAttack(const FString& AttackName, const FAttackStruct& Attack);
@@ -97,8 +104,8 @@ public:
 
 	/** Function to select the attack to perform next. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void SelectAttack(const FString& AttackType);
-	virtual void SelectAttack_Implementation(const FString& AttackType);
+	UAttack* SelectAttack(const FString& AttackType);
+	virtual UAttack* SelectAttack_Implementation(const FString& AttackType);
 
 	/** Event called when a combo is finished/reset.
 	* Performs necessary actions after a combo is completed.
@@ -117,14 +124,16 @@ public:
 
 public:
 	/** Event called when character's movement needs to be set to flying.
-	* Sets movement mode to flying.
-	*/
+	 * Sets movement mode to flying.
+	 * TODO: Remove/Refactor to GameMovementComponent.
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void SetFlyable();
 
 	/** Event called when character's movement needs to be set to walking.
-	* Sets movement mode to walking.
-	*/
+	 * Sets movement mode to walking.
+	 * TODO: Remove/Refactor to GameMovementComponent.
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetFlyable();
 
@@ -146,7 +155,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void FinishMotion();
 
-private:
+protected:
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")
 	ACharacter* Owner;

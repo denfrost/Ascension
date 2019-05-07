@@ -4,6 +4,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Components/PlayerAttackComponent.h"
+#include "Abilities/AbilitySystems/PlayerAbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AscensionCharacter.h"
 
@@ -11,6 +12,7 @@
 // AAscensionCharacter
 
 FName AAscensionCharacter::AttackComponentName(TEXT("AttackComp"));
+FName AAscensionCharacter::AbilitySystemComponentName(TEXT("AbilitySystemComp"));
 
 AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -40,7 +42,6 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	ActionTurnRate = 2048.0f;
 
 	// Set gameplay variables.
-	CanChain = false;
 	ShouldCharSwitch = false;
 	CanMove = true;
 
@@ -74,6 +75,9 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	// Create and initialize the player's attack component.
 	AttackComponent = CreateDefaultSubobject<UPlayerAttackComponent>(AAscensionCharacter::AttackComponentName);
 	AttackComponent->Initialize(ActionTurnRate);
+
+	// Create and initialize the player's ability system component.
+	AbilitySystemComponent = CreateDefaultSubobject<UPlayerAbilitySystemComponent>(AAscensionCharacter::AttackComponentName);
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -262,10 +266,11 @@ void AAscensionCharacter::StopJumping()
 
 void AAscensionCharacter::LightAttack_Implementation()
 {
-	if (CanAttack() && !Dead)
+	if (AttackComponent)
 	{
-		if (AttackComponent)
+		if (AttackComponent->CanAttack())
 		{
+			// TODO: Move state transition logic into separate class, and use the attack component to transition state.
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
 
@@ -286,13 +291,14 @@ void AAscensionCharacter::LightAttack_Implementation()
 
 void AAscensionCharacter::StrongAttack_Implementation()
 {
-	if (CanAttack() && !Dead)
+	if (AttackComponent)
 	{
-		if (AttackComponent)
+		if (AttackComponent->CanAttack())
 		{
+			// TODO: Move state transition logic into separate class, and use the attack component to transition state.
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;
-			
+
 			if (LockedOn && LockedActor != nullptr)
 			{
 				FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
@@ -342,34 +348,6 @@ void AAscensionCharacter::SwitchWeapon()
 		CharacterState = ECharacterState::CS_Switching;
 		ShouldCharSwitch = true;
 		SetTurningRate(100.0f);
-	}
-}
-
-bool AAscensionCharacter::CanAttack()
-{
-	if ((CharacterState == ECharacterState::CS_Idle || CharacterState == ECharacterState::CS_Attacking) &&
-		(MovementState == EMovementState::MS_OnGround) && (WeaponState == EWeaponState::WS_Unsheathed) && !Dead)
-	{
-		if (CharacterState == ECharacterState::CS_Attacking)
-		{
-			if (CanChain)
-			{
-				CanChain = false;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		return false;
 	}
 }
 
@@ -456,7 +434,6 @@ void AAscensionCharacter::ResetAttack_Implementation()
 {
 	CharacterState = ECharacterState::CS_Idle;
 	CanMove = true;
-	CanChain = false;
 
 	if (AttackComponent)
 	{
@@ -500,7 +477,10 @@ void AAscensionCharacter::FinishDodgeMotion()
 
 void AAscensionCharacter::CanChainAttack_Implementation()
 {
-	CanChain = true;
+	if (AttackComponent)
+	{
+		AttackComponent->SetCanChain(true);
+	}
 }
 
 void AAscensionCharacter::SetFlyable_Implementation()

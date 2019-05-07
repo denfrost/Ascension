@@ -32,7 +32,7 @@ protected:
 	TArray<class UAbility*> Abilities;
 
 	/** Currently active ability. */
-	class UAbility* ActiveAbility;
+	TArray<class UAbility*> ActiveAbilities;
 
 	/** Ability system owner. */
 	AActor* Owner;
@@ -52,8 +52,9 @@ public:
 
 	/**
 	 * Function to check whether the entity can use an ability.
+	 * @param Ability	Ability to check for.
 	 */
-	virtual bool CanActivateAbility();
+	virtual bool CanActivateAbility(const UAbility* Ability);
 
 	/**
 	 * This method activates an ability.
@@ -64,6 +65,6 @@ public:
 	/**
 	 * This method ends the execution of the current ability.
 	 */
-	virtual void FinishAbility();
+	virtual void FinishAbility(FString AbilityName);
 
 };

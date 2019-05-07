@@ -23,6 +23,11 @@ public:
 	 */
 	virtual void Initialize();
 
+	/** 
+	 * Function to check whether an ability can be activated.
+	 */
+	virtual bool CanActivate() const = 0;
+
 	/**
 	 * This method activates the ability.
 	 */
