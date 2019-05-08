@@ -31,8 +31,6 @@ protected:
 	bool CanChain;
 
 public:
-	/** Function to check whether the player can attack. */
-	UFUNCTION(BlueprintCallable, Category = "Validations")
 	bool CanAttack();
 
 	/** Function to check whether the player can attack. */

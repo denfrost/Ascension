@@ -45,6 +45,12 @@ public:
 	virtual UAbility* GetAbility(FString AbilityName);
 
 	/**
+	 * Function to add an ability to the system.
+	 * @param Ability	Ability to add.
+	 */
+	virtual void AddAbility(class UAbility* Ability);
+
+	/**
 	 * Function to initialize an ability.
 	 * @param AbilityName	Name of the ability to initialize.
 	 */

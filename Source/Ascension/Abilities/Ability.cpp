@@ -2,9 +2,19 @@
 
 #include "Ascension.h"
 #include "Ability.h"
+#include "AbilitySystems/GameAbilitySystemComponent.h"
 
 
-void UAbility::Initialize() {}
+UAbility::UAbility(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	AbilitySystem = nullptr;
+}
+
+void UAbility::Initialize(UGameAbilitySystemComponent* System)
+{
+	AbilitySystem = System;
+}
 
 void UAbility::Activate() {}
 

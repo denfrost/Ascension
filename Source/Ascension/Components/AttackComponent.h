@@ -37,14 +37,14 @@ protected:
 	/** Array containing the attacks.
 	 * Do NOT directly modify this. Use CreateAttack to add attacks to this instead.
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
-	TArray<FAttackStruct> Attacks;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
+	// TArray<FAttackStruct> Attacks;
 
 	/** Structure that maps attack names to their respective indices.
 	 * Do NOT directly modify this. Use CreateAttack to add attack name - index values to this instead.
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
-	TMap<FString, int> AttackNameMap;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attacks")
+	// TMap<FString, int> AttackNameMap;
 
 	/** Collision box that checks what actors are hit. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Collision")
@@ -63,12 +63,12 @@ public:
 
 protected:
 	/** Attack to be performed. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttackStruct AttackToPerform;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+	// FAttackStruct AttackToPerform;
 
 	/** Used for comparison purposes. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
-	FAttackStruct NullAttack;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+	// FAttackStruct NullAttack;
 
 protected:
 	/** Turn rate of the character when performing an action. */
@@ -85,16 +85,16 @@ public:
 	virtual bool CanAttack();
 
 	/** Creates an attack and adds it's details to the respective lists. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Initialization")
-	void CreateAttack(const FString& AttackName, const FAttackStruct& Attack);
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Initialization")
+	// void CreateAttack(const FString& AttackName, const FAttackStruct& Attack);
 
 	/** Retrieves the specified attack. Found is set to true if the attack is valid. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void GetAttack(const FString& AttackName, bool& Found, FAttackStruct& Attack);
+	// UFUNCTION(BlueprintCallable, Category = "Helper")
+	// void GetAttack(const FString& AttackName, bool& Found, FAttackStruct& Attack);
 
 	/** Sets the specified attack as the attack to perform and sets movement-related parameters. */
-	UFUNCTION(BlueprintCallable, Category = "Helper")
-	void SetAttack(const bool& Found, const FAttackStruct& Attack);
+	// UFUNCTION(BlueprintCallable, Category = "Helper")
+	// void SetAttack(const bool& Found, const FAttackStruct& Attack);
 
 public:
 	/** Called for the character to perform the specified attack. */
@@ -143,19 +143,35 @@ public:
 	void FinalizeAttackDirection(FVector MovementIntent);
 
 protected:
-	/** Function to setup variables for attack motion. */
+	/** 
+	 * Function to setup variables for attack motion.
+	 * TODO: Refactor this to movement component entirely.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SetupMotion();
 
-	/** Function that makes the character move in the specified direction. */
+	/** 
+	 * Function that makes the character move in the specified direction.
+	 * TODO: Refactor this to movement component entirely.
+	 * @param MovementVector	Direction to move in.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void AttackMotion(FVector MovementVector);
 
-	/** Function that resets variables to normal values when the attack completes. */
+	/**
+	 * Function that resets variables to normal values when the attack completes.
+	 * TODO: Refactor this to movement component entirely.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void FinishMotion();
 
 protected:
+	/**
+	 * The currently active attack.
+	 * TODO: Find a better way to do this.
+	 */
+	FString* ActiveAttack;
+
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")
 	ACharacter* Owner;

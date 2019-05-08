@@ -23,6 +23,11 @@ void UGameAbilitySystemComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	Owner = Cast<AActor>(GetOwner());
+
+	for (int i = 0; i < Abilities.Num(); i++)
+	{
+		Abilities[i]->Initialize(this);
+	}
 }
 
 
@@ -38,7 +43,7 @@ void UGameAbilitySystemComponent::InitializeAbility(FString AbilityName)
 
 	if (Ability != nullptr)
 	{
-		Ability->Initialize();
+		Ability->Initialize(this);
 	}
 }
 
@@ -53,6 +58,17 @@ UAbility* UGameAbilitySystemComponent::GetAbility(FString AbilityName)
 	}
 
 	return nullptr;
+}
+
+void UGameAbilitySystemComponent::AddAbility(UAbility* Ability)
+{
+	UAbility* ExistingAbility = GetAbility(Ability->AbilityName);
+	
+	if (ExistingAbility == nullptr)
+	{
+		Abilities.Add(Ability);
+		Ability->Initialize(this);
+	}
 }
 
 bool UGameAbilitySystemComponent::CanActivateAbility(const UAbility* Ability)

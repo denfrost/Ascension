@@ -16,8 +16,15 @@ class ASCENSION_API UAttack : public UAbility
 	GENERATED_BODY()
 	
 public:
-	/** Sets the default values for this object's properties. */
-	UAttack();
+	/**
+	 * Constructor of the attack.
+	 */
+	UAttack(const FObjectInitializer& ObjectInitializer);
+
+	/**
+	 * This method activates the ability.
+	 */
+	virtual void Activate();
 
 public:
 	/**
@@ -27,7 +34,7 @@ public:
 
 protected:
 	/** Animation montage of the attack. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
 	UAnimMontage* AnimMontage;
 
 	/** Details of movement during attacks. */
@@ -40,4 +47,19 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Variables")
 	FAttackEffectInfo EffectInfo;
+
+public:
+	/**
+	 * Gets the movement info of the attack.
+	 * TODO: Remove this.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Getters")
+	FAttackMovementInfo GetMovementInfo() const;
+
+	/**
+	 * Gets the effect info of the attack.
+	 * TODO: Remove this.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Getters")
+	FAttackEffectInfo GetEffectInfo() const;
 };

@@ -21,9 +21,14 @@ UAttackComponent::UAttackComponent()
 	AttackHitBox = nullptr;
 	DamagedActors.Empty();
 
+	// Set currently active attack.
+	ActiveAttack = nullptr;
+
 	// Clear maps and arrays.
+	/*
 	Attacks.Empty();
 	AttackNameMap.Empty();
+	*/
 }
 
 
@@ -50,6 +55,7 @@ bool UAttackComponent::CanAttack()
 	return false;
 }
 
+/*
 void UAttackComponent::CreateAttack_Implementation(const FString& AttackName, const FAttackStruct& Attack)
 {
 	Attacks.Add(Attack);
@@ -84,16 +90,34 @@ void UAttackComponent::SetAttack(const bool& Found, const FAttackStruct& Attack)
 		AttackToPerform = NullAttack;
 	}
 }
+*/
 
 void UAttackComponent::SetupMotion()
 {
-	if (AttackToPerform.AnimMontage != nullptr)
+	if (ActiveAttack != nullptr)
 	{
+		UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+
+		if (AbilitySystem)
+		{
+			UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(*ActiveAttack));
+			UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
+
+			if (Attack != nullptr && MovementComponent != nullptr)
+			{
+				MovementComponent->SetupMovement(Attack->GetMovementInfo().Speed, 
+												 Attack->GetMovementInfo().Acceleration, 
+												 ActionTurnRate);
+			}
+		}
+
+		/*
 		UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
 		if (MovementComponent != nullptr)
 		{
 			MovementComponent->SetupMovement(AttackToPerform.Speed, AttackToPerform.Acceleration, ActionTurnRate);
 		}
+		*/
 	}
 }
 
@@ -123,6 +147,11 @@ void UAttackComponent::Attack_Implementation(const FString& AttackName, const FV
 
 	if (Attack != nullptr)
 	{
+		if (ActiveAttack != nullptr)
+		{
+			AbilitySystem->FinishAbility(*ActiveAttack);
+		}
+
 		ActionDirection = MovementIntent;
 		AbilitySystem->ActivateAbility(Attack->AbilityName);
 	}
@@ -175,8 +204,21 @@ void UAttackComponent::DetectHit()
 				{
 					if (OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 					{
-						IDamageable::Execute_ApplyHitEffect(OtherActor, GetOwner(), AttackToPerform.Damage, AttackToPerform.HitEffect, AttackToPerform.AttackEffect);
-						DamagedActors.Add(OtherActor);
+						UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+
+						if (ActiveAttack != nullptr && AbilitySystem != nullptr)
+						{
+							UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(*ActiveAttack));
+
+							if (Attack != nullptr)
+							{
+								IDamageable::Execute_ApplyHitEffect(OtherActor, GetOwner(), 
+																	Attack->GetEffectInfo().Damage, 
+																	Attack->GetEffectInfo().HitEffect, 
+																	Attack->GetEffectInfo().AttackEffect);
+								DamagedActors.Add(OtherActor);
+							}
+						}
 					}
 				}
 			}

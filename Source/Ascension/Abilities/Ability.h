@@ -14,6 +14,11 @@ class ASCENSION_API UAbility : public UObject
 {
 	GENERATED_BODY()
 	
+	/**
+	 * Constructor of the ability.
+	 */
+	UAbility(const FObjectInitializer& ObjectInitializer);
+
 public:
 	FString AbilityName;
 
@@ -21,7 +26,7 @@ public:
 	/**
 	 * Used to initialize the ability.
 	 */
-	virtual void Initialize();
+	virtual void Initialize(class UGameAbilitySystemComponent* System);
 
 	/** 
 	 * Function to check whether an ability can be activated.
@@ -37,4 +42,9 @@ public:
 	 * This method finishes the execution of ability.
 	 */
 	virtual void Finish();
+
+protected:
+	// TODO: Find a better way to initialize this.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	class UGameAbilitySystemComponent* AbilitySystem;
 };
