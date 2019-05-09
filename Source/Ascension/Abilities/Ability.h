@@ -14,12 +14,14 @@ class ASCENSION_API UAbility : public UObject
 {
 	GENERATED_BODY()
 	
+public:
 	/**
 	 * Constructor of the ability.
 	 */
-	UAbility(const FObjectInitializer& ObjectInitializer);
+	UAbility();
 
 public:
+	UPROPERTY(Category = Properties, EditDefaultsOnly, BlueprintReadWrite)
 	FString AbilityName;
 
 public:
@@ -31,7 +33,7 @@ public:
 	/** 
 	 * Function to check whether an ability can be activated.
 	 */
-	virtual bool CanActivate() const = 0;
+	virtual bool CanActivate() const;
 
 	/**
 	 * This method activates the ability.

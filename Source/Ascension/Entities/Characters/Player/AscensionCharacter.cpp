@@ -77,7 +77,7 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	AttackComponent->Initialize(ActionTurnRate);
 
 	// Create and initialize the player's ability system component.
-	AbilitySystemComponent = CreateDefaultSubobject<UPlayerAbilitySystemComponent>(AAscensionCharacter::AttackComponentName);
+	AbilitySystemComponent = CreateDefaultSubobject<UPlayerAbilitySystemComponent>(AAscensionCharacter::AbilitySystemComponentName);
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -270,6 +270,7 @@ void AAscensionCharacter::LightAttack_Implementation()
 	{
 		if (AttackComponent->CanAttack())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Player can attack!"))
 			// TODO: Move state transition logic into separate class, and use the attack component to transition state.
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;

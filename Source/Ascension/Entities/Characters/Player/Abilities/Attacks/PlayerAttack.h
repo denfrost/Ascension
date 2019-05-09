@@ -14,4 +14,6 @@ class ASCENSION_API UPlayerAttack : public UAttack
 {
 	GENERATED_BODY()
 	
+public:
+	virtual bool CanActivate() const override;
 };

@@ -28,10 +28,15 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
-	/** Array of abilities. */
+	/**
+	 * Array of abilities.
+	 * TODO: Does this need to be an array of pointers?
+	 */
+	UPROPERTY(Category = Abilities, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<class UAbility*> Abilities;
 
 	/** Currently active ability. */
+	UPROPERTY(Category = Abilities, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<class UAbility*> ActiveAbilities;
 
 	/** Ability system owner. */

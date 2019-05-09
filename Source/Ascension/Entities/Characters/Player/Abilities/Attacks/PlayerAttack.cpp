@@ -3,3 +3,7 @@
 #include "Ascension.h"
 #include "PlayerAttack.h"
 
+bool UPlayerAttack::CanActivate() const
+{
+	return true;
+}

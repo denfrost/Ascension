@@ -19,18 +19,12 @@ public:
 	/**
 	 * Constructor of the attack.
 	 */
-	UAttack(const FObjectInitializer& ObjectInitializer);
+	UAttack();
 
 	/**
 	 * This method activates the ability.
 	 */
 	virtual void Activate();
-
-public:
-	/**
-	 * Function to check whether an attack can be activated.
-	 */
-	virtual bool CanActivate() const = 0;
 
 protected:
 	/** Animation montage of the attack. */
@@ -38,14 +32,14 @@ protected:
 	UAnimMontage* AnimMontage;
 
 	/** Details of movement during attacks. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
 	FAttackMovementInfo MovementInfo;
 
 	/**
 	 * Details of the attacks effects.
 	 * TODO: Rework this.
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
 	FAttackEffectInfo EffectInfo;
 
 public:

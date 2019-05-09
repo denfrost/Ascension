@@ -4,8 +4,7 @@
 #include "Attack.h"
 #include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
 
-UAttack::UAttack(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UAttack::UAttack()
 {
 	AnimMontage = nullptr;
 }
@@ -24,7 +23,7 @@ FAttackMovementInfo UAttack::GetMovementInfo() const
 	return MovementInfo;
 }
 
-FAttacEffectInfo UAttack::GetEffectInfo() const
+FAttackEffectInfo UAttack::GetEffectInfo() const
 {
 	return EffectInfo;
 }

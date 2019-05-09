@@ -5,8 +5,7 @@
 #include "AbilitySystems/GameAbilitySystemComponent.h"
 
 
-UAbility::UAbility(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UAbility::UAbility()
 {
 	AbilitySystem = nullptr;
 }
@@ -14,6 +13,11 @@ UAbility::UAbility(const FObjectInitializer& ObjectInitializer)
 void UAbility::Initialize(UGameAbilitySystemComponent* System)
 {
 	AbilitySystem = System;
+}
+
+bool UAbility::CanActivate() const
+{
+	return false;
 }
 
 void UAbility::Activate() {}
