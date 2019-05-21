@@ -69,6 +69,11 @@ public:
 	void Attack(const FString& AttackName, const FVector& MovementIntent);
 	virtual void Attack_Implementation(const FString& AttackName, const FVector& MovementIntent);
 
+	/** Called for the character to finish the specified attack. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
+	void FinishAttack(const FString& AttackName);
+	virtual void FinishAttack_Implementation(const FString& AttackName);
+
 	/** Function to select the attack to perform next. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	UAttack* SelectAttack(const FString& AttackType);
@@ -135,7 +140,7 @@ protected:
 protected:
 	/**
 	 * The currently active attack.
-	 * TODO: Find a better way to do this.
+	 * TODO: Remove this.
 	 */
 	FString ActiveAttack;
 

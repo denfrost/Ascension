@@ -120,16 +120,19 @@ UAttack* UAttackComponent::SelectAttack_Implementation(const FString& AttackType
 	return Attack;
 }
 
-void UAttackComponent::Reset_Implementation()
+void UAttackComponent::FinishAttack_Implementation(const FString& AttackName)
 {
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(ActiveAttack));
+	UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(AttackName));
 
 	if (Attack)
 	{
 		AbilitySystem->FinishAbility(Attack->AbilityName);
 	}
+}
 
+void UAttackComponent::Reset_Implementation()
+{
 	ActiveAttack = FString();
 	ResetFlyable();
 }
