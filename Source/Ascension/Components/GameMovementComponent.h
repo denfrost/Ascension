@@ -86,4 +86,15 @@ protected:
 	/** Called to reset gravity. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ResetGravity();
+
+public:
+	/**
+	 * Moves along the given movement direction using simple movement rules based on the current movement mode (usually used by simulated proxies).
+	 *
+	 * @param InVelocity:			Velocity of movement
+	 * @param DeltaSeconds:			Time over which movement occurs
+	 * @param OutStepDownResult:	[Out] If non-null, and a floor check is performed, this will be updated to reflect that result.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void PerformMove(const FVector& InVelocity, const float DeltaSeconds);
 };

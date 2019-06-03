@@ -105,3 +105,8 @@ void UGameMovementComponent::ResetFlyable()
 		MovementMode = EMovementMode::MOVE_Walking;
 	}
 }
+
+void UGameMovementComponent::PerformMove(const FVector& InVelocity, const float DeltaSeconds)
+{
+	MoveSmooth(InVelocity, DeltaSeconds);
+}
