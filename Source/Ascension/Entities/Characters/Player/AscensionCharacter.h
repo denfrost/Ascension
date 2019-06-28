@@ -3,6 +3,7 @@
 #include "Entities/Characters/GameCharacter.h"
 #include "Globals.h"
 #include "Interfaces/Damageable.h"
+#include "Interfaces/MovementIntent.h"
 #include "AscensionCharacter.generated.h"
 
 
@@ -10,7 +11,7 @@
   *	This is the character that the player controls and plays the game with.
   */
 UCLASS(config=Game)
-class AAscensionCharacter : public AGameCharacter, public IDamageable
+class AAscensionCharacter : public AGameCharacter, public IDamageable, public IMovementIntent
 {
 	GENERATED_BODY()
 
@@ -388,5 +389,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
 	bool IsDead();
 	virtual bool IsDead_Implementation() override;
+
+	/** Function to get the movement intent. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	FVector GetMovementIntent();
+	virtual FVector GetMovementIntent_Implementation() override;
 };
 

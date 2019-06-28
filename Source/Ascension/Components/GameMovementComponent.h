@@ -29,6 +29,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float DefaultTurnRate;
 
+	/** Direction the entity wants to move in.. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector MovementIntent;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -42,9 +46,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Move(FVector BaseDirection, FVector MovementVector);
 
-	/** Function that resets variables to normal values when the attack completes. */
+	/** Function that resets variables to normal values when the movement completes. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void FinishMovement();
+
+	/** Function that gets the direction the entity should move in.. */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void SetMovementIntent();
 
 protected:
 	/** Called to limit character movement to a certain speed. */

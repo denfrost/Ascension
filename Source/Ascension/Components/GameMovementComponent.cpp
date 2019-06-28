@@ -3,6 +3,7 @@
 #include "Ascension.h"
 #include "GameMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Interfaces/MovementIntent.h"
 
 // Sets default values for this component's properties
 UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectInitializer)
@@ -16,6 +17,7 @@ UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectI
 	DefaultSpeed = MaxWalkSpeed;
 	DefaultAcceleration = MaxAcceleration;
 	DefaultTurnRate = RotationRate.Yaw;
+	MovementIntent = FVector();
 }
 
 // Called when the game starts
@@ -48,6 +50,20 @@ void UGameMovementComponent::FinishMovement()
 	ResetMovementSpeed();
 	ResetTurningRate();
 	ResetAcceleration();
+}
+
+void UGameMovementComponent::SetMovementIntent()
+{
+	AActor* Owner = GetOwner();
+	if (Owner->GetClass()->ImplementsInterface(UMovementIntent::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Implements required class!"))
+		MovementIntent = IMovementIntent::Execute_GetMovementIntent(Owner);
+	}
+	else
+	{
+		MovementIntent = FVector();
+	}
 }
 
 void UGameMovementComponent::SetMovementSpeed(float Speed)
@@ -108,5 +124,19 @@ void UGameMovementComponent::ResetFlyable()
 
 void UGameMovementComponent::PerformMove(const FVector& InVelocity, const float DeltaSeconds)
 {
-	MoveSmooth(InVelocity, DeltaSeconds);
+	FVector MovementDirectionForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
+	if (!MovementIntent.IsNearlyZero(0.01f))
+	{
+		MovementDirectionForward = MovementIntent.GetSafeNormal();
+	}
+	FVector MovementDirectionRight = MovementDirectionForward.RightVector.GetSafeNormal();
+	FVector MovementDirectionUp = MovementDirectionForward.UpVector.GetSafeNormal();
+
+	FVector ForwardVelocity = MovementDirectionForward * InVelocity.X;
+	FVector RightVelocity = MovementDirectionRight * InVelocity.Y;
+	FVector UpVelocity = MovementDirectionUp * InVelocity.Z;
+
+	FVector ResultantVelocity = ForwardVelocity + RightVelocity + UpVelocity;
+
+	MoveSmooth(ResultantVelocity, DeltaSeconds);
 }

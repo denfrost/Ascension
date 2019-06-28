@@ -175,12 +175,12 @@ void AAscensionCharacter::OnResetVR()
 
 void AAscensionCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		Jump();
+	Jump();
 }
 
 void AAscensionCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		StopJumping();
+	StopJumping();
 }
 
 
@@ -601,3 +601,15 @@ bool AAscensionCharacter::IsDead_Implementation()
 
 void AAscensionCharacter::ShowHealthBar_Implementation() {}
 void AAscensionCharacter::HideHealthBar_Implementation() {}
+
+FVector AAscensionCharacter::GetMovementIntent_Implementation()
+{
+	if (LockedOn && LockedActor != nullptr)
+	{
+		FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
+		TargetDirection.Normalize();
+		return TargetDirection;
+	}
+
+	return MovementIntent;
+}
