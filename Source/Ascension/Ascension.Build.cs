@@ -8,5 +8,8 @@ public class Ascension : ModuleRules
 	{
         PrivatePCHHeaderFile = "Ascension.h";
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "AIModule", "GameplayTasks" });
-	}
+
+        MinFilesUsingPrecompiledHeaderOverride = 1;
+        bFasterWithoutUnity = true;
+    }
 }

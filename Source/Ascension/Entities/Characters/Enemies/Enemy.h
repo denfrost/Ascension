@@ -17,7 +17,7 @@ class ASCENSION_API AEnemy : public AGameCharacter
 
 public:
 	// Sets default values for this character's properties
-	AEnemy();
+	AEnemy(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	// Called when the game starts or when spawned

@@ -270,7 +270,6 @@ void AAscensionCharacter::LightAttack_Implementation()
 	{
 		if (AttackComponent->CanAttack())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player can attack!"))
 			// TODO: Move state transition logic into separate class, and use the attack component to transition state.
 			CharacterState = ECharacterState::CS_Attacking;
 			CanMove = false;

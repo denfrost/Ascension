@@ -24,7 +24,7 @@ class ASCENSION_API AGoblin : public AEnemy, public IDamageable, public ILockabl
 	class UAttackComponent* AttackComponent;
 
 public:
-	AGoblin();
+	AGoblin(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	/** Current health of the character.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")

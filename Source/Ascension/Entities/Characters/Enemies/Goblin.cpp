@@ -5,7 +5,8 @@
 #include "Components/AttackComponent.h"
 
 
-AGoblin::AGoblin()
+AGoblin::AGoblin(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Set character parameters.
 	Health = 100.0f;
@@ -135,6 +136,7 @@ void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float
 		{
 		// Launch character backwards.
 		case EHitEffect::HE_PushBack:
+			UE_LOG(LogTemp, Warning, TEXT("Launching character with velocity %s."), *LaunchVelocity.ToString())
 			LaunchCharacter(LaunchVelocity, true, false);
 			break;
 
