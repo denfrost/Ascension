@@ -23,6 +23,17 @@ class ASCENSION_API AGoblin : public AEnemy, public IDamageable, public ILockabl
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UAttackComponent* AttackComponent;
 
+	/** Component handling abilities. */
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UGameAbilitySystemComponent* AbilitySystemComponent;
+
+public:
+	/** Name of the attack component. */
+	static FName AttackComponentName;
+
+	/** Name of the ability system component. */
+	static FName AbilitySystemComponentName;
+
 public:
 	AGoblin(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -33,6 +44,10 @@ public:
 	/** Maximum health of the character.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float MaxHealth;
+
+	/** Turn rate of the character when performing an action. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float ActionTurnRate;
 
 	/** General state of the AI.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")

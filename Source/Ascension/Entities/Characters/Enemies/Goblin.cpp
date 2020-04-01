@@ -1,9 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Ascension.h"
-#include "Goblin.h"
 #include "Components/AttackComponent.h"
+#include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
+#include "Goblin.h"
 
+
+FName AGoblin::AttackComponentName(TEXT("AttackComp"));
+FName AGoblin::AbilitySystemComponentName(TEXT("AbilitySystemComp"));
 
 AGoblin::AGoblin(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -12,8 +16,28 @@ AGoblin::AGoblin(const FObjectInitializer& ObjectInitializer)
 	Health = 100.0f;
 	MaxHealth = 100.0f;
 
+	// Initialize character state.
+	ActionState = EEnemyState::ES_Idle;
+	CombatState = EEnemyCombatState::ECS_Observing;
+	AIState = EAIState::AIS_Patrol;
+
 	// Initialize components.
 	AttackComponent = nullptr;
+
+	// Configure character movement
+	ActionTurnRate = 2048.0f;
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->AirControl = 0.2f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+
+	// Create and initialize the Goblin's attack component.
+	AttackComponent = CreateDefaultSubobject<UAttackComponent>(AGoblin::AttackComponentName);
+	AttackComponent->Initialize(ActionTurnRate);
+
+	// Create and initialize the Goblin's ability system component.
+	AbilitySystemComponent = CreateDefaultSubobject<UGameAbilitySystemComponent>(AGoblin::AbilitySystemComponentName);
 }
 
 void AGoblin::GetHealthPercent_Implementation(float& HealthPercent)
@@ -95,8 +119,8 @@ void AGoblin::Attack_Implementation()
 		if (ActionState == EEnemyState::ES_Idle)
 		{
 			ActionState = EEnemyState::ES_Attacking;
-
-			AttackComponent->Attack(FString(), GetActorForwardVector());
+			// ToDo: Don't hard-code attack names.
+			AttackComponent->Attack(FString("Light01"), GetActorForwardVector());
 		}
 	}
 }
@@ -126,6 +150,7 @@ void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float
 		FVector SourceLocation = SourceActor->GetActorLocation();
 		FVector HitLocation = GetActorLocation();
 		FVector LaunchDirection = HitLocation - SourceLocation;
+		FRotator TurnRotation = FRotator(0.0f, (LaunchDirection * -1).Rotation().Yaw, 0.0f);
 		LaunchDirection.Z = 0.0f;		// Do not want to launch the character up/down.
 		LaunchDirection.Normalize();
 
@@ -136,8 +161,8 @@ void AGoblin::ApplyAttackEffects_Implementation(const AActor* SourceActor, float
 		{
 		// Launch character backwards.
 		case EHitEffect::HE_PushBack:
-			UE_LOG(LogTemp, Warning, TEXT("Launching character with velocity %s."), *LaunchVelocity.ToString())
 			LaunchCharacter(LaunchVelocity, true, false);
+			SetActorRotation(TurnRotation);
 			break;
 
 		case EHitEffect::HE_KnockBack:

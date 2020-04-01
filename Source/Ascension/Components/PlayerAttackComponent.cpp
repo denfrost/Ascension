@@ -61,6 +61,7 @@ UAttack* UPlayerAttackComponent::SelectAttack_Implementation(const FString& Atta
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 	UAttack* Attack = nullptr;
 
+	// ToDo: Don't hard-code ability names.
 	if (AbilitySystem)
 	{
 		if (AttackType.Equals(FString("Light Attack")))

@@ -18,7 +18,7 @@ AEnemy::AEnemy(const FObjectInitializer& ObjectInitializer)
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void AEnemy::Attack_Implementation()

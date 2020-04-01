@@ -17,7 +17,7 @@ void UAbility::Initialize(UGameAbilitySystemComponent* System)
 
 bool UAbility::CanActivate() const
 {
-	return false;
+	return true;
 }
 
 void UAbility::Activate() {}

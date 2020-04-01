@@ -47,6 +47,6 @@ public:
 
 protected:
 	// TODO: Find a better way to initialize this.
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Properties)
 	class UGameAbilitySystemComponent* AbilitySystem;
 };
