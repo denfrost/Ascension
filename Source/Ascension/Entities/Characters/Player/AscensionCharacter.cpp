@@ -11,8 +11,8 @@
 //////////////////////////////////////////////////////////////////////////
 // AAscensionCharacter
 
-FName AAscensionCharacter::AttackComponentName(TEXT("AttackComp"));
-FName AAscensionCharacter::AbilitySystemComponentName(TEXT("AbilitySystemComp"));
+FName AAscensionCharacter::AttackComponentName(TEXT("AttackComponent"));
+FName AAscensionCharacter::AbilitySystemComponentName(TEXT("AbilitySystemComponent"));
 
 AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

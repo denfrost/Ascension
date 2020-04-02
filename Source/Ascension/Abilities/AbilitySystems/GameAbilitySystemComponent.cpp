@@ -11,8 +11,7 @@ UGameAbilitySystemComponent::UGameAbilitySystemComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	Abilities.Empty();
-	ActiveAbilities.Empty();
+	ClearAbilities();
 	Owner = nullptr;
 }
 
@@ -24,9 +23,12 @@ void UGameAbilitySystemComponent::BeginPlay()
 	
 	Owner = Cast<AActor>(GetOwner());
 
-	for (int i = 0; i < Abilities.Num(); i++)
+	for (auto& AbilityPair : AbilitiesMap)
 	{
-		Abilities[i]->Initialize(this);
+		if (AbilityPair.Value != nullptr)
+		{
+			AbilityPair.Value->Initialize(this);
+		}
 	}
 }
 
@@ -47,28 +49,29 @@ void UGameAbilitySystemComponent::InitializeAbility(FString AbilityName)
 	}
 }
 
-UAbility* UGameAbilitySystemComponent::GetAbility(FString AbilityName)
+UAbility* UGameAbilitySystemComponent::GetAbility(FString AbilityName) const
 {
-	for (int i = 0; i < Abilities.Num(); i++)
+	if (AbilitiesMap.Contains(AbilityName))
 	{
-		if (Abilities[i]->AbilityName == AbilityName)
-		{
-			return Abilities[i];
-		}
+		return AbilitiesMap[AbilityName];
 	}
-
+	
 	return nullptr;
 }
 
 void UGameAbilitySystemComponent::AddAbility(UAbility* Ability)
 {
-	UAbility* ExistingAbility = GetAbility(Ability->AbilityName);
-	
-	if (ExistingAbility == nullptr)
+	if (!AbilitiesMap.Contains(Ability->AbilityName))
 	{
-		Abilities.Add(Ability);
+		AbilitiesMap.Add(Ability->AbilityName, Ability);
 		Ability->Initialize(this);
 	}
+}
+
+void UGameAbilitySystemComponent::ClearAbilities()
+{
+	AbilitiesMap.Empty();
+	ActiveAbilities.Empty();
 }
 
 bool UGameAbilitySystemComponent::CanActivateAbility(const UAbility* Ability)

@@ -24,11 +24,11 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable, public IM
 	class UCameraComponent* FollowCamera;
 
 	/** Component handling attacks. */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
 
 	/** Component handling abilities. */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAbilitySystemComponent* AbilitySystemComponent;
 
 public:

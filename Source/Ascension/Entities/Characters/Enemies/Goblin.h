@@ -20,11 +20,11 @@ class ASCENSION_API AGoblin : public AEnemy, public IDamageable, public ILockabl
 	GENERATED_BODY()
 	
 	/** Component handling attacks. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UAttackComponent* AttackComponent;
 
 	/** Component handling abilities. */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UGameAbilitySystemComponent* AbilitySystemComponent;
 
 public:

@@ -6,8 +6,8 @@
 #include "Goblin.h"
 
 
-FName AGoblin::AttackComponentName(TEXT("AttackComp"));
-FName AGoblin::AbilitySystemComponentName(TEXT("AbilitySystemComp"));
+FName AGoblin::AttackComponentName(TEXT("AttackComponent"));
+FName AGoblin::AbilitySystemComponentName(TEXT("AbilitySystemComponent"));
 
 AGoblin::AGoblin(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
