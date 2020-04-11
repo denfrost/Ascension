@@ -12,7 +12,7 @@ UGameAbilitySystemComponent::UGameAbilitySystemComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	ClearAbilities();
-	Owner = nullptr;
+	Owner = GetOwner();
 }
 
 
@@ -20,16 +20,6 @@ UGameAbilitySystemComponent::UGameAbilitySystemComponent()
 void UGameAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Owner = Cast<AActor>(GetOwner());
-
-	for (auto& AbilityPair : AbilitiesMap)
-	{
-		if (AbilityPair.Value != nullptr)
-		{
-			AbilityPair.Value->Initialize(this);
-		}
-	}
 }
 
 
@@ -39,17 +29,7 @@ void UGameAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UGameAbilitySystemComponent::InitializeAbility(FString AbilityName)
-{
-	UAbility* Ability = GetAbility(AbilityName);
-
-	if (Ability != nullptr)
-	{
-		Ability->Initialize(this);
-	}
-}
-
-UAbility* UGameAbilitySystemComponent::GetAbility(FString AbilityName) const
+TSubclassOf<UAbility> UGameAbilitySystemComponent::GetAbility(const FString& AbilityName) const
 {
 	if (AbilitiesMap.Contains(AbilityName))
 	{
@@ -59,54 +39,62 @@ UAbility* UGameAbilitySystemComponent::GetAbility(FString AbilityName) const
 	return nullptr;
 }
 
-void UGameAbilitySystemComponent::AddAbility(UAbility* Ability)
+void UGameAbilitySystemComponent::AddAbility(const FString& AbilityName, TSubclassOf<UAbility> Ability)
 {
-	if (!AbilitiesMap.Contains(Ability->AbilityName))
+	if (!AbilitiesMap.Contains(AbilityName))
 	{
-		AbilitiesMap.Add(Ability->AbilityName, Ability);
-		Ability->Initialize(this);
+		AbilitiesMap.Add(AbilityName, Ability);
 	}
 }
 
 void UGameAbilitySystemComponent::ClearAbilities()
 {
 	AbilitiesMap.Empty();
-	ActiveAbilities.Empty();
+	ActiveAbilitiesMap.Empty();
 }
 
-bool UGameAbilitySystemComponent::CanActivateAbility(const UAbility* Ability)
+bool UGameAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
 {
-	if (Ability != nullptr)
-	{
-		return Ability->CanActivate();
-	}
-
-	return false;
+	return true;
 }
 
-void UGameAbilitySystemComponent::ActivateAbility(FString AbilityName)
+void UGameAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 {
-	UAbility* Ability = GetAbility(AbilityName);
+}
 
-	if (Ability != nullptr)
+void UGameAbilitySystemComponent::ActivateAbility(const FString& AbilityName, bool& Activated = false, uint32& AbilityID = 0)
+{
+	TSubclassOf<UAbility> AbilityClass = GetAbility(AbilityName);
+
+	AbilityID = 0;
+	Activated = false;
+
+	if (AbilityClass != nullptr)
 	{
-		if (CanActivateAbility(Ability))
+		if (CanActivateAbility(AbilityName))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Activating ability."))
+			UAbility* Ability = NewObject<*AbilityClass>(AbilityName, this);
+			SetupAbility(AbilityName);
 			Ability->Activate();
-			ActiveAbilities.Add(Ability);
+			AbilityID = Ability->GetUniqueID();
+			ActiveAbilitiesMap.Add(AbilityID, Ability);
+			Activated = true;
 		}
 	}
 }
 
-void UGameAbilitySystemComponent::FinishAbility(FString AbilityName)
+void UGameAbilitySystemComponent::EndAbility(const uint32& AbilityID = 0)
 {
-	for (int i = 0; i < ActiveAbilities.Num(); i++)
+}
+
+void UGameAbilitySystemComponent::FinishAbility(const uint32& AbilityID = 0)
+{
+	if (ActiveAbilitiesMap.Contains(AbilityName))
 	{
-		if (ActiveAbilities[i]->AbilityName.Equals(AbilityName))
-		{
-			ActiveAbilities[i]->Finish();
-			ActiveAbilities.RemoveAt(i);
-			i--;
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Finishing ability."))
+		ActiveAbilitiesMap[AbilityID]->Finish();
+		EndAbility(AbilityID);
+		ActiveAbilitiesMap.Remove(AbilityID);
 	}
 }

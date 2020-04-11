@@ -73,6 +73,18 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
 	EWeaponState GetWeaponState() const;
 
+	/** Gets the character state. */
+	UFUNCTION(BlueprintCallable, Category = "State Helper")
+	void SetCharacterState(ECharacterState State);
+
+	/** Gets the movement state. */
+	UFUNCTION(BlueprintCallable, Category = "State Helper")
+	void SetMovementState(EMovementState State);
+
+	/** Gets the weapon state. */
+	UFUNCTION(BlueprintCallable, Category = "State Helper")
+	void SetWeaponState(EWeaponState State);
+
 public:
 	/** Current health of the character.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
@@ -111,13 +123,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalAcceleration;
 
-	/** Base turn rate of the charater. */
+	/** Base turn rate of the character. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalTurnRate;
-
-	/** Turn rate of the character when performing an action. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float ActionTurnRate;
 
 	/** Used to indicate to the animation blueprint whether the character should switch weapons. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -318,18 +326,6 @@ public:
 	  */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void CanChainAttack();
-
-	/** Event called when character's movement needs to be set to flying.
-	  * Sets movement mode to flying.
-	  */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void SetFlyable();
-
-	/** Event called when character's movement needs to be set to walking.
-	* Sets movement mode to walking.
-	*/
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ResetFlyable();
 
 	/** Finalizes player's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

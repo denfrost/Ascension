@@ -39,7 +39,6 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	SprintSpeed = 800.0f;
 	NormalAcceleration = 2048.0f;
 	NormalTurnRate = 540.0f;
-	ActionTurnRate = 2048.0f;
 
 	// Set gameplay variables.
 	ShouldCharSwitch = false;
@@ -74,7 +73,7 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 
 	// Create and initialize the player's attack component.
 	AttackComponent = CreateDefaultSubobject<UPlayerAttackComponent>(AAscensionCharacter::AttackComponentName);
-	AttackComponent->Initialize(ActionTurnRate);
+	AttackComponent->Initialize();
 
 	// Create and initialize the player's ability system component.
 	AbilitySystemComponent = CreateDefaultSubobject<UPlayerAbilitySystemComponent>(AAscensionCharacter::AbilitySystemComponentName);
@@ -166,6 +165,21 @@ EMovementState AAscensionCharacter::GetMovementState() const
 EWeaponState AAscensionCharacter::GetWeaponState() const
 {
 	return WeaponState;
+}
+
+void AAscensionCharacter::SetCharacterState(ECharacterState State)
+{
+	CharacterState = State;
+}
+
+void AAscensionCharacter::SetMovementState(EMovementState State)
+{
+	MovementState = State;
+}
+
+void AAscensionCharacter::SetWeaponState(EWeaponState State)
+{
+	WeaponState = State;
 }
 
 void AAscensionCharacter::OnResetVR()
@@ -268,24 +282,15 @@ void AAscensionCharacter::LightAttack_Implementation()
 {
 	if (AttackComponent)
 	{
-		if (AttackComponent->CanAttack())
+		AttackDirection = MovementIntent;
+		
+		if (LockedOn && LockedActor != nullptr)
 		{
-			// TODO: Move state transition logic into separate class, and use the attack component to transition state.
-			CharacterState = ECharacterState::CS_Attacking;
-			CanMove = false;
-
-			if (LockedOn && LockedActor != nullptr)
-			{
-				FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
-				TargetDirection.Normalize();
-				AttackComponent->Attack(FString("Light Attack"), TargetDirection);
-			}
-
-			else
-			{
-				AttackComponent->Attack(FString("Light Attack"), MovementIntent);
-			}
+			FVector AttackDirection = LockedActor->GetActorLocation() - GetActorLocation();
+			AttackDirection.Normalize();
 		}
+
+		AttackComponent->Attack(FString("Light Attack"), AttackDirection);
 	}
 }
 
@@ -293,24 +298,15 @@ void AAscensionCharacter::StrongAttack_Implementation()
 {
 	if (AttackComponent)
 	{
-		if (AttackComponent->CanAttack())
+		AttackDirection = MovementIntent;
+
+		if (LockedOn && LockedActor != nullptr)
 		{
-			// TODO: Move state transition logic into separate class, and use the attack component to transition state.
-			CharacterState = ECharacterState::CS_Attacking;
-			CanMove = false;
-
-			if (LockedOn && LockedActor != nullptr)
-			{
-				FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
-				TargetDirection.Normalize();
-				AttackComponent->Attack(FString("Strong Attack"), TargetDirection);
-			}
-
-			else
-			{
-				AttackComponent->Attack(FString("Strong Attack"), MovementIntent);
-			}
+			FVector AttackDirection = LockedActor->GetActorLocation() - GetActorLocation();
+			AttackDirection.Normalize();
 		}
+
+		AttackComponent->Attack(FString("Strong Attack"), AttackDirection);
 	}
 }
 
@@ -432,9 +428,6 @@ void AAscensionCharacter::SwitchComplete_Implementation()
 
 void AAscensionCharacter::ResetAttack_Implementation()
 {
-	CharacterState = ECharacterState::CS_Idle;
-	CanMove = true;
-
 	if (AttackComponent)
 	{
 		AttackComponent->Reset();
@@ -477,25 +470,9 @@ void AAscensionCharacter::FinishDodgeMotion()
 
 void AAscensionCharacter::CanChainAttack_Implementation()
 {
-	if (AttackComponent)
+	if (AbilitySystemComponent)
 	{
-		AttackComponent->SetCanChain(true);
-	}
-}
-
-void AAscensionCharacter::SetFlyable_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->SetFlyable();
-	}
-}
-
-void AAscensionCharacter::ResetFlyable_Implementation()
-{
-	if (AttackComponent)
-	{
-		AttackComponent->ResetFlyable();
+		AbilitySystemComponent->SetCanChain(true);
 	}
 }
 

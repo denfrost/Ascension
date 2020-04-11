@@ -18,7 +18,7 @@ public:
 	/**
 	 * Constructor of the ability.
 	 */
-	UAbility();
+	UAbility(FString Name, class UGameAbilitySystemComponent* System);
 
 public:
 	UPROPERTY(Category = Properties, EditDefaultsOnly, BlueprintReadWrite)
@@ -28,12 +28,7 @@ public:
 	/**
 	 * Used to initialize the ability.
 	 */
-	virtual void Initialize(class UGameAbilitySystemComponent* System);
-
-	/** 
-	 * Function to check whether an ability can be activated.
-	 */
-	virtual bool CanActivate() const;
+	virtual void Initialize();
 
 	/**
 	 * This method activates the ability.

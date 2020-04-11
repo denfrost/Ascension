@@ -9,6 +9,8 @@
 UPlayerAttackComponent::UPlayerAttackComponent()
 {
 	CanChain = false;
+	ComboMeter = 0;
+	MaxComboCount = 3;
 }
 
 void UPlayerAttackComponent::BeginPlay()
@@ -16,50 +18,9 @@ void UPlayerAttackComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-bool UPlayerAttackComponent::CanAttack()
+FString UPlayerAttackComponent::SelectAttack_Implementation(const FString& AttackType)
 {
-	const AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
-
-	if (Player)
-	{
-		if ((Player->GetCharacterState() == ECharacterState::CS_Idle || Player->GetCharacterState() == ECharacterState::CS_Attacking) &&
-			(Player->GetMovementState() == EMovementState::MS_OnGround) && (Player->GetWeaponState() == EWeaponState::WS_Unsheathed) && !Player->Dead)
-		{
-			if (Player->GetCharacterState() == ECharacterState::CS_Attacking)
-			{
-				if (CanChain)
-				{
-					CanChain = false;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return true;
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	return false;
-}
-
-void UPlayerAttackComponent::SetCanChain(bool Chain)
-{
-	CanChain = Chain;
-}
-
-UAttack* UPlayerAttackComponent::SelectAttack_Implementation(const FString& AttackType)
-{
-	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	UAttack* Attack = nullptr;
+	FString AttackName = FString();
 
 	// ToDo: Don't hard-code ability names.
 	if (AbilitySystem)
@@ -69,23 +30,19 @@ UAttack* UPlayerAttackComponent::SelectAttack_Implementation(const FString& Atta
 			switch (ComboMeter)
 			{
 			case 0:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Light01")));
-				ComboMeter++;
+				AttackName = FString("Light01");
 				break;
 
 			case 1:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Light02")));
-				ComboMeter++;
+				AttackName = FString("Light02");
 				break;
 
 			case 2:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Light03")));
-				ComboMeter++;
+				AttackName = FString("Light03");
 				break;
 
 			default:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Light01")));
-				ComboMeter = 1;
+				AttackName = FString("Light01");
 				break;
 			}
 		}
@@ -95,23 +52,19 @@ UAttack* UPlayerAttackComponent::SelectAttack_Implementation(const FString& Atta
 			switch (ComboMeter)
 			{
 			case 0:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Strong01")));
-				ComboMeter++;
+				AttackName = FString("Strong01");
 				break;
 
 			case 1:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Strong02")));
-				ComboMeter++;
+				AttackName = FString("Strong02");
 				break;
 
 			case 2:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Strong03")));
-				ComboMeter++;
+				AttackName = FString("Strong03");
 				break;
 
 			default:
-				Attack = Cast<UAttack>(AbilitySystem->GetAbility(FString("Strong01")));
-				ComboMeter = 1;
+				AttackName = FString("Strong01");
 				break;
 			}
 		}
@@ -120,9 +73,27 @@ UAttack* UPlayerAttackComponent::SelectAttack_Implementation(const FString& Atta
 	return Attack;
 }
 
-void UPlayerAttackComponent::Reset_Implementation()
+void UPlayerAttackComponent::Attack_Implementation(const FString& AttackName, const FVector& MovementIntent)
 {
-	Super::Reset_Implementation();
-	CanChain = false;
+	// This is done to choose the correct attack in a combo.
+	FString PlayerAttackName = SelectAttack(AttackName);
+
+	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+	if (AbilitySystem->CanActivateAbility(AttackName))
+	{
+		if (!ActiveAttack.IsEmpty())
+		{
+			AbilitySystem->FinishAbility(ActiveAttack);
+		}
+
+		ActionDirection = MovementIntent;
+		AbilitySystem->ActivateAbility(AttackName);
+		ActiveAttack = Attack->AbilityName;
+		ComboMeter = (++ComboMeter) % MaxComboCount;
+	}
+}
+
+void UPlayerAttackComponent::ResetCombo_Implementation()
+{
 	ComboMeter = 0;
 }

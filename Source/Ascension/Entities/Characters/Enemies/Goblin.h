@@ -45,10 +45,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float MaxHealth;
 
-	/** Turn rate of the character when performing an action. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float ActionTurnRate;
-
 	/** General state of the AI.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	EAIState AIState;

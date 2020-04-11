@@ -35,6 +35,10 @@ struct FAttackMovementInfo
 	// Max acceleration during this attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float Acceleration = 20000.0f;
+
+	// Turn rate during the attack.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float TurnRate = 2048.0f;
 };
 
 /**

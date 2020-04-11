@@ -14,21 +14,17 @@ UAttackComponent::UAttackComponent()
 	// Set this component to be initialized when the game starts, and to not be ticked every frame.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// Set movement speeds.
-	ActionTurnRate = 2048.0f;
-
 	// Set gameplay variables.
 	AttackHitBox = nullptr;
 	DamagedActors.Empty();
 
-	// Set currently active attack.
-	ActiveAttack = FString();
+	// Clear active attacks.
+	ActiveAttackIDMap.Empty();
 }
 
 
-void UAttackComponent::Initialize(const float ActionTurnRate)
+void UAttackComponent::Initialize()
 {
-	this->ActionTurnRate = ActionTurnRate;
 }
 
 // Called when the actor is in play.
@@ -42,11 +38,6 @@ void UAttackComponent::BeginPlay()
 void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-}
-
-bool UAttackComponent::CanAttack()
-{
-	return false;
 }
 
 void UAttackComponent::SetupMotion()
@@ -64,7 +55,7 @@ void UAttackComponent::SetupMotion()
 			{
 				MovementComponent->SetupMovement(Attack->GetMovementInfo().Speed, 
 												 Attack->GetMovementInfo().Acceleration, 
-												 ActionTurnRate);
+												 Attack->GetMovementInfo().TurnRate);
 			}
 		}
 	}
@@ -88,13 +79,11 @@ void UAttackComponent::FinishMotion()
 	}
 }
 
-
 void UAttackComponent::Attack_Implementation(const FString& AttackName, const FVector& MovementIntent)
 {
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	UAttack* Attack = SelectAttack(AttackName);
 
-	if (Attack != nullptr)
+	if (AbilitySystem->CanActivateAbility(AttackName))
 	{
 		if (!ActiveAttack.IsEmpty())
 		{
@@ -102,39 +91,15 @@ void UAttackComponent::Attack_Implementation(const FString& AttackName, const FV
 		}
 
 		ActionDirection = MovementIntent;
-		AbilitySystem->ActivateAbility(Attack->AbilityName);
+		AbilitySystem->ActivateAbility(AttackName);
 		ActiveAttack = Attack->AbilityName;
 	}
 }
 
-UAttack* UAttackComponent::SelectAttack_Implementation(const FString& AttackType)
-{
-	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	UAttack* Attack = nullptr;
-
-	if (AbilitySystem)
-	{
-		Attack = Cast<UAttack>(AbilitySystem->GetAbility(AttackType));
-	}
-
-	return Attack;
-}
-
 void UAttackComponent::FinishAttack_Implementation(const FString& AttackName)
 {
-	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(AttackName));
-
-	if (Attack)
-	{
-		AbilitySystem->FinishAbility(Attack->AbilityName);
-	}
-}
-
-void UAttackComponent::Reset_Implementation()
-{
 	ActiveAttack = FString();
-	ResetFlyable();
+	AbilitySystem->FinishAbility(AttackName);
 }
 
 void UAttackComponent::DetectHit()
@@ -180,22 +145,6 @@ void UAttackComponent::DetectHit()
 void UAttackComponent::ClearDamagedActors_Implementation()
 {
 	DamagedActors.Empty();
-}
-
-void UAttackComponent::SetFlyable_Implementation()
-{
-	if (Owner->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Flying)
-	{
-		Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
-	}
-}
-
-void UAttackComponent::ResetFlyable_Implementation()
-{
-	if (Owner->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying)
-	{
-		Owner->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
-	}
 }
 
 void UAttackComponent::FinalizeAttackDirection_Implementation(FVector MovementIntent)

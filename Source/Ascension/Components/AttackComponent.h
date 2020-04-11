@@ -24,7 +24,7 @@ public:
 	  * To be called from main entity to initialize these variables.
 	  */
 	UFUNCTION(BlueprintCallable, Category = "Initialization")
-	void Initialize(const float ActionTurnRate);
+	void Initialize();
 
 protected:
 	// Called when the component is in play.
@@ -50,18 +50,9 @@ public:
 	FOnAttackComplete OnAttackComplete;
 
 protected:
-	/** Turn rate of the character when performing an action. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	float ActionTurnRate;
-
 	/** The direction the character should perform an action. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector ActionDirection;
-
-public:
-	/** Function to check whether this component's owner can attack. */
-	UFUNCTION(BlueprintCallable, Category = "Validations")
-	virtual bool CanAttack();
 
 public:
 	/** Called for the character to perform the specified attack. */
@@ -69,22 +60,13 @@ public:
 	void Attack(const FString& AttackName, const FVector& MovementIntent);
 	virtual void Attack_Implementation(const FString& AttackName, const FVector& MovementIntent);
 
-	/** Called for the character to finish the specified attack. */
+	/*
+	 * TODO: Refactor this method. We should have the option to either specify attack ID or specify the attack name.
+	 * Called for the character to finish the specified attack.
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
 	void FinishAttack(const FString& AttackName);
 	virtual void FinishAttack_Implementation(const FString& AttackName);
-
-	/** Function to select the attack to perform next. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	UAttack* SelectAttack(const FString& AttackType);
-	virtual UAttack* SelectAttack_Implementation(const FString& AttackType);
-
-	/** Event called when a combo is finished/reset.
-	* Performs necessary actions after a combo is completed.
-	*/
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void Reset();
-	virtual void Reset_Implementation();
 
 	/** Scans and detects if the attack hits. */
 	UFUNCTION(BlueprintCallable, Category = "Damage")
@@ -95,34 +77,19 @@ public:
 	void ClearDamagedActors();
 
 public:
-	/** Event called when character's movement needs to be set to flying.
-	 * Sets movement mode to flying.
-	 * TODO: Remove/Refactor to GameMovementComponent.
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void SetFlyable();
-
-	/** Event called when character's movement needs to be set to walking.
-	 * Sets movement mode to walking.
-	 * TODO: Remove/Refactor to GameMovementComponent.
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void ResetFlyable();
-
-
 	/** Finalizes character's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void FinalizeAttackDirection(FVector MovementIntent);
 
 protected:
-	/** 
+	/*
 	 * Function to setup variables for attack motion.
 	 * TODO: Refactor this to movement component entirely.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SetupMotion();
 
-	/** 
+	/*
 	 * Function that makes the character move in the specified direction.
 	 * TODO: Refactor this to movement component entirely.
 	 * @param MovementVector	Direction to move in.
@@ -130,7 +97,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void AttackMotion(FVector MovementVector);
 
-	/**
+	/*
 	 * Function that resets variables to normal values when the attack completes.
 	 * TODO: Refactor this to movement component entirely.
 	 */
@@ -138,11 +105,11 @@ protected:
 	void FinishMotion();
 
 protected:
-	/**
-	 * The currently active attack.
-	 * TODO: Remove this.
+	/*
+	 * Map of active attack names to their IDs.
+	 * TODO: Refactor so that multiple attack IDs can exist for a particular attack name.
 	 */
-	FString ActiveAttack;
+	TMap<FString, uint32> ActiveAttackIDMap;
 
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")

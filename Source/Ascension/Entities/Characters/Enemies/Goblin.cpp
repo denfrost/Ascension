@@ -25,7 +25,6 @@ AGoblin::AGoblin(const FObjectInitializer& ObjectInitializer)
 	AttackComponent = nullptr;
 
 	// Configure character movement
-	ActionTurnRate = 2048.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
@@ -34,7 +33,7 @@ AGoblin::AGoblin(const FObjectInitializer& ObjectInitializer)
 
 	// Create and initialize the Goblin's attack component.
 	AttackComponent = CreateDefaultSubobject<UAttackComponent>(AGoblin::AttackComponentName);
-	AttackComponent->Initialize(ActionTurnRate);
+	AttackComponent->Initialize();
 
 	// Create and initialize the Goblin's ability system component.
 	AbilitySystemComponent = CreateDefaultSubobject<UGameAbilitySystemComponent>(AGoblin::AbilitySystemComponentName);

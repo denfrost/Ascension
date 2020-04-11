@@ -24,22 +24,29 @@ protected:
 	/** Tracks how many attacks the user has chained. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combos")
 	int ComboMeter;
-	
-protected:
-	/** Set to true if the character can chain an attack. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	bool CanChain;
+
+	/** Maximum number of attacks in a combo. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combos")
+	int MaxComboCount;
 
 public:
-	bool CanAttack();
+	/** Implementation for selecting attacks.
+	  * @param AttackType	Type of attack to perform.
+	  */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	FString SelectAttack(const FString& AttackType);
+	virtual FString SelectAttack_Implementation(const FString& AttackType);
 
-	/** Function to check whether the player can attack. */
-	UFUNCTION(BlueprintCallable, Category = "Setters")
-	void SetCanChain(bool Chain);
+	/** Called for the character to perform the specified attack.
+	  * @param AttackName		Name of the attack to perform.
+	  * @param MovementIntent	Direction the attack should be performed in.
+	  */
+	virtual void Attack_Implementation(const FString& AttackName, const FVector& MovementIntent);
 
-	/** Implementation for selecting attacks. */
-	virtual UAttack* SelectAttack_Implementation(const FString& AttackType);
-
-	/** Implementation for resetting attacks. */
-	virtual void Reset_Implementation();
+	/** Event called when a combo is finished/reset.
+	 * Performs necessary actions after a combo is completed.
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void ResetCombo();
+	virtual void ResetCombo_Implementation();
 };
