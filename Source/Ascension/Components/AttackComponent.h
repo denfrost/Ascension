@@ -45,7 +45,7 @@ protected:
 	TArray<AActor*> DamagedActors;
 
 public:
-	/** Event that is broadcasted when an attack succeeds/fails. */
+	/** Event that is broadcast when an attack succeeds/fails. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers")
 	FOnAttackComplete OnAttackComplete;
 
@@ -57,8 +57,8 @@ protected:
 public:
 	/** Called for the character to perform the specified attack. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
-	void Attack(const FString& AttackName, const FVector& MovementIntent);
-	virtual void Attack_Implementation(const FString& AttackName, const FVector& MovementIntent);
+	void Attack(const FString& AttackName);
+	virtual void Attack_Implementation(const FString& AttackName);
 
 	/*
 	 * TODO: Refactor this method. We should have the option to either specify attack ID or specify the attack name.
@@ -83,33 +83,9 @@ public:
 
 protected:
 	/*
-	 * Function to setup variables for attack motion.
-	 * TODO: Refactor this to movement component entirely.
+	 * Array of active attacks.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SetupMotion();
-
-	/*
-	 * Function that makes the character move in the specified direction.
-	 * TODO: Refactor this to movement component entirely.
-	 * @param MovementVector	Direction to move in.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void AttackMotion(FVector MovementVector);
-
-	/*
-	 * Function that resets variables to normal values when the attack completes.
-	 * TODO: Refactor this to movement component entirely.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void FinishMotion();
-
-protected:
-	/*
-	 * Map of active attack names to their IDs.
-	 * TODO: Refactor so that multiple attack IDs can exist for a particular attack name.
-	 */
-	TMap<FString, uint32> ActiveAttackIDMap;
+	TArray<FString> ActiveAttacks;
 
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")

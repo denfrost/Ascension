@@ -119,7 +119,7 @@ void AGoblin::Attack_Implementation()
 		{
 			ActionState = EEnemyState::ES_Attacking;
 			// ToDo: Don't hard-code attack names.
-			AttackComponent->Attack(FString("Light01"), GetActorForwardVector());
+			AttackComponent->Attack(FString("Light01"));
 		}
 	}
 }
@@ -127,11 +127,6 @@ void AGoblin::Attack_Implementation()
 void AGoblin::ResetAttack_Implementation()
 {
 	ActionState = EEnemyState::ES_Idle;
-
-	if (AttackComponent)
-	{
-		AttackComponent->Reset();
-	}
 }
 
 void AGoblin::AttackComplete_Implementation()

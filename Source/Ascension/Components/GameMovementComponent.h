@@ -29,30 +29,38 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float DefaultTurnRate;
 
-	/** Direction the entity wants to move in.. */
+	/** Direction the entity wants to move in. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	FVector MovementIntent;
+	FVector MovementDirection;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
-	/** Function to setup variables for precise motion. */
+	/*
+	 * Function to setup variables for custom movement.
+	 * @param TargetSpeed			Speed at which movement is to be performed.
+	 * @param TargetAcceleration	Acceleration with which movement is to be performed.
+	 * @param TargetTurnRate		Turn rate at which movement is to be performed.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SetupMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate);
+	virtual void SetupMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate);
+
+	/*
+	 * Function to setup variables for custom movement during an ability.
+	 * @param AbilityName	Name of the active ability.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	virtual void SetupMovementAbility(FString AbilityName);
 
 	/** Function that makes the character move in the specified direction. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void Move(FVector BaseDirection, FVector MovementVector);
+	void Move(FVector MovementVector);
 
 	/** Function that resets variables to normal values when the movement completes. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void FinishMovement();
-
-	/** Function that gets the direction the entity should move in.. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SetMovementIntent();
+	void FinishMovement(FString AbilityName);
 
 protected:
 	/** Called to limit character movement to a certain speed. */
@@ -78,6 +86,10 @@ protected:
 	/** Called to reset character turning to normal rate. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ResetTurningRate();
+
+	/** Sets the direction for the entity to move in. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetMovementDirection(FVector Direction);
 
 	/** Sets movement mode to flying. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -105,4 +117,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void PerformMove(const FVector& InVelocity, const float DeltaSeconds);
+
+protected:
+	/*
+	 * Variable to keep track of when movement param changes need to happen for movement.
+	 * TODO: Find a better way to do this instead of locks.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	FString MovementStateLock;
 };

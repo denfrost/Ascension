@@ -2,6 +2,7 @@
 
 #include "Ascension.h"
 #include "GameAbilitySystemComponent.h"
+#include "UObject/UObjectGlobals.h"
 #include "Abilities/Ability.h"
 
 // Sets default values for this component's properties
@@ -39,6 +40,16 @@ TSubclassOf<UAbility> UGameAbilitySystemComponent::GetAbility(const FString& Abi
 	return nullptr;
 }
 
+UAbility* UGameAbilitySystemComponent::GetActiveAbility(const FString& AbilityName) const
+{
+	if (ActiveAbilitiesMap.Contains(AbilityName))
+	{
+		return ActiveAbilitiesMap[AbilityName];
+	}
+
+	return nullptr;
+}
+
 void UGameAbilitySystemComponent::AddAbility(const FString& AbilityName, TSubclassOf<UAbility> Ability)
 {
 	if (!AbilitiesMap.Contains(AbilityName))
@@ -62,39 +73,36 @@ void UGameAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 {
 }
 
-void UGameAbilitySystemComponent::ActivateAbility(const FString& AbilityName, bool& Activated = false, uint32& AbilityID = 0)
+bool UGameAbilitySystemComponent::ActivateAbility(const FString& AbilityName)
 {
 	TSubclassOf<UAbility> AbilityClass = GetAbility(AbilityName);
-
-	AbilityID = 0;
-	Activated = false;
 
 	if (AbilityClass != nullptr)
 	{
 		if (CanActivateAbility(AbilityName))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Activating ability."))
-			UAbility* Ability = NewObject<*AbilityClass>(AbilityName, this);
+			UAbility* Ability = NewObject<UAbility>(this, AbilityClass);
+			Ability->Initialize(AbilityName, this);
 			SetupAbility(AbilityName);
 			Ability->Activate();
-			AbilityID = Ability->GetUniqueID();
-			ActiveAbilitiesMap.Add(AbilityID, Ability);
-			Activated = true;
+			ActiveAbilitiesMap.Add(AbilityName, Ability);
+			return true;
 		}
 	}
+
+	return false;
 }
 
-void UGameAbilitySystemComponent::EndAbility(const uint32& AbilityID = 0)
+void UGameAbilitySystemComponent::EndAbility(const FString& AbilityName)
 {
 }
 
-void UGameAbilitySystemComponent::FinishAbility(const uint32& AbilityID = 0)
+void UGameAbilitySystemComponent::FinishAbility(const FString& AbilityName)
 {
 	if (ActiveAbilitiesMap.Contains(AbilityName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Finishing ability."))
-		ActiveAbilitiesMap[AbilityID]->Finish();
-		EndAbility(AbilityID);
-		ActiveAbilitiesMap.Remove(AbilityID);
+		ActiveAbilitiesMap[AbilityName]->Finish();
+		EndAbility(AbilityName);
+		ActiveAbilitiesMap.Remove(AbilityName);
 	}
 }

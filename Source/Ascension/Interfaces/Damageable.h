@@ -13,7 +13,7 @@ class UDamageable : public UInterface
 	GENERATED_UINTERFACE_BODY()
 };
 
-/**
+/*
  * Interface that specifies whether an entity can be damaged.
  */
 class ASCENSION_API IDamageable

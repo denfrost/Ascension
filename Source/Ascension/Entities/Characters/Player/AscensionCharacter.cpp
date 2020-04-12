@@ -282,15 +282,7 @@ void AAscensionCharacter::LightAttack_Implementation()
 {
 	if (AttackComponent)
 	{
-		AttackDirection = MovementIntent;
-		
-		if (LockedOn && LockedActor != nullptr)
-		{
-			FVector AttackDirection = LockedActor->GetActorLocation() - GetActorLocation();
-			AttackDirection.Normalize();
-		}
-
-		AttackComponent->Attack(FString("Light Attack"), AttackDirection);
+		AttackComponent->Attack(FString("Light Attack"));
 	}
 }
 
@@ -298,15 +290,7 @@ void AAscensionCharacter::StrongAttack_Implementation()
 {
 	if (AttackComponent)
 	{
-		AttackDirection = MovementIntent;
-
-		if (LockedOn && LockedActor != nullptr)
-		{
-			FVector AttackDirection = LockedActor->GetActorLocation() - GetActorLocation();
-			AttackDirection.Normalize();
-		}
-
-		AttackComponent->Attack(FString("Strong Attack"), AttackDirection);
+		AttackComponent->Attack(FString("Strong Attack"));
 	}
 }
 
@@ -430,7 +414,7 @@ void AAscensionCharacter::ResetAttack_Implementation()
 {
 	if (AttackComponent)
 	{
-		AttackComponent->Reset();
+		AttackComponent->ResetCombo();
 	}
 }
 
@@ -578,7 +562,7 @@ bool AAscensionCharacter::IsDead_Implementation()
 void AAscensionCharacter::ShowHealthBar_Implementation() {}
 void AAscensionCharacter::HideHealthBar_Implementation() {}
 
-FVector AAscensionCharacter::GetMovementIntent_Implementation()
+FVector AAscensionCharacter::GetMovementDirection_Implementation() const
 {
 	if (LockedOn && LockedActor != nullptr)
 	{

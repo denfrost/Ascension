@@ -8,7 +8,6 @@
 
 UPlayerAttackComponent::UPlayerAttackComponent()
 {
-	CanChain = false;
 	ComboMeter = 0;
 	MaxComboCount = 3;
 }
@@ -21,75 +20,71 @@ void UPlayerAttackComponent::BeginPlay()
 FString UPlayerAttackComponent::SelectAttack_Implementation(const FString& AttackType)
 {
 	FString AttackName = FString();
-
-	// ToDo: Don't hard-code ability names.
-	if (AbilitySystem)
+	if (AttackType.Equals(FString("Light Attack")))
 	{
-		if (AttackType.Equals(FString("Light Attack")))
+		switch (ComboMeter)
 		{
-			switch (ComboMeter)
-			{
-			case 0:
-				AttackName = FString("Light01");
-				break;
+		case 0:
+			AttackName = FString("Light01");
+			break;
 
-			case 1:
-				AttackName = FString("Light02");
-				break;
+		case 1:
+			AttackName = FString("Light02");
+			break;
 
-			case 2:
-				AttackName = FString("Light03");
-				break;
+		case 2:
+			AttackName = FString("Light03");
+			break;
 
-			default:
-				AttackName = FString("Light01");
-				break;
-			}
-		}
-
-		else if (AttackType.Equals(FString("Strong Attack")))
-		{
-			switch (ComboMeter)
-			{
-			case 0:
-				AttackName = FString("Strong01");
-				break;
-
-			case 1:
-				AttackName = FString("Strong02");
-				break;
-
-			case 2:
-				AttackName = FString("Strong03");
-				break;
-
-			default:
-				AttackName = FString("Strong01");
-				break;
-			}
+		default:
+			AttackName = FString("Light01");
+			break;
 		}
 	}
 
-	return Attack;
+	else if (AttackType.Equals(FString("Strong Attack")))
+	{
+		switch (ComboMeter)
+		{
+		case 0:
+			AttackName = FString("Strong01");
+			break;
+
+		case 1:
+			AttackName = FString("Strong02");
+			break;
+
+		case 2:
+			AttackName = FString("Strong03");
+			break;
+
+		default:
+			AttackName = FString("Strong01");
+			break;
+		}
+	}
+
+	return AttackName;
 }
 
-void UPlayerAttackComponent::Attack_Implementation(const FString& AttackName, const FVector& MovementIntent)
+void UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 {
 	// This is done to choose the correct attack in a combo.
 	FString PlayerAttackName = SelectAttack(AttackName);
 
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	if (AbilitySystem->CanActivateAbility(AttackName))
+	if (AbilitySystem->CanActivateAbility(PlayerAttackName))
 	{
-		if (!ActiveAttack.IsEmpty())
+		if (ActiveAttacks.Contains(PlayerAttackName))
 		{
-			AbilitySystem->FinishAbility(ActiveAttack);
+			AbilitySystem->FinishAbility(PlayerAttackName);
 		}
-
-		ActionDirection = MovementIntent;
-		AbilitySystem->ActivateAbility(AttackName);
-		ActiveAttack = Attack->AbilityName;
-		ComboMeter = (++ComboMeter) % MaxComboCount;
+		bool Activated = AbilitySystem->ActivateAbility(PlayerAttackName);
+		if (Activated)
+		{
+			ActiveAttacks.Add(PlayerAttackName);
+			ComboMeter = (++ComboMeter) % MaxComboCount;
+		}
 	}
 }
 

@@ -4,26 +4,24 @@
 #include "Attack.h"
 #include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
 
-UAttack::UAttack(FString Name, UGameAbilitySystemComponent* System = nullptr)
-	: Super(Name, System)
+UAttack::UAttack()
+	: Super()
 {
 	AnimMontage = nullptr;
-	FVector AttackDirection = FVector();
 }
 
-void UAttack::Activate(FVector AttackDirection)
+void UAttack::Activate()
 {
 	if (AnimMontage != nullptr && AbilitySystem != nullptr)
 	{
 		ACharacter* Owner = Cast<ACharacter>(AbilitySystem->GetOwner());
-		this->AttackDirection = AttackDirection;
 		Owner->PlayAnimMontage(AnimMontage);
 	}
 }
 
-FAttackMovementInfo UAttack::GetMovementInfo() const
+FCustomMovementParams UAttack::GetMovementParams_Implementation() const
 {
-	return MovementInfo;
+	return MovementParams;
 }
 
 FAttackEffectInfo UAttack::GetEffectInfo() const

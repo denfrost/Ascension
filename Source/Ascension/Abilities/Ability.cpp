@@ -5,13 +5,17 @@
 #include "AbilitySystems/GameAbilitySystemComponent.h"
 
 
-UAbility::UAbility(FString Name, UGameAbilitySystemComponent* System = nullptr)
+UAbility::UAbility()
+{
+	AbilityName = FString("Ability");
+	AbilitySystem = nullptr;
+}
+
+void UAbility::Initialize(FString Name, UGameAbilitySystemComponent* System = nullptr)
 {
 	AbilityName = Name;
 	AbilitySystem = System;
 }
-
-void UAbility::Initialize() {}
 
 void UAbility::Activate() {}
 

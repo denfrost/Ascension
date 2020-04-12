@@ -3,7 +3,7 @@
 #include "Entities/Characters/GameCharacter.h"
 #include "Globals.h"
 #include "Interfaces/Damageable.h"
-#include "Interfaces/MovementIntent.h"
+#include "Interfaces/GameMovementInterface.h"
 #include "AscensionCharacter.generated.h"
 
 
@@ -11,7 +11,7 @@
   *	This is the character that the player controls and plays the game with.
   */
 UCLASS(config=Game)
-class AAscensionCharacter : public AGameCharacter, public IDamageable, public IMovementIntent
+class AAscensionCharacter : public AGameCharacter, public IDamageable, public IGameMovementInterface
 {
 	GENERATED_BODY()
 
@@ -84,6 +84,14 @@ public:
 	/** Gets the weapon state. */
 	UFUNCTION(BlueprintCallable, Category = "State Helper")
 	void SetWeaponState(EWeaponState State);
+
+	/** Called to enable movement through player input. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void EnableMovement();
+
+	/** Called to disable movement through player input. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void DisableMovement();
 
 public:
 	/** Current health of the character.*/
@@ -210,14 +218,6 @@ protected:
 	/** Called for the character to sheath/unsheath weapon. */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void SwitchWeapon();
-
-	/** Called to enable movement through player input. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void EnableMovement();
-
-	/** Called to disable movement through player input. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void DisableMovement();
 
 	/** Called to stop player movement. */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -386,9 +386,9 @@ public:
 	bool IsDead();
 	virtual bool IsDead_Implementation() override;
 
-	/** Function to get the movement intent. */
+	/** Function to get the movement direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
-	FVector GetMovementIntent();
-	virtual FVector GetMovementIntent_Implementation() override;
+	FVector GetMovementDirection() const;
+	virtual FVector GetMovementDirection_Implementation() const;
 };
 

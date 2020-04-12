@@ -14,6 +14,10 @@ class ASCENSION_API UPlayerAbilitySystemComponent : public UGameAbilitySystemCom
 {
 	GENERATED_BODY()
 	
+public:
+	// Sets default values for this component's properties
+	UPlayerAbilitySystemComponent();
+
 protected:
 	/** Set to true if the character can chain an attack. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
@@ -24,25 +28,21 @@ public:
 	 * Function to check whether the entity can use an ability.
 	 * @param AbilityName	Name of ability to check for.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	virtual bool CanActivateAbility(const FString& AbilityName);
 
 	/*
 	 * This method does the setup necessary to activate an ability such as state transitions.
 	 * @param AbilityName	Name of the ability to setup.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	virtual void SetupAbility(const FString& AbilityName);
 
 	/*
 	 * This method does the actions necessary to finish an ability such as state transitions.
-	 * @param AbilityID	ID of the ability to end.
+	 * @param AbilityName	Name of the ability to end.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Abilities")
-	virtual void EndAbility(const uint32& AbilityID);
+	virtual void EndAbility(const FString& AbilityName);
 
 	/** Function to check whether the player can attack. */
-	UFUNCTION(BlueprintCallable, Category = "Setters")
 	void SetCanChain(const bool& Chain);
 
 protected:
@@ -53,4 +53,12 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Abilities")
 	virtual bool IsAttack(const FString& AbilityName);
+
+protected:
+	/*
+	 * Variable to keep track of when state transitions need to happen for attacks.
+	 * TODO: Find a better way to do this instead of locks.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	FString AttackStateLock;
 };

@@ -114,3 +114,24 @@ struct FAttackStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	FAttackEffect AttackEffect;
 };
+
+/*
+ * Struct for custom movement parameters.
+ */
+USTRUCT(BlueprintType)
+struct FCustomMovementParams
+{
+	GENERATED_USTRUCT_BODY()
+
+	// Speed of movement during attack.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float Speed = 1000.0f;
+
+	// Max acceleration during this attack.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float Acceleration = 20000.0f;
+
+	// Turn rate during the attack.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float TurnRate = 2048.0f;
+};

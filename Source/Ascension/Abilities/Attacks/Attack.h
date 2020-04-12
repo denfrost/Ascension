@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Ability.h"
-#include "AttackGlobals.h"
+#include "Abilities/Attacks/AttackGlobals.h"
+#include "Interfaces/GameMovementInterface.h"
 #include "Attack.generated.h"
 
-/**
+/*
  * Class for implementing attacks which can be performed by entities.
  */
 UCLASS(Blueprintable, ClassGroup = (Attacks))
@@ -16,15 +17,15 @@ class ASCENSION_API UAttack : public UAbility
 	GENERATED_BODY()
 	
 public:
-	/**
-	  * Constructor of the attack.
-	  */
-	UAttack(FString Name, class UGameAbilitySystemComponent* System);
+	/*
+	 * Constructor of the attack.
+	 */
+	UAttack();
 
-	/**
-	  * This method activates the ability.
-	  */
-	virtual void Activate(FVector AttackDirection);
+	/*
+	 * This method activates the ability.
+	 */
+	virtual void Activate();
 
 protected:
 	// TODO: Move anim montages, attack movement/effects out to separate subclasses if necessary.
@@ -33,32 +34,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
 	UAnimMontage* AnimMontage;
 
-	/** Details of movement during attacks. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	FAttackMovementInfo MovementInfo;
+	/*
+	 * Movement parameters for the attack. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
+	FCustomMovementParams MovementParams;
 
-	/** The direction the attack should be performed. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	FVector AttackDirection;
-
-	/**
-	  * Details of the attacks effects.
-	  * TODO: Rework this.
-	  */
+	/*
+	 * Details of the attacks effects.
+	 * TODO: Rework this.
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Effects")
 	FAttackEffectInfo EffectInfo;
 
 public:
-	/**
-	  * Gets the movement info of the attack.
-	  * TODO: Remove this.
-	  */
-	UFUNCTION(BlueprintCallable, Category = "Getters")
-	FAttackMovementInfo GetMovementInfo() const;
+	/** Function to get the movement direction. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
+	FCustomMovementParams GetMovementParams() const;
+	virtual FCustomMovementParams GetMovementParams_Implementation() const;
 
-	/**
+	/*
 	 * Gets the effect info of the attack.
-	 * TODO: Remove this.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Getters")
 	FAttackEffectInfo GetEffectInfo() const;

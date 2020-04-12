@@ -19,7 +19,7 @@ UAttackComponent::UAttackComponent()
 	DamagedActors.Empty();
 
 	// Clear active attacks.
-	ActiveAttackIDMap.Empty();
+	ActiveAttacks.Empty();
 }
 
 
@@ -40,66 +40,39 @@ void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UAttackComponent::SetupMotion()
+void UAttackComponent::Attack_Implementation(const FString& AttackName)
 {
-	if (!ActiveAttack.IsEmpty())
+	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+
+	if (AbilitySystem)
 	{
-		UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-
-		if (AbilitySystem)
+		if (AbilitySystem->CanActivateAbility(AttackName))
 		{
-			UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(ActiveAttack));
-			UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
-
-			if (Attack != nullptr && MovementComponent != nullptr)
+			if (!ActiveAttacks.Contains(AttackName))
 			{
-				MovementComponent->SetupMovement(Attack->GetMovementInfo().Speed, 
-												 Attack->GetMovementInfo().Acceleration, 
-												 Attack->GetMovementInfo().TurnRate);
+				AbilitySystem->FinishAbility(AttackName);
+			}
+			bool Activated = AbilitySystem->ActivateAbility(AttackName);
+			if (Activated)
+			{
+				ActiveAttacks.Add(AttackName);
 			}
 		}
 	}
 }
 
-void UAttackComponent::AttackMotion(FVector MovementVector)
-{
-	UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
-	if (MovementComponent != nullptr)
-	{
-		MovementComponent->Move(ActionDirection, MovementVector);
-	}
-}
-
-void UAttackComponent::FinishMotion()
-{
-	UGameMovementComponent* MovementComponent = Owner->FindComponentByClass<UGameMovementComponent>();
-	if (MovementComponent != nullptr)
-	{
-		MovementComponent->FinishMovement();
-	}
-}
-
-void UAttackComponent::Attack_Implementation(const FString& AttackName, const FVector& MovementIntent)
+void UAttackComponent::FinishAttack_Implementation(const FString& AttackName)
 {
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 
-	if (AbilitySystem->CanActivateAbility(AttackName))
+	if (AbilitySystem)
 	{
-		if (!ActiveAttack.IsEmpty())
+		if (ActiveAttacks.Contains(AttackName))
 		{
-			AbilitySystem->FinishAbility(ActiveAttack);
+			ActiveAttacks.Remove(AttackName);
+			AbilitySystem->FinishAbility(AttackName);
 		}
-
-		ActionDirection = MovementIntent;
-		AbilitySystem->ActivateAbility(AttackName);
-		ActiveAttack = Attack->AbilityName;
 	}
-}
-
-void UAttackComponent::FinishAttack_Implementation(const FString& AttackName)
-{
-	ActiveAttack = FString();
-	AbilitySystem->FinishAbility(AttackName);
 }
 
 void UAttackComponent::DetectHit()
@@ -122,9 +95,10 @@ void UAttackComponent::DetectHit()
 					{
 						UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 
-						if (!ActiveAttack.IsEmpty() && AbilitySystem != nullptr)
+						if (!(ActiveAttacks.Num() == 0) && AbilitySystem != nullptr)
 						{
-							UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(ActiveAttack));
+							// Get the correct attack, not the zeroth index.
+							UAttack* Attack = Cast<UAttack>(AbilitySystem->GetAbility(ActiveAttacks[0]));
 
 							if (Attack != nullptr)
 							{

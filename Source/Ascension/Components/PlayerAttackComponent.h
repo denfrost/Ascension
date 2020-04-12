@@ -41,7 +41,7 @@ public:
 	  * @param AttackName		Name of the attack to perform.
 	  * @param MovementIntent	Direction the attack should be performed in.
 	  */
-	virtual void Attack_Implementation(const FString& AttackName, const FVector& MovementIntent);
+	virtual void Attack_Implementation(const FString& AttackName);
 
 	/** Event called when a combo is finished/reset.
 	 * Performs necessary actions after a combo is completed.

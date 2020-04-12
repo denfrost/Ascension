@@ -2,8 +2,10 @@
 
 #include "Ascension.h"
 #include "GameMovementComponent.h"
+#include "Interfaces/GameMovementInterface.h"
+#include "Abilities/Attacks/Attack.h"
+#include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Interfaces/MovementIntent.h"
 
 // Sets default values for this component's properties
 UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectInitializer)
@@ -17,7 +19,8 @@ UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectI
 	DefaultSpeed = MaxWalkSpeed;
 	DefaultAcceleration = MaxAcceleration;
 	DefaultTurnRate = RotationRate.Yaw;
-	MovementIntent = FVector();
+	MovementDirection = FVector();
+	MovementStateLock = FString();
 }
 
 // Called when the game starts
@@ -31,40 +34,57 @@ void UGameMovementComponent::SetupMovement(float TargetSpeed, float TargetAccele
 	SetMovementSpeed(TargetSpeed);
 	SetAcceleration(TargetAcceleration);
 	SetTurningRate(TargetTurnRate);
+
+	AActor* Owner = GetOwner();
+	if (Owner->Implements<UGameMovementInterface>())
+	{
+		SetMovementDirection(IGameMovementInterface::Execute_GetMovementDirection(Owner));
+	}
+	else
+	{
+		SetMovementDirection(Owner->GetActorForwardVector());
+	}
 }
 
-void UGameMovementComponent::Move(FVector BaseDirection, FVector MovementVector)
+void UGameMovementComponent::SetupMovementAbility(FString AbilityName)
 {
-	FRotator AttackRotation = BaseDirection.Rotation();
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(AttackRotation) * MovementVector.X;
-	FVector SideVector = UKismetMathLibrary::GetRightVector(AttackRotation) * MovementVector.Y;
-	FVector UpVector = UKismetMathLibrary::GetUpVector(AttackRotation) * MovementVector.Z;
+	AActor* Owner = GetOwner();
+	UGameAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+
+	// TODO: Ideally, this should be done for any ability.
+	const UAttack* Attack = Cast<UAttack>(AbilitySystemComponent->GetActiveAbility(AbilityName));
+	if (Attack != nullptr)
+	{
+		FCustomMovementParams MovementParams = Attack->GetMovementParams();
+		SetupMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate);
+		MovementStateLock = AbilityName;
+	}
+}
+
+void UGameMovementComponent::Move(FVector MovementVector)
+{
+	// Movement direction is the direction with respect to which the movement vector is applied.
+	FRotator MovementRotation = MovementDirection.Rotation();
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(MovementRotation) * MovementVector.X;
+	FVector SideVector = UKismetMathLibrary::GetRightVector(MovementRotation) * MovementVector.Y;
+	FVector UpVector = UKismetMathLibrary::GetUpVector(MovementRotation) * MovementVector.Z;
 
 	FVector Direction = ForwardVector + SideVector + UpVector;
 
 	AddInputVector(Direction, false);
 }
 
-void UGameMovementComponent::FinishMovement()
+void UGameMovementComponent::FinishMovement(FString AbilityName = FString())
 {
-	ResetMovementSpeed();
-	ResetTurningRate();
-	ResetAcceleration();
-}
-
-void UGameMovementComponent::SetMovementIntent()
-{
-	AActor* Owner = GetOwner();
-	if (Owner->GetClass()->ImplementsInterface(UMovementIntent::StaticClass()))
+	if (MovementStateLock.Equals(AbilityName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Implements required class!"))
-		MovementIntent = IMovementIntent::Execute_GetMovementIntent(Owner);
-	}
-	else
-	{
-		MovementIntent = FVector();
+		ResetMovementSpeed();
+		ResetTurningRate();
+		ResetAcceleration();
+		MovementStateLock = FString();
 	}
 }
+	
 
 void UGameMovementComponent::SetMovementSpeed(float Speed)
 {
@@ -96,6 +116,11 @@ void UGameMovementComponent::ResetTurningRate()
 	RotationRate = FRotator(0.0f, DefaultTurnRate, 0.0f);
 }
 
+void UGameMovementComponent::SetMovementDirection(FVector Direction)
+{
+	MovementDirection = Direction;
+}
+
 void UGameMovementComponent::SetGravity(float GravityValue)
 {
 	GravityScale = GravityValue;
@@ -125,9 +150,9 @@ void UGameMovementComponent::ResetFlyable()
 void UGameMovementComponent::PerformMove(const FVector& InVelocity, const float DeltaSeconds)
 {
 	FVector MovementDirectionForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
-	if (!MovementIntent.IsNearlyZero(0.01f))
+	if (!MovementDirection.IsNearlyZero(0.01f))
 	{
-		MovementDirectionForward = MovementIntent.GetSafeNormal();
+		MovementDirectionForward = MovementDirection.GetSafeNormal();
 	}
 	FVector MovementDirectionRight = MovementDirectionForward.RightVector.GetSafeNormal();
 	FVector MovementDirectionUp = MovementDirectionForward.UpVector.GetSafeNormal();

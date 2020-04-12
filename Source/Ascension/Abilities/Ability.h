@@ -15,10 +15,10 @@ class ASCENSION_API UAbility : public UObject
 	GENERATED_BODY()
 	
 public:
-	/**
+	/*
 	 * Constructor of the ability.
 	 */
-	UAbility(FString Name, class UGameAbilitySystemComponent* System);
+	UAbility();
 
 public:
 	UPROPERTY(Category = Properties, EditDefaultsOnly, BlueprintReadWrite)
@@ -27,8 +27,11 @@ public:
 public:
 	/**
 	 * Used to initialize the ability.
+	 * @param Name		Name of the ability.
+	 * @param System	Ability system component which handles this ability.
 	 */
-	virtual void Initialize();
+	UFUNCTION(BlueprintCallable, Category = "Interface Functions")
+	virtual void Initialize(FString Name, class UGameAbilitySystemComponent* System);
 
 	/**
 	 * This method activates the ability.

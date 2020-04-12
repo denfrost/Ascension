@@ -2,10 +2,22 @@
 
 #include "Ascension.h"
 #include "Entities/Characters/Player/AscensionCharacter.h"
+#include "Abilities/Ability.h"
 #include "PlayerAbilitySystemComponent.h"
 
 
-bool UGameAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
+// Sets default values for this component's properties
+UPlayerAbilitySystemComponent::UPlayerAbilitySystemComponent()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
+
+	AttackStateLock = FString();
+}
+
+
+bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
 {
 	const AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 
@@ -22,7 +34,6 @@ bool UGameAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
 				if (CanChain)
 				{
 					// TODO: This needs to be done by a anim notify sequence and not via a variable.
-					CanChain = false;
 					return true;
 				}
 				else
@@ -44,39 +55,40 @@ bool UGameAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
 	return false;
 }
 
-void UGameAbilitySystemComponent::SetupAbility(const FString& AbilityName)
+void UPlayerAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Setting up ability."))
 	if (IsAttack(AbilityName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting up attack."))
 		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 		Player->SetCharacterState(ECharacterState::CS_Attacking);
 		Player->DisableMovement();
+		// Find a better way to handle state transitions.
+		AttackStateLock = AbilityName;
+		CanChain = false;
 	}
 }
 
-void UGameAbilitySystemComponent::EndAbility(const uint32& AbilityID)
+void UPlayerAbilitySystemComponent::EndAbility(const FString& AbilityName)
 {
-	if (ActiveAbilitiesMap.Contains((AbilityID)))
+	if (ActiveAbilitiesMap.Contains((AbilityName)) && AttackStateLock.Equals(AbilityName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Ending ability."))
-		if (IsAttack(ActiveAbilitiesMap[AbilityID]->AbilityName))
+		// Find a better way to handle state transitions than using locks.
+		if (IsAttack(ActiveAbilitiesMap[AbilityName]->AbilityName) && AttackStateLock.Equals(AbilityName))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Ending attack."))
 			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 			Player->SetCharacterState(ECharacterState::CS_Idle);
 			Player->EnableMovement();
+			AttackStateLock = FString();
 		}
 	}
 }
 
-void UPlayerAttackComponent::SetCanChain(const bool& Chain)
+void UPlayerAbilitySystemComponent::SetCanChain(const bool& Chain)
 {
 	CanChain = Chain;
 }
 
-bool UGameAbilitySystemComponent::IsAttack(const FString& AbilityName)
+bool UPlayerAbilitySystemComponent::IsAttack(const FString& AbilityName)
 {
 	// TODO: Don't hard-code ability names.
 	if (AbilityName.Equals("Light01") || AbilityName.Equals("Light02") || AbilityName.Equals("Light03") ||
