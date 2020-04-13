@@ -12,8 +12,7 @@ UPlayerAbilitySystemComponent::UPlayerAbilitySystemComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	AttackStateLock = FString();
+	
 }
 
 
@@ -62,23 +61,32 @@ void UPlayerAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 		Player->SetCharacterState(ECharacterState::CS_Attacking);
 		Player->DisableMovement();
-		// Find a better way to handle state transitions.
-		AttackStateLock = AbilityName;
 		CanChain = false;
 	}
 }
 
 void UPlayerAbilitySystemComponent::EndAbility(const FString& AbilityName)
 {
-	if (ActiveAbilitiesMap.Contains((AbilityName)) && AttackStateLock.Equals(AbilityName))
+	if (ActiveAbilitiesMap.Contains((AbilityName)))
 	{
-		// Find a better way to handle state transitions than using locks.
-		if (IsAttack(ActiveAbilitiesMap[AbilityName]->AbilityName) && AttackStateLock.Equals(AbilityName))
+		TArray<FString> CurrentActiveAbilities;
+		ActiveAbilitiesMap.GenerateKeyArray(CurrentActiveAbilities);
+		int NumOtherActiveAttacks = 0;
+
+		for (int i = 0; i < CurrentActiveAbilities.Num(); i++)
+		{
+			if (IsAttack(CurrentActiveAbilities[i]) && !(CurrentActiveAbilities[i].Equals(AbilityName)))
+			{
+				NumOtherActiveAttacks++;
+			}
+		}
+
+		// TODO: Need a better way to figure out whether to transition state rather than just checking the number of active attacks.
+		if (IsAttack(AbilityName) && !(NumOtherActiveAttacks > 0))
 		{
 			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 			Player->SetCharacterState(ECharacterState::CS_Idle);
 			Player->EnableMovement();
-			AttackStateLock = FString();
 		}
 	}
 }

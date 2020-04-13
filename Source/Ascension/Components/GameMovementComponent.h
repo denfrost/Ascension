@@ -39,28 +39,41 @@ protected:
 
 public:
 	/*
-	 * Function to setup variables for custom movement.
+	 * Function to setup variables for controlled movement.
 	 * @param TargetSpeed			Speed at which movement is to be performed.
 	 * @param TargetAcceleration	Acceleration with which movement is to be performed.
 	 * @param TargetTurnRate		Turn rate at which movement is to be performed.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	virtual void SetupMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate);
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual int SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate);
 
 	/*
-	 * Function to setup variables for custom movement during an ability.
+	 * Function to setup variables for controlled movement during an ability.
 	 * @param AbilityName	Name of the active ability.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	virtual void SetupMovementAbility(FString AbilityName);
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual int SetupControlledMovementAbility(FString AbilityName);
 
-	/** Function that makes the character move in the specified direction. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void Move(FVector MovementVector);
+	/*
+	 * Function to perform controlled movement.
+	 * @param MovementVector	Direction with which the entity should move.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void ControlledMove(FVector MovementVector);
 
-	/** Function that resets variables to normal values when the movement completes. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void FinishMovement(FString AbilityName);
+	/*
+	 * Function that resets movement params to default values when controlled movement completes.
+	 * @param InstanceID	ID of the instance of controlled movement.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual void FinishControlledMovement(int InstanceID);
+
+	/*
+	 * Function that resets movement params to default values when controlled movement completes.
+	 * @param AbilityName	Name of the ability for which controlled movement was performed.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual void FinishControlledMovementAbility(FString AbilityName);
 
 protected:
 	/** Called to limit character movement to a certain speed. */
@@ -107,22 +120,19 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ResetGravity();
 
-public:
-	/**
-	 * Moves along the given movement direction using simple movement rules based on the current movement mode (usually used by simulated proxies).
-	 *
-	 * @param InVelocity:			Velocity of movement
-	 * @param DeltaSeconds:			Time over which movement occurs
-	 * @param OutStepDownResult:	[Out] If non-null, and a floor check is performed, this will be updated to reflect that result.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void PerformMove(const FVector& InVelocity, const float DeltaSeconds);
-
 protected:
 	/*
-	 * Variable to keep track of when movement param changes need to happen for movement.
-	 * TODO: Find a better way to do this instead of locks.
+	 * Variable to keep track of the instance of controlled movement.
+	 * Necessary to ensure that there isn't a race to reset movement parameters when two instances of controlled
+	 * movement coincide.
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
-	FString MovementStateLock;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	int ControlledMovementInstanceID;
+
+	/*
+	 * Map of ability names to their movement instance IDs.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	TMap<FString, int> AbilityNameIDMap;
+
 };

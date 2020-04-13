@@ -20,7 +20,8 @@ UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectI
 	DefaultAcceleration = MaxAcceleration;
 	DefaultTurnRate = RotationRate.Yaw;
 	MovementDirection = FVector();
-	MovementStateLock = FString();
+	ControlledMovementInstanceID = 0;
+	AbilityNameIDMap.Empty();
 }
 
 // Called when the game starts
@@ -29,7 +30,7 @@ void UGameMovementComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UGameMovementComponent::SetupMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate)
+int UGameMovementComponent::SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate)
 {
 	SetMovementSpeed(TargetSpeed);
 	SetAcceleration(TargetAcceleration);
@@ -44,9 +45,11 @@ void UGameMovementComponent::SetupMovement(float TargetSpeed, float TargetAccele
 	{
 		SetMovementDirection(Owner->GetActorForwardVector());
 	}
+
+	return ++ControlledMovementInstanceID;
 }
 
-void UGameMovementComponent::SetupMovementAbility(FString AbilityName)
+int UGameMovementComponent::SetupControlledMovementAbility(FString AbilityName)
 {
 	AActor* Owner = GetOwner();
 	UGameAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
@@ -56,12 +59,15 @@ void UGameMovementComponent::SetupMovementAbility(FString AbilityName)
 	if (Attack != nullptr)
 	{
 		FCustomMovementParams MovementParams = Attack->GetMovementParams();
-		SetupMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate);
-		MovementStateLock = AbilityName;
+		int MovementID = SetupControlledMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate);
+		AbilityNameIDMap.Add(AbilityName, MovementID);
+		return MovementID;
 	}
+
+	return 0;
 }
 
-void UGameMovementComponent::Move(FVector MovementVector)
+void UGameMovementComponent::ControlledMove(FVector MovementVector)
 {
 	// Movement direction is the direction with respect to which the movement vector is applied.
 	FRotator MovementRotation = MovementDirection.Rotation();
@@ -74,17 +80,24 @@ void UGameMovementComponent::Move(FVector MovementVector)
 	AddInputVector(Direction, false);
 }
 
-void UGameMovementComponent::FinishMovement(FString AbilityName = FString())
+void UGameMovementComponent::FinishControlledMovement(int InstanceID = 0)
 {
-	if (MovementStateLock.Equals(AbilityName))
+	if (ControlledMovementInstanceID == InstanceID)
 	{
 		ResetMovementSpeed();
 		ResetTurningRate();
 		ResetAcceleration();
-		MovementStateLock = FString();
+		ControlledMovementInstanceID = 0;
 	}
 }
-	
+
+void UGameMovementComponent::FinishControlledMovementAbility(FString AbilityName)
+{
+	if (AbilityNameIDMap.Contains(AbilityName))
+	{
+		FinishControlledMovement(AbilityNameIDMap[AbilityName]);
+	}
+}
 
 void UGameMovementComponent::SetMovementSpeed(float Speed)
 {
@@ -145,23 +158,4 @@ void UGameMovementComponent::ResetFlyable()
 	{
 		MovementMode = EMovementMode::MOVE_Walking;
 	}
-}
-
-void UGameMovementComponent::PerformMove(const FVector& InVelocity, const float DeltaSeconds)
-{
-	FVector MovementDirectionForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
-	if (!MovementDirection.IsNearlyZero(0.01f))
-	{
-		MovementDirectionForward = MovementDirection.GetSafeNormal();
-	}
-	FVector MovementDirectionRight = MovementDirectionForward.RightVector.GetSafeNormal();
-	FVector MovementDirectionUp = MovementDirectionForward.UpVector.GetSafeNormal();
-
-	FVector ForwardVelocity = MovementDirectionForward * InVelocity.X;
-	FVector RightVelocity = MovementDirectionRight * InVelocity.Y;
-	FVector UpVelocity = MovementDirectionUp * InVelocity.Z;
-
-	FVector ResultantVelocity = ForwardVelocity + RightVelocity + UpVelocity;
-
-	MoveSmooth(ResultantVelocity, DeltaSeconds);
 }

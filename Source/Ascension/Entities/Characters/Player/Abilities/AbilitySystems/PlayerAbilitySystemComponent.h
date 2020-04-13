@@ -53,12 +53,5 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Abilities")
 	virtual bool IsAttack(const FString& AbilityName);
-
-protected:
-	/*
-	 * Variable to keep track of when state transitions need to happen for attacks.
-	 * TODO: Find a better way to do this instead of locks.
-	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
-	FString AttackStateLock;
+	
 };
