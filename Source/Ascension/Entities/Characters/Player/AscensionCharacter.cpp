@@ -4,6 +4,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerInputComponent.h"
 #include "Abilities/AbilitySystems/PlayerAbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AscensionCharacter.h"

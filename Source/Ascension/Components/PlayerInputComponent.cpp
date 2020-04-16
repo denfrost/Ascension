@@ -1,0 +1,15 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Ascension.h"
+#include "PlayerInputComponent.h"
+
+
+void UPlayerInputComponent::AddInputAction(FInputAction& InputAction)
+{
+
+}
+
+void UPlayerInputComponent::AddActionEvent(FActionEvent& ActionEvent)
+{
+
+}
