@@ -142,6 +142,20 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 	}
 
 	MovementIntent = ForwardIntent + SideIntent;
+
+	if (Controller != nullptr)
+	{
+		UPlayerInputComponent* InputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
+
+		if (InputComponent)
+		{
+			if (!MovementIntent.IsNearlyZero(0.01f))
+			{
+				InputComponent->BufferInput("Move", true);
+			}
+		}
+	}
+
 	if (MovementIntent.IsNearlyZero(0.01f))
 	{
 		const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
