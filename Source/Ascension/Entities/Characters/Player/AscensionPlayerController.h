@@ -25,7 +25,7 @@ public:
 	static FName PlayerInputComponentName;
 
 	/** Player input component. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input Buffer")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
 	class UPlayerInputComponent* PlayerInputComponent;
 
 };

@@ -25,6 +25,13 @@ struct FInputAction
 		, EndTime(0.0f)
 	{}
 
+	/*
+	 * Constructor for the input action.
+	 * @param Name			Name of the input action.
+	 * @param Active		Whether the action is active.
+	 * @param StartTime		Start time of the action (in seconds).
+	 * @param EndTime		End time of the action (in seconds).
+	 */
 	FInputAction(FString Name, bool Active, float StartTime, float EndTime)
 		: Name(Name)
 		, Active(Active)
@@ -48,9 +55,83 @@ struct FInputAction
 	UPROPERTY(VisibleAnywhere)
 	float EndTime;
 
+	/*
+	 * Function to get the duration of the input action.
+	 * @returns float	How long the input action has been active.
+	 */
 	FORCEINLINE float GetDuration() const
 	{
 		return EndTime - StartTime;
+	}
+
+};
+
+/*
+ * Struct representing a sequence of input actions.
+ */
+USTRUCT(BlueprintType)
+struct FInputActionSequence
+{
+	GENERATED_BODY()
+
+	/*
+	 * Constructor for the input sequence.
+	 */
+	FInputActionSequence() {}
+
+	/*
+	 * Constructor for the input sequence.
+	 * @param Actions	Input action sequence.
+	 */
+	FInputActionSequence(TArray<FInputAction> Actions)
+		: InputActionSequence(Actions)
+	{}
+
+	/** Sequence on input actions for this event to be triggered. */
+	UPROPERTY(VisibleAnywhere)
+	TArray<FInputAction> InputActionSequence;
+
+	/*
+	 * Function to get the start time of the input sequence.
+	 * @returns float	Start time of the sequence.
+	 */
+	FORCEINLINE float GetStartTime() const
+	{
+		if (InputActionSequence.Num() > 0)
+		{
+			return InputActionSequence[0].StartTime;
+		}
+
+		return 0.0f;
+	}
+
+	/*
+	 * Function to get the end time of the input sequence.
+	 * @returns float	End time of the sequence.
+	 */
+	FORCEINLINE float GetEndTime() const
+	{
+		if (InputActionSequence.Num() > 0)
+		{
+			int LastIndex = InputActionSequence.Num() - 1;
+			return InputActionSequence[LastIndex].EndTime;
+		}
+
+		return 0.0f;
+	}
+
+	/*
+	 * Function to get the duration of the input sequence.
+	 * @returns float	Total duration of the sequence.
+	 */
+	FORCEINLINE float GetDuration() const
+	{
+		if (InputActionSequence.Num() > 0)
+		{
+			return (GetEndTime() - GetStartTime());
+		}
+
+		return 0.0f;
 	}
 
 };
@@ -67,11 +148,38 @@ struct FActionEvent
 	 * Constructor for the action event.
 	 */
 	FActionEvent()
-		: MinDuration(0.0f)
+		: Name(FString(""))
+		, MinDuration(0.0f)
 		, MaxDuration(0.0f)
 		, MinInterval(0.0f)
 		, MaxInterval(0.0f)
 	{}
+
+	/*
+	 * Constructor for the action event.
+	 * @param Name				Name of the action event.
+	 * @param InputSequence		Sequence of input actions to trigger the event.
+	 * @param ActionActiveMap	Map indicating whether input actions need to be active.
+	 * @param MinDuration		Minimum duration the input actions should have lasted.
+	 * @param MaxDuration		Maximum duration the input actions should have lasted.
+	 * @param MinInterval		Minimum interval between input actions.
+	 * @param MaxInterval		Maximum interval between input actions.
+	 */
+	FActionEvent(FString Name, TArray<FString> InputSequence, TMap<FString, bool> ActionActiveMap,
+				 float MinDuration = 0.0f, float MaxDuration = 0.0f, float MinInterval = 0.0f,
+				 float MaxInterval = 0.0f)
+		: Name(Name)
+		, InputSequence(InputSequence)
+		, ActionActiveMap(ActionActiveMap)
+		, MinDuration(MinDuration)
+		, MaxDuration(MaxDuration)
+		, MinInterval(MinInterval)
+		, MaxInterval(MaxInterval)
+	{}
+
+	/** Name of the action event. */
+	UPROPERTY(EditAnywhere)
+	FString Name;
 
 	/** Sequence on input actions for this event to be triggered. */
 	UPROPERTY(EditAnywhere)
@@ -102,11 +210,13 @@ struct FActionEvent
 
 	/*
 	 * Function to check whether the duration of an input action lies within acceptable ranges.
+	 * @param Duration	Duration to check for.
+	 * @returns bool	Whether the duration is valid.
 	 */
 	FORCEINLINE bool CheckDuration(float Duration) const
 	{
-		if ((MinDuration != 0.f && Duration < MinDuration) ||
-			(MaxDuration != 0.f && Duration > MaxDuration))
+		if ((MinDuration != 0.0f && Duration < MinDuration) ||
+			(MaxDuration != 0.0f && Duration > MaxDuration))
 		{
 			return false;
 		}
@@ -116,11 +226,13 @@ struct FActionEvent
 
 	/*
 	 * Function to check whether the interval between input actions lies within acceptable ranges.
+	 * @param Interval	Interval to check for.
+	 * @returns bool	Whether the interval is valid.
 	 */
 	FORCEINLINE bool CheckInterval(float Interval) const
 	{
-		if ((MaxInterval != 0.f && Interval > MaxInterval) ||
-			(MinInterval != 0.f && Interval < MinInterval))
+		if ((MaxInterval != 0.0f && Interval > MaxInterval) ||
+			(MinInterval != 0.0f && Interval < MinInterval))
 		{
 			return false;
 		}
@@ -128,16 +240,53 @@ struct FActionEvent
 		return true;
 	}
 
-};
+	/*
+	 * Function to check whether an input action sequence is valid for this action event.
+	 * @param SequenceToCompare		Input sequence to compare with.
+	 * @returns bool				Whether the sequence is valid.
+	 */
+	FORCEINLINE bool CheckSequenceValidity(const FInputActionSequence& SequenceToCompore) const
+	{
+		TArray<FInputAction> InputActionsToCompare = SequenceToCompore.InputActionSequence;
 
-/*
- * Enum depicting the type of input buffer.
- */
-UENUM(BlueprintType)
-enum class FBufferType : uint8
-{
-	BT_Normal = 0,
-	BT_Persistent = 1
+		if (InputActionsToCompare.Num() == InputSequence.Num())
+		{
+			// Check whether any inputs that are required to be active/inactive are present in the correct state.
+			for (FInputAction InputAction : InputActionsToCompare)
+			{
+				if (ActionActiveMap.Contains(InputAction.Name))
+				{
+					if (ActionActiveMap[InputAction.Name] != InputAction.Active)
+					{
+						return false;
+					}
+				}
+			}
+
+			// Check whether duration of each action is within the limits.
+			for (int Index = 0; Index < InputActionsToCompare.Num(); Index++)
+			{
+				float Duration = InputActionsToCompare[Index].EndTime - InputActionsToCompare[Index].StartTime;
+				if (!CheckDuration(Duration))
+				{
+					return false;
+				}
+
+				// Check whether intervals between actions is within the limits.
+				if ((Index + 1) < InputActionsToCompare.Num())
+				{
+					float Interval = InputActionsToCompare[Index + 1].StartTime - InputActionsToCompare[Index].EndTime;
+					if (!CheckInterval(Interval))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
 };
 
 /*
@@ -155,7 +304,7 @@ public:
 	UPlayerInputComponent();
 
 	/**
-	 * Tick function for the input component. Updates the input buffer by removing/moving inputs that aren't valid anymore.
+	 * Tick function for the input component. Updates the input buffer by removing inputs that aren't valid anymore.
 	 * @param DeltaTime			The time since the last tick.
 	 * @param TickType			The kind of tick this is, for example, are we paused, or 'simulating' in the editor.
 	 * @param ThisTickFunction	Internal tick function struct that caused this to run.
@@ -175,14 +324,6 @@ public:
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Input")
 	TArray<FInputAction> InputBuffer;
-
-	/*
-	 * A cyclic buffer for storing input actions that are persistent.
-	 * If an input action is performed for longer than the input validity, it is removed from the input buffer
-	 * and stored instead in the persistent input buffer.
-	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Input")
-	TArray<FInputAction> PersistentInputBuffer;
 
 	/** Amount of actions that can be stored in the input buffer. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
@@ -206,49 +347,43 @@ public:
 
 	/*
 	 * Method to add an input action to the buffer.
-	 * If the buffer is full, deletes the oldest input action and adds the new action to the end.
+	 * If the buffer is full, deletes the oldest input action that is not active and adds the new action to the end.
 	 * @param InputAction	Input action to add.
-	 * @param BufferType	Type of input buffer.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	void AddToBuffer(FInputAction& InputAction, const FBufferType& BufferType);
+	void AddToBuffer(FInputAction& InputAction);
 
 	/*
 	 * Method to clear the input buffer.
-	 * @param BufferType	Type of input buffer.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	void ClearBuffer(const FBufferType& BufferType);
+	void ClearBuffer();
 
 	/*
 	 * Method to get the last input action of the specified name in the input buffer.
 	 * @param ActionEvent		Name of input action.
 	 * @returns FInputAction	Input action with the given name.
-	 * @param BufferType		Type of input buffer.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	FInputAction GetLastInputAction(const FString& Name, const FBufferType& BufferType);
+	FInputAction GetLastInputAction(const FString& Name);
 
 	/*
 	 * Method to get the index of last input action of the specified name in the input buffer.
 	 * @param ActionEvent	Name of input action.
-	 * @param BufferType	Type of input buffer.
 	 * @returns int			Index of the last input action with the given name. -1 if the action was not found.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	int GetLastInputActionIndex(const FString& Name, const FBufferType& BufferType);
+	int GetLastInputActionIndex(const FString& Name);
 
 	/*
 	 * Method to update the last input action of the specified name in the input buffer.
 	 * @param ActionEvent	Name of input action.
 	 * @param Active		Whether the action is active.
 	 * @param EndTime		Time that the action ended/current time.
-	 * @param BufferType	Type of input buffer.
 	 * @returns bool		Whether the action was updated successfully.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	bool UpdateLastInputAction(const FString& Name, const bool& Active, const float& EndTime,
-							   const FBufferType& BufferType);
+	bool UpdateLastInputAction(const FString& Name, const bool& Active, const float& EndTime);
 
 	/*
 	 * Method to try to add an input to the buffer.
@@ -257,12 +392,28 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void BufferInput(const FString& Name, bool Active);
+
+	/*
+	 * Method to get all sequences in the array which match an action event.
+	 * @param Name								Name of the InputAction to buffer.
+	 * @returns TArray<FInputActionSequence>	Array of sequences that match the event present in the buffer.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Input")
+	TArray<FInputActionSequence> GetValidInputSequences(const FActionEvent& ActionEvent) const;
+
+	/*
+	 * Method to try and execute a buffered action.
+	 * The first input sequence that completed successfully will be considered for execution.
+	 * Clears the input buffer after an action is successfully executed.
+	 * @returns bool	Whether an action was executed.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	bool TryBufferedAction();
 	
 	/*
 	 * Method to print the contents of the input buffer.
-	 * @param BufferType	Type of input buffer.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-	void PrintBuffer(const FBufferType& BufferType);
+	void PrintBuffer();
 
 };

@@ -145,13 +145,13 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 
 	if (Controller != nullptr)
 	{
-		UPlayerInputComponent* InputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
+		UPlayerInputComponent* PlayerInputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
 
-		if (InputComponent)
+		if (PlayerInputComponent)
 		{
 			if (!MovementIntent.IsNearlyZero(0.01f))
 			{
-				InputComponent->BufferInput("Move", true);
+				PlayerInputComponent->BufferInput("Move", true);
 			}
 		}
 	}
@@ -295,6 +295,17 @@ void AAscensionCharacter::StopJumping()
 
 void AAscensionCharacter::LightAttack_Implementation()
 {
+	if (Controller != nullptr)
+	{
+		UPlayerInputComponent* PlayerInputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
+
+		if (PlayerInputComponent)
+		{
+			PlayerInputComponent->BufferInput("Light Attack", false);
+			PlayerInputComponent->TryBufferedAction();
+		}
+	}
+
 	if (AttackComponent)
 	{
 		AttackComponent->Attack(FString("Light Attack"));
@@ -303,6 +314,17 @@ void AAscensionCharacter::LightAttack_Implementation()
 
 void AAscensionCharacter::StrongAttack_Implementation()
 {
+	if (Controller != nullptr)
+	{
+		UPlayerInputComponent* PlayerInputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
+
+		if (PlayerInputComponent)
+		{
+			PlayerInputComponent->BufferInput("Strong Attack", false);
+			PlayerInputComponent->TryBufferedAction();
+		}
+	}
+
 	if (AttackComponent)
 	{
 		AttackComponent->Attack(FString("Strong Attack"));
