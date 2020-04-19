@@ -61,7 +61,6 @@ void UPlayerAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 		Player->SetCharacterState(ECharacterState::CS_Attacking);
 		Player->DisableMovement();
-		CanChain = false;
 	}
 }
 

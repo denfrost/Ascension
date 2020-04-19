@@ -30,20 +30,23 @@ protected:
 	int MaxComboCount;
 
 public:
-	/** Implementation for selecting attacks.
-	  * @param AttackType	Type of attack to perform.
-	  */
+	/*
+	 * Implementation for selecting attacks.
+	 * @param AttackType	Type of attack to perform.
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	FString SelectAttack(const FString& AttackType);
 	virtual FString SelectAttack_Implementation(const FString& AttackType);
 
-	/** Called for the character to perform the specified attack.
-	  * @param AttackName		Name of the attack to perform.
-	  * @param MovementIntent	Direction the attack should be performed in.
-	  */
-	virtual void Attack_Implementation(const FString& AttackName);
+	/*
+	 * Called for the character to perform the specified attack.
+	 * @param AttackName	Name of the attack to perform.
+	 * @returns bool		Whether the attack was executed.
+	 */
+	virtual bool Attack_Implementation(const FString& AttackName);
 
-	/** Event called when a combo is finished/reset.
+	/*
+	 * Event called when a combo is finished/reset.
 	 * Performs necessary actions after a combo is completed.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

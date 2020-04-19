@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Ascension.h"
+#include "Components/PlayerAttackComponent.h"
+#include "Entities/Characters/Player/AscensionPlayerController.h"
 #include "PlayerInputComponent.h"
 
 
@@ -289,7 +291,7 @@ bool UPlayerInputComponent::TryBufferedAction()
 	FActionEvent ActionEventToExecute = FActionEvent();
 
 	// Kept as a pointer mainly for comparison/initialization in the loop.
-	FInputActionSequence* EarliestExecutedSequence = nullptr;
+	FInputActionSequence EarliestExecutedSequence = FInputActionSequence();
 
 	for (FActionEvent ActionEvent : ActionEvents)
 	{
@@ -297,12 +299,12 @@ bool UPlayerInputComponent::TryBufferedAction()
 
 		if (ValidSequences.Num() > 0)
 		{
-			if (EarliestExecutedSequence != nullptr)
+			if (EarliestExecutedSequence.InputActionSequence.Num() != 0)
 			{
-				if (ValidSequences[0].GetEndTime() < EarliestExecutedSequence->GetEndTime())
+				if (ValidSequences[0].GetEndTime() < EarliestExecutedSequence.GetEndTime())
 				{
 					ActionEventToExecute = ActionEvent;
-					EarliestExecutedSequence = &ValidSequences[0];
+					EarliestExecutedSequence = ValidSequences[0];
 				}
 			}
 			else
@@ -310,30 +312,41 @@ bool UPlayerInputComponent::TryBufferedAction()
 				// Since the valid sequences are sorted by their end times already, the first sequence will be the
 				// one that was executed the earliest.
 				ActionEventToExecute = ActionEvent;
-				EarliestExecutedSequence = &ValidSequences[0];
+				EarliestExecutedSequence = ValidSequences[0];
 			}
 		}
 	}
 
 	if (!ActionEventToExecute.Name.Equals(FString("")))
 	{
-		if (ActionEventToExecute.Name.Equals(FString("Light Attack")))
+		if (ActionEventToExecute.Name.Equals(FString("Light Attack")) || ActionEventToExecute.Name.Equals(FString("Strong Attack")))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Executing light attack."))
-			PrintBuffer();
-			ClearBuffer();
-			PrintBuffer();
+			AAscensionPlayerController* Controller = Cast<AAscensionPlayerController>(GetOwner());
 
-			return true;
-		}
-		else if (ActionEventToExecute.Name.Equals(FString("Strong Attack")))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Executing strong attack."))
-			PrintBuffer();
-			ClearBuffer();
-			PrintBuffer();
+			if (Controller)
+			{
+				APawn* Owner = Controller->GetPawn();
 
-			return true;
+				if (Owner)
+				{
+					UPlayerAttackComponent* AttackComponent = Owner->FindComponentByClass<UPlayerAttackComponent>();
+
+					if (AttackComponent)
+					{
+						bool Success = AttackComponent->Attack(ActionEventToExecute.Name);
+
+						if (Success)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Attack executed successfully."))
+							ClearBuffer();
+							PrintBuffer();
+							return true;
+						}
+					}
+				}
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Attack not executed."))
+			PrintBuffer();
 		}
 	}
 

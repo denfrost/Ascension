@@ -42,7 +42,11 @@ public:
 	 */
 	virtual void EndAbility(const FString& AbilityName);
 
-	/** Function to check whether the player can attack. */
+	/*
+	 * Function to check whether the player can attack.
+	 * @param Chain		Whether attacks can be chained.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Attacks")
 	void SetCanChain(const bool& Chain);
 
 protected:

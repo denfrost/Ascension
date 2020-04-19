@@ -55,10 +55,14 @@ protected:
 	FVector ActionDirection;
 
 public:
-	/** Called for the character to perform the specified attack. */
+	/*
+	 * Called for the character to perform the specified attack.
+	 * @param AttackName	Name of the attack to perform.
+	 * @returns bool		Whether the attack was executed.
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
-	void Attack(const FString& AttackName);
-	virtual void Attack_Implementation(const FString& AttackName);
+	bool Attack(const FString& AttackName);
+	virtual bool Attack_Implementation(const FString& AttackName);
 
 	/*
 	 * TODO: Refactor this method. We should have the option to either specify attack ID or specify the attack name.

@@ -327,13 +327,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void SwitchComplete();
 
-	/*
-	 * Event called when character can chain an attack.
-	 * Tells the attack component that it can chain an attack.
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void CanChainAttack();
-
 	/** Finalizes player's attack direction. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void FinalizeAttackDirection();

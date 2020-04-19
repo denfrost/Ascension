@@ -67,7 +67,7 @@ FString UPlayerAttackComponent::SelectAttack_Implementation(const FString& Attac
 	return AttackName;
 }
 
-void UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
+bool UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 {
 	// This is done to choose the correct attack in a combo.
 	FString PlayerAttackName = SelectAttack(AttackName);
@@ -79,13 +79,18 @@ void UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 		{
 			AbilitySystem->FinishAbility(PlayerAttackName);
 		}
+		UE_LOG(LogTemp, Warning, TEXT("Calling attack."))
 		bool Activated = AbilitySystem->ActivateAbility(PlayerAttackName);
 		if (Activated)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Attack activated."))
 			ActiveAttacks.Add(PlayerAttackName);
 			ComboMeter = (++ComboMeter) % MaxComboCount;
+			return true;
 		}
 	}
+	
+	return false;
 }
 
 void UPlayerAttackComponent::ResetCombo_Implementation()

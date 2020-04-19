@@ -305,11 +305,6 @@ void AAscensionCharacter::LightAttack_Implementation()
 			PlayerInputComponent->TryBufferedAction();
 		}
 	}
-
-	if (AttackComponent)
-	{
-		AttackComponent->Attack(FString("Light Attack"));
-	}
 }
 
 void AAscensionCharacter::StrongAttack_Implementation()
@@ -323,11 +318,6 @@ void AAscensionCharacter::StrongAttack_Implementation()
 			PlayerInputComponent->BufferInput("Strong Attack", false);
 			PlayerInputComponent->TryBufferedAction();
 		}
-	}
-
-	if (AttackComponent)
-	{
-		AttackComponent->Attack(FString("Strong Attack"));
 	}
 }
 
@@ -487,14 +477,6 @@ void AAscensionCharacter::FinishDodgeMotion()
 {
 	ResetMovementSpeed();
 	ResetAcceleration();
-}
-
-void AAscensionCharacter::CanChainAttack_Implementation()
-{
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->SetCanChain(true);
-	}
 }
 
 void AAscensionCharacter::FinalizeAttackDirection_Implementation()

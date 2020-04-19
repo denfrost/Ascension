@@ -40,7 +40,7 @@ void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UAttackComponent::Attack_Implementation(const FString& AttackName)
+bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 {
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 
@@ -56,9 +56,12 @@ void UAttackComponent::Attack_Implementation(const FString& AttackName)
 			if (Activated)
 			{
 				ActiveAttacks.Add(AttackName);
+				return true;
 			}
 		}
 	}
+
+	return false;
 }
 
 void UAttackComponent::FinishAttack_Implementation(const FString& AttackName)
