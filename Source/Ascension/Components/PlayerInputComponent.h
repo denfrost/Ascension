@@ -134,6 +134,22 @@ struct FInputActionSequence
 		return 0.0f;
 	}
 
+	/*
+	 * Function to print the contents of the input sequence.
+	 */
+	FORCEINLINE void Print() const
+	{
+		FString StatementToPrint = FString("Input sequence: ");
+
+		for (int Index = 0; Index < InputActionSequence.Num(); Index++)
+		{
+			StatementToPrint = StatementToPrint.Append(InputActionSequence[Index].Name);
+			StatementToPrint = StatementToPrint.Append(" | ");
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *StatementToPrint)
+	}
+
 };
 
 /*

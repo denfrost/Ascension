@@ -4,4 +4,4 @@
 
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Ascension, "Ascension" );
- 
+DEFINE_LOG_CATEGORY( LogInputBuffer );

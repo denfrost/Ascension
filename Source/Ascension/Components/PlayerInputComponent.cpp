@@ -30,7 +30,7 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 		if (((CurrentTime - InputBuffer[Index].EndTime) > InactiveInputInterval) &&
 			(InputBuffer[Index].Active))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Marking input %s as inactive."), *(InputBuffer[Index].Name))
+			UE_LOG(LogInputBuffer, Warning, TEXT("Marking input %s as inactive."), *(InputBuffer[Index].Name))
 			InputBuffer[Index].Active = false;
 		}
 
@@ -39,7 +39,7 @@ void UPlayerInputComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 		{
 			if (!(InputBuffer[Index].Active))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Removing input %s from the buffer."), *(InputBuffer[Index].Name))
+				UE_LOG(LogInputBuffer, Warning, TEXT("Removing input %s from the buffer."), *(InputBuffer[Index].Name))
 				InputBuffer.RemoveAt(Index);
 				Index--;
 			}
@@ -77,7 +77,7 @@ void UPlayerInputComponent::AddToBuffer(FInputAction& InputAction)
 
 void UPlayerInputComponent::ClearBuffer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Clearing input buffer."))
+	UE_LOG(LogInputBuffer, Warning, TEXT("Clearing input buffer."))
 	InputBuffer.Reset(BufferSize);
 }
 
@@ -144,7 +144,7 @@ void UPlayerInputComponent::BufferInput(const FString& Name, bool Active)
 	if (!UpdateLastInputAction(Name, Active, CurrentTime))
 	{
 		FInputAction InputAction = FInputAction(Name, Active, CurrentTime, CurrentTime);
-		UE_LOG(LogTemp, Warning, TEXT("Adding input: %s"), *(InputAction.Name))
+		UE_LOG(LogInputBuffer, Warning, TEXT("Adding input: %s"), *(InputAction.Name))
 		AddToBuffer(InputAction);
 		PrintBuffer();
 	}
@@ -184,7 +184,14 @@ TArray<FInputActionSequence> UPlayerInputComponent::GetValidInputSequences(const
 			{
 				TArray<int> FirstInputIndices = InputActionIndexMap[FirstInput];
 				TArray<TArray<int>> InputSequencesToExplore = TArray<TArray<int>>();
-				InputSequencesToExplore.Add(FirstInputIndices);
+
+				// Each index of the first action is a sequence to explore.
+				for (int Index : FirstInputIndices)
+				{
+					TArray<int> SequenceToExplore = TArray<int>();
+					SequenceToExplore.Add(Index);
+					InputSequencesToExplore.Add(SequenceToExplore);
+				}
 
 				// Find all input sequences in the buffer that match the required input sequence.
 				// TODO: Rename variables for readability. Also possibly optimize this. Use bit operations?
@@ -337,7 +344,7 @@ bool UPlayerInputComponent::TryBufferedAction()
 
 						if (Success)
 						{
-							UE_LOG(LogTemp, Warning, TEXT("Attack executed successfully."))
+							UE_LOG(LogInputBuffer, Warning, TEXT("Attack executed successfully."))
 							ClearBuffer();
 							PrintBuffer();
 							return true;
@@ -345,7 +352,7 @@ bool UPlayerInputComponent::TryBufferedAction()
 					}
 				}
 			}
-			UE_LOG(LogTemp, Warning, TEXT("Attack not executed."))
+			UE_LOG(LogInputBuffer, Warning, TEXT("Attack not executed."))
 			PrintBuffer();
 		}
 	}
@@ -363,5 +370,5 @@ void UPlayerInputComponent::PrintBuffer()
 		InputBufferContents = InputBufferContents.Append(FString(" | "));
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *InputBufferContents)
+	UE_LOG(LogInputBuffer, Warning, TEXT("%s"), *InputBufferContents)
 }

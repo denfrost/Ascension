@@ -5,4 +5,6 @@
 
 #include "EngineMinimal.h"
 
+DECLARE_LOG_CATEGORY_EXTERN( LogInputBuffer, All, All );
+
 #endif

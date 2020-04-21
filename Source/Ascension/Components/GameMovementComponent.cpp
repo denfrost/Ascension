@@ -76,7 +76,6 @@ void UGameMovementComponent::ControlledMove(FVector MovementVector)
 	FVector UpVector = UKismetMathLibrary::GetUpVector(MovementRotation) * MovementVector.Z;
 
 	FVector Direction = ForwardVector + SideVector + UpVector;
-
 	AddInputVector(Direction, false);
 }
 

@@ -61,6 +61,10 @@ void UPlayerAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 		Player->SetCharacterState(ECharacterState::CS_Attacking);
 		Player->DisableMovement();
+
+		// This is being set to false here as the anim notify state for chaining can take some time to end.
+		// TODO: Find a better way to do this or try to fix how anim notifies work.
+		CanChain = false;
 	}
 }
 

@@ -18,15 +18,15 @@ public:
 
 protected:
 	/** Normal speed of the character. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float DefaultSpeed;
 
 	/** Acceleration of the character. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float DefaultAcceleration;
 
 	/** Base turn rate of the character. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float DefaultTurnRate;
 
 	/** Direction the entity wants to move in. */

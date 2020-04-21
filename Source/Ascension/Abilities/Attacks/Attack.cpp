@@ -15,6 +15,7 @@ void UAttack::Activate()
 	if (AnimMontage != nullptr && AbilitySystem != nullptr)
 	{
 		ACharacter* Owner = Cast<ACharacter>(AbilitySystem->GetOwner());
+		UE_LOG(LogTemp, Warning, TEXT("Starting montage."))
 		Owner->PlayAnimMontage(AnimMontage);
 	}
 }
