@@ -20,9 +20,10 @@ public:
 	// Sets default values for this component's properties
 	UAttackComponent();
 	
-	/** Function called to initialize the attack component.
-	  * To be called from main entity to initialize these variables.
-	  */
+	/*
+	 * Function called to initialize the attack component.
+	 * To be called from main entity to initialize these variables.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Initialization")
 	void Initialize();
 
@@ -38,7 +39,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Collision")
 	UBoxComponent* AttackHitBox;
 
-	/** Array containing actors that have been damaged by this attack. 
+	/*
+	 * Array containing actors that have been damaged by this attack. 
 	 * TODO: Move to Ability.
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Damage")
@@ -65,7 +67,6 @@ public:
 	virtual bool Attack_Implementation(const FString& AttackName);
 
 	/*
-	 * TODO: Refactor this method. We should have the option to either specify attack ID or specify the attack name.
 	 * Called for the character to finish the specified attack.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")

@@ -35,11 +35,6 @@ protected:
 	UAnimMontage* AnimMontage;
 
 	/*
-	 * Movement parameters for the attack. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
-	FCustomMovementParams MovementParams;
-
-	/*
 	 * Details of the attacks effects.
 	 * TODO: Rework this.
 	 */
@@ -47,11 +42,6 @@ protected:
 	FAttackEffectInfo EffectInfo;
 
 public:
-	/** Function to get the movement direction. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface Functions")
-	FCustomMovementParams GetMovementParams() const;
-	virtual FCustomMovementParams GetMovementParams_Implementation() const;
-
 	/*
 	 * Gets the effect info of the attack.
 	 */

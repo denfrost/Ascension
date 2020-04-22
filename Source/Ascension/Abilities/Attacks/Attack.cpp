@@ -20,11 +20,6 @@ void UAttack::Activate()
 	}
 }
 
-FCustomMovementParams UAttack::GetMovementParams_Implementation() const
-{
-	return MovementParams;
-}
-
 FAttackEffectInfo UAttack::GetEffectInfo() const
 {
 	return EffectInfo;

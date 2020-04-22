@@ -40,12 +40,14 @@ protected:
 public:
 	/*
 	 * Function to setup variables for controlled movement.
-	 * @param TargetSpeed			Speed at which movement is to be performed.
-	 * @param TargetAcceleration	Acceleration with which movement is to be performed.
-	 * @param TargetTurnRate		Turn rate at which movement is to be performed.
+	 * @param TargetSpeed				Speed at which movement is to be performed.
+	 * @param TargetAcceleration		Acceleration with which movement is to be performed.
+	 * @param TargetTurnRate			Turn rate at which movement is to be performed.
+	 * @param MaxTurnAngleDegrees		Maximum angle at which the movement can differ from the character's current direction.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	virtual int SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate);
+	virtual int SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate,
+										float MaxTurnAngleDegrees);
 
 	/*
 	 * Function to setup variables for controlled movement during an ability.

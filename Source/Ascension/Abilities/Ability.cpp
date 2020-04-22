@@ -20,3 +20,8 @@ void UAbility::Initialize(FString Name, UGameAbilitySystemComponent* System = nu
 void UAbility::Activate() {}
 
 void UAbility::Finish() {}
+
+FCustomMovementParams UAbility::GetMovementParams_Implementation() const
+{
+	return MovementParams;
+}

@@ -30,7 +30,8 @@ void UGameMovementComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-int UGameMovementComponent::SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate)
+int UGameMovementComponent::SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate,
+													float MaxTurnAngleDegrees = 0.0f)
 {
 	SetMovementSpeed(TargetSpeed);
 	SetAcceleration(TargetAcceleration);
@@ -39,7 +40,22 @@ int UGameMovementComponent::SetupControlledMovement(float TargetSpeed, float Tar
 	AActor* Owner = GetOwner();
 	if (Owner->Implements<UGameMovementInterface>())
 	{
-		SetMovementDirection(IGameMovementInterface::Execute_GetMovementDirection(Owner));
+		FVector ActorForwardVector = Owner->GetActorForwardVector();
+		FVector DesiredMovementDirection = IGameMovementInterface::Execute_GetMovementDirection(Owner);
+
+		ActorForwardVector.Normalize();
+		DesiredMovementDirection.Normalize();
+
+		float Angle = UKismetMathLibrary::DegAcos(FVector::DotProduct(ActorForwardVector, DesiredMovementDirection));
+		FVector CrossProductVector = FVector::CrossProduct(ActorForwardVector, DesiredMovementDirection);
+
+		Angle = Angle < MaxTurnAngleDegrees ? Angle : MaxTurnAngleDegrees;
+		Angle = CrossProductVector.Z > 0 ? Angle : -Angle;
+
+		FVector DirectionToMove = ActorForwardVector.RotateAngleAxis(Angle, FVector(0.0f, 0.0f, 1.0f));
+		DirectionToMove.Normalize();
+
+		SetMovementDirection(DirectionToMove);
 	}
 	else
 	{
@@ -55,11 +71,12 @@ int UGameMovementComponent::SetupControlledMovementAbility(FString AbilityName)
 	UGameAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 
 	// TODO: Ideally, this should be done for any ability.
-	const UAttack* Attack = Cast<UAttack>(AbilitySystemComponent->GetActiveAbility(AbilityName));
-	if (Attack != nullptr)
+	const UAbility* Ability = AbilitySystemComponent->GetActiveAbility(AbilityName);
+	if (Ability != nullptr)
 	{
-		FCustomMovementParams MovementParams = Attack->GetMovementParams();
-		int MovementID = SetupControlledMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate);
+		FCustomMovementParams MovementParams = Ability->GetMovementParams();
+		int MovementID = SetupControlledMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate,
+												 MovementParams.MaxTurnAngleDegrees);
 		AbilityNameIDMap.Add(AbilityName, MovementID);
 		return MovementID;
 	}

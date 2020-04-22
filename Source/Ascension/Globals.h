@@ -134,4 +134,8 @@ struct FCustomMovementParams
 	// Turn rate during the attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float TurnRate = 2048.0f;
+
+	// Maximum angle the character can rotate during the attack.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float MaxTurnAngleDegrees = 0.0f;
 };
