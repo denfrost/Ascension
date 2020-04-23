@@ -20,37 +20,71 @@ bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityNam
 {
 	const AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 
-	if ((GetAbility(AbilityName) != nullptr) && (IsAttack(AbilityName)))
+	if (GetAbility(AbilityName) != nullptr)
 	{
-		if ((Player->GetCharacterState() == ECharacterState::CS_Idle ||
-			 Player->GetCharacterState() == ECharacterState::CS_Attacking) &&
-			(Player->GetMovementState() == EMovementState::MS_OnGround) &&
-			(Player->GetWeaponState() == EWeaponState::WS_Unsheathed) &&
-			!Player->Dead)
+		if (IsAttack(AbilityName))
 		{
-			if (Player->GetCharacterState() == ECharacterState::CS_Attacking)
+			if ((Player->GetCharacterState() == ECharacterState::CS_Idle ||
+				 Player->GetCharacterState() == ECharacterState::CS_Attacking) &&
+				(Player->GetMovementState() == EMovementState::MS_OnGround) &&
+				(Player->GetWeaponState() == EWeaponState::WS_Unsheathed) &&
+				!Player->Dead)
 			{
-				if (CanChain)
+				if (Player->GetCharacterState() == ECharacterState::CS_Attacking ||
+					Player->GetCharacterState() == ECharacterState::CS_Dodging)
 				{
-					// TODO: This needs to be done by a anim notify sequence and not via a variable.
-					return true;
+					if (CanChain)
+					{
+						// TODO: This needs to be done by a anim notify sequence and not via a variable.
+						return true;
+					}
+					else
+					{
+						return false;
+					}
 				}
 				else
 				{
-					return false;
+					return true;
 				}
 			}
 			else
 			{
-				return true;
+				return false;
 			}
 		}
-		else
+
+		else if (IsDodge(AbilityName))
 		{
-			return false;
+			if ((Player->GetCharacterState() == ECharacterState::CS_Idle ||
+				 Player->GetCharacterState() == ECharacterState::CS_Attacking) &&
+				(Player->GetMovementState() == EMovementState::MS_OnGround) &&
+				!Player->Dead)
+			{
+				if (Player->GetCharacterState() == ECharacterState::CS_Attacking)
+				{
+					if (CanChain)
+					{
+						// TODO: This needs to be done by a anim notify sequence and not via a variable.
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return true;
+				}
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
-
+	
 	return false;
 }
 
@@ -60,6 +94,17 @@ void UPlayerAbilitySystemComponent::SetupAbility(const FString& AbilityName)
 	{
 		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 		Player->SetCharacterState(ECharacterState::CS_Attacking);
+		Player->DisableMovement();
+
+		// This is being set to false here as the anim notify state for chaining can take some time to end.
+		// TODO: Find a better way to do this or try to fix how anim notifies work.
+		CanChain = false;
+	}
+
+	else if (IsDodge(AbilityName))
+	{
+		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
+		Player->SetCharacterState(ECharacterState::CS_Dodging);
 		Player->DisableMovement();
 
 		// This is being set to false here as the anim notify state for chaining can take some time to end.
@@ -85,7 +130,13 @@ void UPlayerAbilitySystemComponent::EndAbility(const FString& AbilityName)
 		}
 
 		// TODO: Need a better way to figure out whether to transition state rather than just checking the number of active attacks.
-		if (IsAttack(AbilityName) && !(NumOtherActiveAttacks > 0))
+		if ((IsAttack(AbilityName)) && !(NumOtherActiveAttacks > 0))
+		{
+			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
+			Player->SetCharacterState(ECharacterState::CS_Idle);
+			Player->EnableMovement();
+		}
+		else if (IsDodge(AbilityName))
 		{
 			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
 			Player->SetCharacterState(ECharacterState::CS_Idle);
@@ -104,6 +155,17 @@ bool UPlayerAbilitySystemComponent::IsAttack(const FString& AbilityName)
 	// TODO: Don't hard-code ability names.
 	if (AbilityName.Equals("Light01") || AbilityName.Equals("Light02") || AbilityName.Equals("Light03") ||
 		AbilityName.Equals("Strong01") || AbilityName.Equals("Strong02") || AbilityName.Equals("Strong03"))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool UPlayerAbilitySystemComponent::IsDodge(const FString& AbilityName)
+{
+	// TODO: Don't hard-code ability names.
+	if (AbilityName.Equals("Dodge"))
 	{
 		return true;
 	}

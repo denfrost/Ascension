@@ -23,22 +23,29 @@ protected:
 public:
 	/*
 	 * Called for the character to perform a dodge.
-	 * @returns bool	Whether the dodge was executed.
+	 * Dodge name is required in case there are different types of dodges.
+	 * @param DodgeName		Name of the dodge to perform. Defaults to "Dodge".
+	 * @returns bool		Whether the dodge was executed.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dodge")
-	bool Dodge();
-	virtual bool Dodge_Implementation();
+	bool Dodge(const FString& DodgeName);
+	virtual bool Dodge_Implementation(const FString& DodgeName);
 
 	/*
 	 * Called for the character to finish the dodge.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dodge")
-	void FinishDodge();
-	virtual void FinishDodge_Implementation();
+	void FinishDodge(const FString& DodgeName);
+	virtual void FinishDodge_Implementation(const FString& DodgeName);
 
 protected:
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")
 	ACharacter* Owner;
+
+	/*
+	 * Array of active dodges.
+	 */
+	TArray<FString> ActiveDodges;
 	
 };

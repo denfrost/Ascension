@@ -2,6 +2,7 @@
 
 #include "Ascension.h"
 #include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerDodgeComponent.h"
 #include "Entities/Characters/Player/AscensionPlayerController.h"
 #include "PlayerInputComponent.h"
 
@@ -353,6 +354,37 @@ bool UPlayerInputComponent::TryBufferedAction()
 				}
 			}
 			UE_LOG(LogInputBuffer, Warning, TEXT("Attack not executed."))
+			PrintBuffer();
+		}
+
+		else if (ActionEventToExecute.Name.Equals(FString("Dodge")))
+		{
+			AAscensionPlayerController* Controller = Cast<AAscensionPlayerController>(GetOwner());
+
+			if (Controller)
+			{
+				APawn* Owner = Controller->GetPawn();
+
+				if (Owner)
+				{
+					UPlayerDodgeComponent* DodgeComponent = Owner->FindComponentByClass<UPlayerDodgeComponent>();
+
+					if (DodgeComponent)
+					{
+						bool Success = DodgeComponent->Dodge(ActionEventToExecute.Name);
+
+						if (Success)
+						{
+							UE_LOG(LogInputBuffer, Warning, TEXT("Dodge executed successfully."))
+							ClearBuffer();
+							PrintBuffer();
+							return true;
+						}
+					}
+				}
+			}
+
+			UE_LOG(LogInputBuffer, Warning, TEXT("Dodge not executed."))
 			PrintBuffer();
 		}
 	}

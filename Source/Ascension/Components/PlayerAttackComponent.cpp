@@ -79,11 +79,9 @@ bool UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 		{
 			AbilitySystem->FinishAbility(PlayerAttackName);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Calling attack."))
 		bool Activated = AbilitySystem->ActivateAbility(PlayerAttackName);
 		if (Activated)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Attack activated."))
 			ActiveAttacks.Add(PlayerAttackName);
 			ComboMeter = (++ComboMeter) % MaxComboCount;
 			return true;

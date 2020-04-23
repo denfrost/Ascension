@@ -28,6 +28,10 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable, public IG
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
 
+	/** Component handling attacks. */
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UPlayerDodgeComponent* DodgeComponent;
+
 	/** Component handling abilities. */
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAbilitySystemComponent* AbilitySystemComponent;
@@ -35,6 +39,9 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable, public IG
 public:
 	/** Name of the attack component. */
 	static FName AttackComponentName;
+
+	/** Name of the dodge component. */
+	static FName DodgeComponentName;
 
 	/** Name of the ability system component. */
 	static FName AbilitySystemComponentName;

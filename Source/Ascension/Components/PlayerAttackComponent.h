@@ -33,6 +33,7 @@ public:
 	/*
 	 * Implementation for selecting attacks.
 	 * @param AttackType	Type of attack to perform.
+	 * @returns FString		Name of attack ability to perform.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	FString SelectAttack(const FString& AttackType);

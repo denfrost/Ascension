@@ -23,7 +23,7 @@ public:
 	UAttack();
 
 	/*
-	 * This method activates the ability.
+	 * Method to active the attack.
 	 */
 	virtual void Activate();
 

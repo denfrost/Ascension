@@ -54,8 +54,18 @@ protected:
 	 * This method checks whether an ability is an attack.
 	 * TODO: Instead of a bool return type, use enums.
 	 * @param AbilityName	Name of ability to check.
+	 * @returns bool		Whether the ability is an attack.
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Abilities")
 	virtual bool IsAttack(const FString& AbilityName);
+
+	/*
+	 * This method checks whether an ability is a dodge.
+	 * TODO: Instead of a bool return type, use enums.
+	 * @param AbilityName	Name of ability to check.
+	 * @returns bool		Whether the ability is a dodge.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Abilities")
+	virtual bool IsDodge(const FString& AbilityName);
 	
 };

@@ -48,7 +48,7 @@ bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 	{
 		if (AbilitySystem->CanActivateAbility(AttackName))
 		{
-			if (!ActiveAttacks.Contains(AttackName))
+			if (ActiveAttacks.Contains(AttackName))
 			{
 				AbilitySystem->FinishAbility(AttackName);
 			}

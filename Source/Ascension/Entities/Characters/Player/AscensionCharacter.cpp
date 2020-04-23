@@ -4,6 +4,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
 #include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerDodgeComponent.h"
 #include "Components/PlayerInputComponent.h"
 #include "Abilities/AbilitySystems/PlayerAbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -13,6 +14,7 @@
 // AAscensionCharacter
 
 FName AAscensionCharacter::AttackComponentName(TEXT("AttackComponent"));
+FName AAscensionCharacter::DodgeComponentName(TEXT("DodgeComponent"));
 FName AAscensionCharacter::AbilitySystemComponentName(TEXT("AbilitySystemComponent"));
 
 AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitializer)
@@ -73,6 +75,9 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	// Create and initialize the player's attack component.
 	AttackComponent = CreateDefaultSubobject<UPlayerAttackComponent>(AAscensionCharacter::AttackComponentName);
 	AttackComponent->Initialize();
+
+	// Create the player's dodge component.
+	DodgeComponent = CreateDefaultSubobject<UPlayerDodgeComponent>(AAscensionCharacter::DodgeComponentName);
 
 	// Create and initialize the player's ability system component.
 	AbilitySystemComponent = CreateDefaultSubobject<UPlayerAbilitySystemComponent>(AAscensionCharacter::AbilitySystemComponentName);
@@ -321,15 +326,14 @@ void AAscensionCharacter::StrongAttack_Implementation()
 
 void AAscensionCharacter::Dodge_Implementation()
 {
-	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround && !Dead)
+	if (Controller != nullptr)
 	{
-		CharacterState = ECharacterState::CS_Dodging;
-		CanMove = false;
-		
-		if (DodgeMove.AnimMontage != nullptr)
+		UPlayerInputComponent* PlayerInputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
+
+		if (PlayerInputComponent)
 		{
-			ActionDirection = MovementIntent;
-			PlayAnimMontage(DodgeMove.AnimMontage);
+			PlayerInputComponent->BufferInput("Dodge", false);
+			PlayerInputComponent->TryBufferedAction();
 		}
 	}
 }
