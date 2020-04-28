@@ -274,10 +274,6 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 protected:
-	/** Dodge anim montage. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	FPlayerAnimation DodgeMove;
-	
 	/*
 	 * Allows a Pawn to set up custom input bindings.
 	 * Called upon possession by a PlayerController, using the InputComponent created by CreatePlayerInputComponent().
@@ -313,30 +309,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetDodge();
 
-	// TODO: Refactor the dodge into a separate component like attacks.
-
-	/** Function to setup variables for dodge motion. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void SetupDodgeMotion();
-
-	/** Function that makes the character move in the specified direction while dodging. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void DodgeMotion(FVector MovementVector);
-
-	/** Function that resets variables to normal values when the dodge completes. */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void FinishDodgeMotion();
-
 	/*
 	 * Event called when the character completes switching.
 	 * Performs necessary actions after a switch is completed.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void SwitchComplete();
-
-	/** Finalizes player's attack direction. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
-	void FinalizeAttackDirection();
 
 	/** Event called when character is hit by something. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")

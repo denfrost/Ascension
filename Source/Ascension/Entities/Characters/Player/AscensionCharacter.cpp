@@ -453,52 +453,6 @@ void AAscensionCharacter::ResetDodge_Implementation()
 	CanMove = true;
 }
 
-
-void AAscensionCharacter::SetupDodgeMotion()
-{
-	SetMovementSpeed(DodgeMove.AnimSpeed);
-	SetAcceleration(DodgeMove.AnimAcceleration);
-}
-
-void AAscensionCharacter::DodgeMotion(FVector MovementVector)
-{
-	FRotator DodgeRotation = ActionDirection.Rotation();
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(DodgeRotation) * MovementVector.X;
-	FVector SideVector = UKismetMathLibrary::GetRightVector(DodgeRotation) * MovementVector.Y;
-	FVector UpVector = UKismetMathLibrary::GetUpVector(DodgeRotation) * MovementVector.Z;
-
-	FVector Direction = ForwardVector + SideVector + UpVector;
-	Direction.Normalize();
-
-	// For now X indicates the magnitude of the motion to occur.
-	// Need to refactor this to accept a separate magnitude value.
-	AddMovementInput(Direction, MovementVector.X);
-}
-
-void AAscensionCharacter::FinishDodgeMotion()
-{
-	ResetMovementSpeed();
-	ResetAcceleration();
-}
-
-void AAscensionCharacter::FinalizeAttackDirection_Implementation()
-{
-	if (AttackComponent)
-	{
-		if (LockedOn && LockedActor != nullptr)
-		{
-			FVector TargetDirection = LockedActor->GetActorLocation() - GetActorLocation();
-			TargetDirection.Normalize();
-			AttackComponent->FinalizeAttackDirection(TargetDirection);
-		}
-
-		else
-		{
-			AttackComponent->FinalizeAttackDirection(MovementIntent);
-		}
-	}
-}
-
 void AAscensionCharacter::Impact_Implementation(const FVector& Direction)
 {
 	switch (CharacterState)

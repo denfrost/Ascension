@@ -56,31 +56,11 @@ bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityNam
 
 		else if (IsDodge(AbilityName))
 		{
-			if ((Player->GetCharacterState() == ECharacterState::CS_Idle ||
-				 Player->GetCharacterState() == ECharacterState::CS_Attacking) &&
+			if ((Player->GetCharacterState() == ECharacterState::CS_Idle) &&
 				(Player->GetMovementState() == EMovementState::MS_OnGround) &&
 				!Player->Dead)
 			{
-				if (Player->GetCharacterState() == ECharacterState::CS_Attacking)
-				{
-					if (CanChain)
-					{
-						// TODO: This needs to be done by a anim notify sequence and not via a variable.
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				else
-				{
-					return true;
-				}
-			}
-			else
-			{
-				return false;
+				return true;
 			}
 		}
 	}
@@ -136,6 +116,8 @@ void UPlayerAbilitySystemComponent::EndAbility(const FString& AbilityName)
 			Player->SetCharacterState(ECharacterState::CS_Idle);
 			Player->EnableMovement();
 		}
+
+		// Currently we can't chain dodges.
 		else if (IsDodge(AbilityName))
 		{
 			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
