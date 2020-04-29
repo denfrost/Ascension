@@ -25,10 +25,22 @@ public:
 	virtual FString SelectDodge_Implementation(const FString& DodgeType);
 
 	/*
+	 * Called for the character to setup the dodge.
+	 * @param DodgeName		Name of the dodge to setup.
+	 */
+	virtual void SetupDodge_Implementation(const FString& DodgeName);
+
+	/*
 	 * Called for the character to perform the specified dodge.
 	 * @param DodgeName		Name of the dodge to perform.
 	 * @returns bool		Whether the dodge was executed.
 	 */
 	virtual bool Dodge_Implementation(const FString& DodgeName);
+
+	/*
+	 * Called for the character to finish the dodge.
+	 * @param DodgeName		Name of the dodge to finish.
+	 */
+	virtual void FinishDodge_Implementation(const FString& DodgeName);
 
 };

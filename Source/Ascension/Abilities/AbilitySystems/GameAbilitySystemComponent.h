@@ -78,26 +78,12 @@ public:
 	virtual bool CanActivateAbility(const FString& AbilityName);
 
 	/*
-	 * This method does the setup necessary to activate an ability such as state transitions.
-	 * @param AbilityName	Name of the ability to setup.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Abilities")
-	virtual void SetupAbility(const FString& AbilityName);
-
-	/*
 	 * This method activates an ability. To activate an ability, get the ability class using GetAbility,
 	 * instantiate it with the required parameters and use this function to activate the ability.
 	 * @param AbilityName	Name of the ability to activate.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	virtual bool ActivateAbility(const FString& AbilityName);
-
-	/*
-	 * This method does the actions necessary to finish an ability such as state transitions.
-	 * @param AbilityName	Name of the ability to end.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Abilities")
-	virtual void EndAbility(const FString& AbilityName);
 
 	/*
 	 * This method ends the execution of the current ability.

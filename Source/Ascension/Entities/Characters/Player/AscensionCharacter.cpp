@@ -3,6 +3,7 @@
 #include "Ascension.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Globals.h"
+#include "Components/PlayerStateComponent.h"
 #include "Components/PlayerAttackComponent.h"
 #include "Components/PlayerDodgeComponent.h"
 #include "Components/PlayerInputComponent.h"
@@ -13,6 +14,7 @@
 //////////////////////////////////////////////////////////////////////////
 // AAscensionCharacter
 
+FName AAscensionCharacter::StateComponentName(TEXT("StateComponent"));
 FName AAscensionCharacter::AttackComponentName(TEXT("AttackComponent"));
 FName AAscensionCharacter::DodgeComponentName(TEXT("DodgeComponent"));
 FName AAscensionCharacter::AbilitySystemComponentName(TEXT("AbilitySystemComponent"));
@@ -27,11 +29,6 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	// Set character states.
-	CharacterState = ECharacterState::CS_Idle;
-	MovementState = EMovementState::MS_OnGround;
-	WeaponState = EWeaponState::WS_Sheathed;
-
 	// Set character parameters.
 	Health = 100.0f;
 	MaxHealth = 100.0f;
@@ -45,7 +42,6 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 
 	// Set gameplay variables.
 	ShouldCharSwitch = false;
-	CanMove = true;
 
 	// Camera lock-on variables.
 	LockedOn = false;
@@ -71,6 +67,9 @@ AAscensionCharacter::AAscensionCharacter(const FObjectInitializer& ObjectInitial
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Create the player's state component.
+	StateComponent = CreateDefaultSubobject<UPlayerStateComponent>(AAscensionCharacter::StateComponentName);
 
 	// Create and initialize the player's attack component.
 	AttackComponent = CreateDefaultSubobject<UPlayerAttackComponent>(AAscensionCharacter::AttackComponentName);
@@ -137,11 +136,17 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 
 	if (GetCharacterMovement()->IsFalling())
 	{
-		MovementState = EMovementState::MS_InAir;
+		if (StateComponent)
+		{
+			StateComponent->SetMovementState(EMovementState::MS_InAir);
+		}
 	}
 	else
 	{
-		MovementState = EMovementState::MS_OnGround;
+		if (StateComponent)
+		{
+			StateComponent->SetMovementState(EMovementState::MS_OnGround);
+		}
 	}
 
 	MovementIntent = ForwardIntent + SideIntent;
@@ -170,36 +175,6 @@ void AAscensionCharacter::Tick(float DeltaSeconds)
 	}
 }
 
-ECharacterState AAscensionCharacter::GetCharacterState() const
-{
-	return CharacterState;
-}
-
-EMovementState AAscensionCharacter::GetMovementState() const
-{
-	return MovementState;
-}
-
-EWeaponState AAscensionCharacter::GetWeaponState() const
-{
-	return WeaponState;
-}
-
-void AAscensionCharacter::SetCharacterState(ECharacterState State)
-{
-	CharacterState = State;
-}
-
-void AAscensionCharacter::SetMovementState(EMovementState State)
-{
-	MovementState = State;
-}
-
-void AAscensionCharacter::SetWeaponState(EWeaponState State)
-{
-	WeaponState = State;
-}
-
 void AAscensionCharacter::OnResetVR()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
@@ -226,9 +201,13 @@ void AAscensionCharacter::MoveForward(float Value)
 	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	ForwardIntent = Direction * Value;
 
-	if ((Controller != NULL) && (Value != 0.0f) && CanMove)
+	if (StateComponent)
 	{
-		AddMovementInput(Direction, Value);
+		if ((Controller != NULL) && (Value != 0.0f) &&
+			StateComponent->GetCharacterState() == ECharacterState::CS_Idle)
+		{
+			AddMovementInput(Direction, Value);
+		}
 	}
 }
 
@@ -242,10 +221,14 @@ void AAscensionCharacter::MoveRight(float Value)
 	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	SideIntent = Direction * Value;
 
-	if ((Controller != NULL) && (Value != 0.0f) && CanMove)
+	if (StateComponent)
 	{
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		if ((Controller != NULL) && (Value != 0.0f) &&
+			StateComponent->GetCharacterState() == ECharacterState::CS_Idle)
+		{
+			// add movement in that direction
+			AddMovementInput(Direction, Value);
+		}
 	}
 }
 
@@ -264,35 +247,48 @@ void AAscensionCharacter::LookUpAtRate(float Rate)
 
 void AAscensionCharacter::Sprint_Implementation()
 {
-	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround)
+	if (StateComponent)
 	{
-		UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-		MovementComponent->MaxWalkSpeed = SprintSpeed;
+		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle &&
+			StateComponent->GetMovementState() == EMovementState::MS_OnGround)
+		{
+			UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+			MovementComponent->MaxWalkSpeed = SprintSpeed;
+		}
 	}
 }
 
 void AAscensionCharacter::StopSprinting()
 {
-	if (CharacterState == ECharacterState::CS_Idle)
+	if (StateComponent)
 	{
-		UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-		MovementComponent->MaxWalkSpeed = NormalSpeed;
+		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle)
+		{
+			UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+			MovementComponent->MaxWalkSpeed = NormalSpeed;
+		}
 	}
 }
 
 void AAscensionCharacter::Jump()
 {
-	if (CharacterState == ECharacterState::CS_Idle && !Dead)
+	if (StateComponent)
 	{
-		ACharacter::Jump();
+		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle && !Dead)
+		{
+			ACharacter::Jump();
+		}
 	}
 }
 
 void AAscensionCharacter::StopJumping()
 {
-	if (CharacterState == ECharacterState::CS_Idle)
+	if (StateComponent)
 	{
-		ACharacter::StopJumping();
+		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle)
+		{
+			ACharacter::StopJumping();
+		}
 	}
 }
 
@@ -340,34 +336,30 @@ void AAscensionCharacter::Dodge_Implementation()
 
 void AAscensionCharacter::SwitchWeapon()
 {
-	if (CharacterState == ECharacterState::CS_Idle && MovementState == EMovementState::MS_OnGround && !Dead)
+	if (StateComponent)
 	{
-		switch (WeaponState)
+		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle &&
+			StateComponent->GetMovementState() == EMovementState::MS_OnGround &&
+			!Dead)
 		{
-		case EWeaponState::WS_Sheathed:
-			WeaponState = EWeaponState::WS_Unsheathed;
-			break;
+			switch (StateComponent->GetWeaponState())
+			{
+			case EWeaponState::WS_Sheathed:
+				StateComponent->SetWeaponState(EWeaponState::WS_Unsheathed);
+				break;
 
-		case EWeaponState::WS_Unsheathed:
-			WeaponState = EWeaponState::WS_Sheathed;
-			break;
+			case EWeaponState::WS_Unsheathed:
+				StateComponent->SetWeaponState(EWeaponState::WS_Sheathed);
+				break;
+			}
+
+			StateComponent->SetCharacterState(ECharacterState::CS_Switching);
 		}
-
-		StopMovement();
-		CharacterState = ECharacterState::CS_Switching;
-		ShouldCharSwitch = true;
-		SetTurningRate(100.0f);
 	}
-}
 
-void AAscensionCharacter::EnableMovement()
-{
-	CanMove = true;
-}
-
-void AAscensionCharacter::DisableMovement()
-{
-	CanMove = false;
+	StopMovement();
+	ShouldCharSwitch = true;
+	SetTurningRate(100.0f);
 }
 
 void AAscensionCharacter::StopMovement()
@@ -433,7 +425,11 @@ bool AAscensionCharacter::CheckIsDead()
 
 void AAscensionCharacter::SwitchComplete_Implementation()
 {
-	CharacterState = ECharacterState::CS_Idle;
+	if (StateComponent)
+	{
+		StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+	}
+
 	ShouldCharSwitch = false;
 	ResetMovementSpeed();
 	ResetTurningRate();
@@ -449,37 +445,45 @@ void AAscensionCharacter::ResetAttack_Implementation()
 
 void AAscensionCharacter::ResetDodge_Implementation()
 {
-	CharacterState = ECharacterState::CS_Idle;
-	CanMove = true;
+	if (StateComponent)
+	{
+		StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+	}
 }
 
 void AAscensionCharacter::Impact_Implementation(const FVector& Direction)
 {
-	switch (CharacterState)
+	if (StateComponent)
 	{
-	case ECharacterState::CS_Idle:
-		break;
-	case ECharacterState::CS_Attacking:
-		ResetAttack();
-		break;
-	case ECharacterState::CS_Dodging:
-		ResetDodge();
-		break;
-	case ECharacterState::CS_Switching:
-		SwitchComplete();
-		break;
-	case ECharacterState::CS_Stunned:
-		break;
-	}
+		switch (StateComponent->GetCharacterState())
+		{
+		case ECharacterState::CS_Idle:
+			break;
+		case ECharacterState::CS_Attacking:
+			ResetAttack();
+			break;
+		case ECharacterState::CS_Dodging:
+			ResetDodge();
+			break;
+		case ECharacterState::CS_Switching:
+			SwitchComplete();
+			break;
+		case ECharacterState::CS_Stunned:
+			break;
+		}
 
-	CharacterState = ECharacterState::CS_Stunned;
+		StateComponent->SetCharacterState(ECharacterState::CS_Stunned);
+	}
+	
 	LaunchCharacter(Direction, true, false);
 }
 
 void AAscensionCharacter::Recovered_Implementation()
 {
-	EnableMovement();
-	CharacterState = ECharacterState::CS_Idle;
+	if (StateComponent)
+	{
+		StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+	}
 }
 
 void AAscensionCharacter::Sheathed_Implementation() {}

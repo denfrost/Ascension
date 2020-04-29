@@ -58,6 +58,14 @@ protected:
 
 public:
 	/*
+	 * Called for the character to setup the specified attack.
+	 * @param AttackName	Name of the attack to setup.
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
+	void SetupAttack(const FString& AttackName);
+	virtual void SetupAttack_Implementation(const FString& AttackName);
+
+	/*
 	 * Called for the character to perform the specified attack.
 	 * @param AttackName	Name of the attack to perform.
 	 * @returns bool		Whether the attack was executed.
@@ -68,6 +76,7 @@ public:
 
 	/*
 	 * Called for the character to finish the specified attack.
+	 * @param AttackName	Name of the attack to finish.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
 	void FinishAttack(const FString& AttackName);

@@ -69,10 +69,6 @@ bool UGameAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
 	return true;
 }
 
-void UGameAbilitySystemComponent::SetupAbility(const FString& AbilityName)
-{
-}
-
 bool UGameAbilitySystemComponent::ActivateAbility(const FString& AbilityName)
 {
 	TSubclassOf<UAbility> AbilityClass = GetAbility(AbilityName);
@@ -83,7 +79,6 @@ bool UGameAbilitySystemComponent::ActivateAbility(const FString& AbilityName)
 		{
 			UAbility* Ability = NewObject<UAbility>(this, AbilityClass);
 			Ability->Initialize(AbilityName, this);
-			SetupAbility(AbilityName);
 			Ability->Activate();
 			ActiveAbilitiesMap.Add(AbilityName, Ability);
 			return true;
@@ -93,16 +88,11 @@ bool UGameAbilitySystemComponent::ActivateAbility(const FString& AbilityName)
 	return false;
 }
 
-void UGameAbilitySystemComponent::EndAbility(const FString& AbilityName)
-{
-}
-
 void UGameAbilitySystemComponent::FinishAbility(const FString& AbilityName)
 {
 	if (ActiveAbilitiesMap.Contains(AbilityName))
 	{
 		ActiveAbilitiesMap[AbilityName]->Finish();
-		EndAbility(AbilityName);
 		ActiveAbilitiesMap.Remove(AbilityName);
 	}
 }

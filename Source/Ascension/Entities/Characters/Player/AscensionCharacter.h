@@ -24,6 +24,10 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable, public IG
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	/** Component handling character states. */
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UPlayerStateComponent* StateComponent;
+
 	/** Component handling attacks. */
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UPlayerAttackComponent* AttackComponent;
@@ -37,6 +41,9 @@ class AAscensionCharacter : public AGameCharacter, public IDamageable, public IG
 	class UPlayerAbilitySystemComponent* AbilitySystemComponent;
 
 public:
+	/** Name of the state component. */
+	static FName StateComponentName;
+
 	/** Name of the attack component. */
 	static FName AttackComponentName;
 
@@ -54,52 +61,6 @@ public:
 
 	/** Character's Tick function. */
 	virtual void Tick(float DeltaSeconds);
-
-protected:
-	/** State that the character is in. Determines whether the character can switch from one state to another. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
-	ECharacterState CharacterState;
-
-	/** State of character's movement. Determines whether the character can walk/run/jump. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
-	EMovementState MovementState;
-
-	/** State that the character's weapon is in. Determines whether the weapon is sheathed/unsheathed. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
-	EWeaponState WeaponState;
-
-public:
-	/** Gets the character state. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
-	ECharacterState GetCharacterState() const;
-
-	/** Gets the movement state. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
-	EMovementState GetMovementState() const;
-
-	/** Gets the weapon state. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "State Helper")
-	EWeaponState GetWeaponState() const;
-
-	/** Gets the character state. */
-	UFUNCTION(BlueprintCallable, Category = "State Helper")
-	void SetCharacterState(ECharacterState State);
-
-	/** Gets the movement state. */
-	UFUNCTION(BlueprintCallable, Category = "State Helper")
-	void SetMovementState(EMovementState State);
-
-	/** Gets the weapon state. */
-	UFUNCTION(BlueprintCallable, Category = "State Helper")
-	void SetWeaponState(EWeaponState State);
-
-	/** Called to enable movement through player input. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void EnableMovement();
-
-	/** Called to disable movement through player input. */
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void DisableMovement();
 
 public:
 	/** Current health of the character.*/
@@ -146,10 +107,6 @@ public:
 	/** Used to indicate to the animation blueprint whether the character should switch weapons. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool ShouldCharSwitch;
-
-	/** Used to check if the character can be moved with player input. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	bool CanMove;
 
 	/** The vector which holds player's forward movement intent. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")

@@ -2,6 +2,8 @@
 
 #include "Ascension.h"
 #include "PlayerAttackComponent.h"
+#include "Components/PlayerStateComponent.h"
+#include "Entities/Characters/Player/Abilities/AbilitySystems/PlayerAbilitySystemComponent.h"
 #include "Entities/Characters/Player/AscensionCharacter.h"
 #include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
 
@@ -67,6 +69,17 @@ FString UPlayerAttackComponent::SelectAttack_Implementation(const FString& Attac
 	return AttackName;
 }
 
+void UPlayerAttackComponent::SetupAttack_Implementation(const FString& AttackName)
+{
+	UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
+	UPlayerAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UPlayerAbilitySystemComponent>();
+	if (StateComponent != nullptr && AbilitySystemComponent != nullptr)
+	{
+		StateComponent->SetCharacterState(ECharacterState::CS_Attacking);
+		AbilitySystemComponent->SetCanChain(false);
+	}
+}
+
 bool UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 {
 	// This is done to choose the correct attack in a combo.
@@ -89,6 +102,20 @@ bool UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 	}
 	
 	return false;
+}
+
+void UPlayerAttackComponent::FinishAttack_Implementation(const FString& AttackName)
+{
+	if (ActiveAttacks.Contains(AttackName))
+	{
+		ActiveAttacks.Remove(AttackName);
+
+		UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
+		if (StateComponent)
+		{
+			StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+		}
+	}
 }
 
 void UPlayerAttackComponent::ResetCombo_Implementation()

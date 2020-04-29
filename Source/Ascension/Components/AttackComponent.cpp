@@ -40,6 +40,8 @@ void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void UAttackComponent::SetupAttack_Implementation(const FString& AttackName) {}
+
 bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 {
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
@@ -64,19 +66,7 @@ bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 	return false;
 }
 
-void UAttackComponent::FinishAttack_Implementation(const FString& AttackName)
-{
-	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-
-	if (AbilitySystem)
-	{
-		if (ActiveAttacks.Contains(AttackName))
-		{
-			ActiveAttacks.Remove(AttackName);
-			AbilitySystem->FinishAbility(AttackName);
-		}
-	}
-}
+void UAttackComponent::FinishAttack_Implementation(const FString& AttackName) {}
 
 void UAttackComponent::DetectHit()
 {

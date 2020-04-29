@@ -24,6 +24,8 @@ void UDodgeComponent::BeginPlay()
 	Owner = Cast<ACharacter>(GetOwner());
 }
 
+void UDodgeComponent::SetupDodge_Implementation(const FString& DodgeName = FString("Dodge")) {}
+
 bool UDodgeComponent::Dodge_Implementation(const FString& DodgeName = FString("Dodge"))
 {
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
@@ -48,16 +50,4 @@ bool UDodgeComponent::Dodge_Implementation(const FString& DodgeName = FString("D
 	return false;
 }
 
-void UDodgeComponent::FinishDodge_Implementation(const FString& DodgeName = FString("Dodge"))
-{
-	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-
-	if (AbilitySystem)
-	{
-		if (ActiveDodges.Contains(DodgeName))
-		{
-			ActiveDodges.Remove(DodgeName);
-			AbilitySystem->FinishAbility(DodgeName);
-		}
-	}
-}
+void UDodgeComponent::FinishDodge_Implementation(const FString& DodgeName = FString("Dodge")) {}

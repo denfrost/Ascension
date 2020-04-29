@@ -31,18 +31,6 @@ public:
 	virtual bool CanActivateAbility(const FString& AbilityName);
 
 	/*
-	 * This method does the setup necessary to activate an ability such as state transitions.
-	 * @param AbilityName	Name of the ability to setup.
-	 */
-	virtual void SetupAbility(const FString& AbilityName);
-
-	/*
-	 * This method does the actions necessary to finish an ability such as state transitions.
-	 * @param AbilityName	Name of the ability to end.
-	 */
-	virtual void EndAbility(const FString& AbilityName);
-
-	/*
 	 * Function to check whether the player can attack.
 	 * @param Chain		Whether attacks can be chained.
 	 */

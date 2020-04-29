@@ -22,6 +22,14 @@ protected:
 
 public:
 	/*
+	 * Called for the character to setup the dodge.
+	 * @param DodgeName		Name of the dodge to setup.
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dodge")
+	void SetupDodge(const FString& DodgeName);
+	virtual void SetupDodge_Implementation(const FString& DodgeName);
+
+	/*
 	 * Called for the character to perform a dodge.
 	 * Dodge name is required in case there are different types of dodges.
 	 * @param DodgeName		Name of the dodge to perform. Defaults to "Dodge".
@@ -33,6 +41,7 @@ public:
 
 	/*
 	 * Called for the character to finish the dodge.
+	 * @param DodgeName		Name of the dodge to finish.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dodge")
 	void FinishDodge(const FString& DodgeName);

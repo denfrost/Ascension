@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Ascension.h"
+#include "Components/PlayerStateComponent.h"
 #include "Entities/Characters/Player/AscensionCharacter.h"
 #include "Abilities/Ability.h"
 #include "PlayerAbilitySystemComponent.h"
@@ -19,112 +20,58 @@ UPlayerAbilitySystemComponent::UPlayerAbilitySystemComponent()
 bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityName)
 {
 	const AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
+	UPlayerStateComponent* StateComponent = Player->FindComponentByClass<UPlayerStateComponent>();
 
-	if (GetAbility(AbilityName) != nullptr)
+	if (StateComponent)
 	{
-		if (IsAttack(AbilityName))
+		if (GetAbility(AbilityName) != nullptr)
 		{
-			if ((Player->GetCharacterState() == ECharacterState::CS_Idle ||
-				 Player->GetCharacterState() == ECharacterState::CS_Attacking) &&
-				(Player->GetMovementState() == EMovementState::MS_OnGround) &&
-				(Player->GetWeaponState() == EWeaponState::WS_Unsheathed) &&
-				!Player->Dead)
+			if (IsAttack(AbilityName))
 			{
-				if (Player->GetCharacterState() == ECharacterState::CS_Attacking ||
-					Player->GetCharacterState() == ECharacterState::CS_Dodging)
+				if ((StateComponent->GetCharacterState() == ECharacterState::CS_Idle ||
+					 StateComponent->GetCharacterState() == ECharacterState::CS_Attacking) &&
+					(StateComponent->GetMovementState() == EMovementState::MS_OnGround) &&
+					(StateComponent->GetWeaponState() == EWeaponState::WS_Unsheathed) &&
+					!Player->Dead)
 				{
-					if (CanChain)
+					if (StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
+						StateComponent->GetCharacterState() == ECharacterState::CS_Dodging)
 					{
-						// TODO: This needs to be done by a anim notify sequence and not via a variable.
-						return true;
+						if (CanChain)
+						{
+							// TODO: This needs to be done by a anim notify sequence and not via a variable.
+							return true;
+						}
+						else
+						{
+							return false;
+						}
 					}
 					else
 					{
-						return false;
+						return true;
 					}
 				}
 				else
 				{
+					return false;
+				}
+
+			}
+
+			else if (IsDodge(AbilityName))
+			{
+				if ((StateComponent->GetCharacterState() == ECharacterState::CS_Idle) &&
+					(StateComponent->GetMovementState() == EMovementState::MS_OnGround) &&
+					!Player->Dead)
+				{
 					return true;
 				}
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		else if (IsDodge(AbilityName))
-		{
-			if ((Player->GetCharacterState() == ECharacterState::CS_Idle) &&
-				(Player->GetMovementState() == EMovementState::MS_OnGround) &&
-				!Player->Dead)
-			{
-				return true;
 			}
 		}
 	}
 	
 	return false;
-}
-
-void UPlayerAbilitySystemComponent::SetupAbility(const FString& AbilityName)
-{
-	if (IsAttack(AbilityName))
-	{
-		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
-		Player->SetCharacterState(ECharacterState::CS_Attacking);
-		Player->DisableMovement();
-
-		// This is being set to false here as the anim notify state for chaining can take some time to end.
-		// TODO: Find a better way to do this or try to fix how anim notifies work.
-		CanChain = false;
-	}
-
-	else if (IsDodge(AbilityName))
-	{
-		AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
-		Player->SetCharacterState(ECharacterState::CS_Dodging);
-		Player->DisableMovement();
-
-		// This is being set to false here as the anim notify state for chaining can take some time to end.
-		// TODO: Find a better way to do this or try to fix how anim notifies work.
-		CanChain = false;
-	}
-}
-
-void UPlayerAbilitySystemComponent::EndAbility(const FString& AbilityName)
-{
-	if (ActiveAbilitiesMap.Contains((AbilityName)))
-	{
-		TArray<FString> CurrentActiveAbilities;
-		ActiveAbilitiesMap.GenerateKeyArray(CurrentActiveAbilities);
-		int NumOtherActiveAttacks = 0;
-
-		for (int i = 0; i < CurrentActiveAbilities.Num(); i++)
-		{
-			if (IsAttack(CurrentActiveAbilities[i]) && !(CurrentActiveAbilities[i].Equals(AbilityName)))
-			{
-				NumOtherActiveAttacks++;
-			}
-		}
-
-		// TODO: Need a better way to figure out whether to transition state rather than just checking the number of active attacks.
-		if ((IsAttack(AbilityName)) && !(NumOtherActiveAttacks > 0))
-		{
-			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
-			Player->SetCharacterState(ECharacterState::CS_Idle);
-			Player->EnableMovement();
-		}
-
-		// Currently we can't chain dodges.
-		else if (IsDodge(AbilityName))
-		{
-			AAscensionCharacter* Player = Cast<AAscensionCharacter>(Owner);
-			Player->SetCharacterState(ECharacterState::CS_Idle);
-			Player->EnableMovement();
-		}
-	}
 }
 
 void UPlayerAbilitySystemComponent::SetCanChain(const bool& Chain)

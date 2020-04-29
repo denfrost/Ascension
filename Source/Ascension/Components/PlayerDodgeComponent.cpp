@@ -2,6 +2,7 @@
 
 #include "Ascension.h"
 #include "Abilities/AbilitySystems/GameAbilitySystemComponent.h"
+#include "Components/PlayerStateComponent.h"
 #include "PlayerDodgeComponent.h"
 
 
@@ -9,6 +10,15 @@ FString UPlayerDodgeComponent::SelectDodge_Implementation(const FString& DodgeTy
 {
 	// TODO: Implement direction and lock-on based dodges/steps.
 	return DodgeType;
+}
+
+void UPlayerDodgeComponent::SetupDodge_Implementation(const FString& DodgeName = FString("Dodge"))
+{
+	UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
+	if (StateComponent != nullptr)
+	{
+		StateComponent->SetCharacterState(ECharacterState::CS_Dodging);
+	}
 }
 
 bool UPlayerDodgeComponent::Dodge_Implementation(const FString& DodgeName = FString("Dodge"))
@@ -32,4 +42,18 @@ bool UPlayerDodgeComponent::Dodge_Implementation(const FString& DodgeName = FStr
 	}
 
 	return false;
+}
+
+void UPlayerDodgeComponent::FinishDodge_Implementation(const FString& DodgeName = FString("Dodge"))
+{
+	if (ActiveDodges.Contains(DodgeName))
+	{
+		ActiveDodges.Remove(DodgeName);
+
+		UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
+		if (StateComponent != nullptr)
+		{
+			StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+		}
+	}
 }
