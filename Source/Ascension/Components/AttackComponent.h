@@ -60,10 +60,11 @@ public:
 	/*
 	 * Called for the character to setup the specified attack.
 	 * @param AttackName	Name of the attack to setup.
+	 * @param AttackID		ID of the attack to setup.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
-	void SetupAttack(const FString& AttackName);
-	virtual void SetupAttack_Implementation(const FString& AttackName);
+	void SetupAttack(const FString& AttackName, const uint8 AttackID);
+	virtual void SetupAttack_Implementation(const FString& AttackName, const uint8 AttackID);
 
 	/*
 	 * Called for the character to perform the specified attack.
@@ -77,10 +78,11 @@ public:
 	/*
 	 * Called for the character to finish the specified attack.
 	 * @param AttackName	Name of the attack to finish.
+	 * @param AttackID		ID of the attack to finish.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
-	void FinishAttack(const FString& AttackName);
-	virtual void FinishAttack_Implementation(const FString& AttackName);
+	void FinishAttack(const FString& AttackName, const uint8 AttackID);
+	virtual void FinishAttack_Implementation(const FString& AttackName, const uint8 AttackID);
 
 	/** Scans and detects if the attack hits. */
 	UFUNCTION(BlueprintCallable, Category = "Damage")
@@ -97,11 +99,23 @@ public:
 
 protected:
 	/*
-	 * Array of active attacks.
+	 * Array of active attack IDs.
 	 */
-	TArray<FString> ActiveAttacks;
+	TArray<uint8> ActiveAttackIDs;
+
+	/*
+	 * Map of active attack names to IDs.
+	 */
+	TMap<FString, TArray<uint8>> ActiveAttackNameIDsMap;
 
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")
 	ACharacter* Owner;
+
+protected:
+	/*
+	 * Method to print the active attacks and their associated IDs.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Attacks")
+	void PrintActiveAttacks() const;
 };

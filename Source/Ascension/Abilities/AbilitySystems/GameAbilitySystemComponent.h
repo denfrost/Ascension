@@ -7,7 +7,7 @@
 #include "GameAbilitySystemComponent.generated.h"
 
 
-/**
+/*
  * A component used for managing abilities tied to an entity.
  */
 UCLASS(Blueprintable, ClassGroup=(AbilitySystems), meta=(BlueprintSpawnableComponent) )
@@ -29,17 +29,32 @@ public:
 
 protected:
 	/*
-	 * Map of ability names to the respective ability object.
+	 * Map of ability names to the class of the respective ability.
 	 */
 	UPROPERTY(Category = Abilities, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TMap<FString, TSubclassOf<UAbility>> AbilitiesMap;
 
-	/* Currently active ability. */
+	/*
+	 * Map of ability IDs to the current active abilities.
+	 */
 	UPROPERTY(Category = Abilities, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<FString, UAbility*> ActiveAbilitiesMap;
+	TMap<uint8, UAbility*> ActiveAbilitiesMap;
 
-	/* Ability system owner. */
+	/*
+	 * Map of active ability names to their IDs.
+	 */
+	TMap<FString, TArray<uint8>> ActiveAbilityNameIDsMap;
+
+	/*
+	 * Ability system owner.
+	 */
 	AActor* Owner;
+
+	/*
+	 * ID of the next ability.
+	 */
+	UPROPERTY(Category = Abilities, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	uint8 NextAbilityID;
 
 public:
 	/*
@@ -54,7 +69,7 @@ public:
 	 * @param AbilityName	Name of the active ability to get.
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Abilities")
-	UAbility* GetActiveAbility(const FString& AbilityName) const;
+	UAbility* GetActiveAbility(const FString& AbilityName, const uint8& AbilityID) const;
 
 	/*
 	 * Function to add an ability to the system.
@@ -80,16 +95,24 @@ public:
 	/*
 	 * This method activates an ability. To activate an ability, get the ability class using GetAbility,
 	 * instantiate it with the required parameters and use this function to activate the ability.
-	 * @param AbilityName	Name of the ability to activate.
+	 * @param AbilityName			Name of the ability to activate.
+	 * @param ActivatedAbilityID	ID of the activated ability.
+	 * @param bool					Whether the ability was activated.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
-	virtual bool ActivateAbility(const FString& AbilityName);
+	virtual bool ActivateAbility(const FString& AbilityName, uint8& ActivatedAbilityID);
 
 	/*
 	 * This method ends the execution of the current ability.
 	 * @param AbilityName	Name of the ability to finish.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
-	virtual void FinishAbility(const FString& AbilityName);
+	virtual void FinishAbility(const FString& AbilityName, const uint8& AbilityID);
+
+	/*
+	 * Method to print active abilities and their IDs.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	void PrintActiveAbilities() const;
 
 };

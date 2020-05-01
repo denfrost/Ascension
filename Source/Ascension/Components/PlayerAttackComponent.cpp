@@ -69,7 +69,7 @@ FString UPlayerAttackComponent::SelectAttack_Implementation(const FString& Attac
 	return AttackName;
 }
 
-void UPlayerAttackComponent::SetupAttack_Implementation(const FString& AttackName)
+void UPlayerAttackComponent::SetupAttack_Implementation(const FString& AttackName, const uint8 AttackID)
 {
 	UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
 	UPlayerAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UPlayerAbilitySystemComponent>();
@@ -88,14 +88,20 @@ bool UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 	if (AbilitySystem->CanActivateAbility(PlayerAttackName))
 	{
-		if (ActiveAttacks.Contains(PlayerAttackName))
-		{
-			AbilitySystem->FinishAbility(PlayerAttackName);
-		}
-		bool Activated = AbilitySystem->ActivateAbility(PlayerAttackName);
+		uint8 AttackID = 0;
+		bool Activated = AbilitySystem->ActivateAbility(PlayerAttackName, AttackID);
+
 		if (Activated)
 		{
-			ActiveAttacks.Add(PlayerAttackName);
+			ActiveAttackIDs.Add(AttackID);
+
+			if (!ActiveAttackNameIDsMap.Contains(PlayerAttackName))
+			{
+				TArray<uint8> AttackIDs = TArray<uint8>();
+				ActiveAttackNameIDsMap.Add(PlayerAttackName, AttackIDs);
+			}
+			ActiveAttackNameIDsMap[PlayerAttackName].Add(AttackID);
+
 			ComboMeter = (++ComboMeter) % MaxComboCount;
 			return true;
 		}
@@ -104,11 +110,61 @@ bool UPlayerAttackComponent::Attack_Implementation(const FString& AttackName)
 	return false;
 }
 
-void UPlayerAttackComponent::FinishAttack_Implementation(const FString& AttackName)
+void UPlayerAttackComponent::FinishAttack_Implementation(const FString& AttackName, const uint8 AttackID)
 {
-	if (ActiveAttacks.Contains(AttackName))
+	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+
+	if (!AttackName.Equals(FString("")))
 	{
-		ActiveAttacks.Remove(AttackName);
+		if (ActiveAttackNameIDsMap.Contains(AttackName))
+		{
+			TArray<uint8> IDs = ActiveAttackNameIDsMap[AttackName];
+
+			if (IDs.Num() > 0)
+			{
+				if (IDs.Contains(AttackID) && ActiveAttackIDs.Contains(AttackID))
+				{
+					if (AbilitySystem)
+					{
+						AbilitySystem->FinishAbility(AttackName, AttackID);
+						ActiveAttackIDs.Remove(AttackID);
+						ActiveAttackNameIDsMap[AttackName].Remove(AttackID);
+					}
+				}
+				else if (ActiveAttackIDs.Contains(IDs[0]))
+				{
+					if (AbilitySystem)
+					{
+						AbilitySystem->FinishAbility(AttackName, IDs[0]);
+						ActiveAttackIDs.Remove(IDs[0]);
+						ActiveAttackNameIDsMap[AttackName].Remove(IDs[0]);
+					}
+				}
+			}
+
+			UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
+			if (StateComponent)
+			{
+				StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+			}
+		}
+	}
+
+	else if (ActiveAttackIDs.Contains(AttackID))
+	{
+		if (AbilitySystem)
+		{
+			AbilitySystem->FinishAbility(AttackName, AttackID);
+			ActiveAttackIDs.Remove(AttackID);
+
+			if (ActiveAttackNameIDsMap.Contains(AttackName))
+			{
+				if (ActiveAttackNameIDsMap[AttackName].Contains(AttackID))
+				{
+					ActiveAttackNameIDsMap[AttackName].Remove(AttackID);
+				}
+			}
+		}
 
 		UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
 		if (StateComponent)

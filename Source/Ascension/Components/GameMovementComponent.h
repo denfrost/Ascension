@@ -75,7 +75,7 @@ public:
 	 * @param AbilityName	Name of the ability for which controlled movement was performed.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	virtual void FinishControlledMovementAbility(FString AbilityName);
+	virtual void FinishControlledMovementAbility(FString AbilityName, int InstanceID);
 
 protected:
 	/** Called to limit character movement to a certain speed. */
@@ -134,7 +134,6 @@ protected:
 	/*
 	 * Map of ability names to their movement instance IDs.
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	TMap<FString, int> AbilityNameIDMap;
+	TMap<FString, TArray<int>> AbilityNameIDsMap;
 
 };

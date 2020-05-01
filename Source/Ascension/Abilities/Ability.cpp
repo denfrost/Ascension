@@ -8,12 +8,14 @@
 UAbility::UAbility()
 {
 	AbilityName = FString("Ability");
+	AbilityID = 0;
 	AbilitySystem = nullptr;
 }
 
-void UAbility::Initialize(FString Name, UGameAbilitySystemComponent* System = nullptr)
+void UAbility::Initialize(FString Name, uint8 ID, UGameAbilitySystemComponent* System = nullptr)
 {
 	AbilityName = Name;
+	AbilityID = ID;
 	AbilitySystem = System;
 }
 

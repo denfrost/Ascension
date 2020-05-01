@@ -6,7 +6,7 @@
 #include "Components/DodgeComponent.h"
 #include "PlayerDodgeComponent.generated.h"
 
-/**
+/*
  * 
  */
 UCLASS()
@@ -27,8 +27,9 @@ public:
 	/*
 	 * Called for the character to setup the dodge.
 	 * @param DodgeName		Name of the dodge to setup.
+	 * @param DodgeID		ID of the dodge to setup.
 	 */
-	virtual void SetupDodge_Implementation(const FString& DodgeName);
+	virtual void SetupDodge_Implementation(const FString& DodgeName, const uint8 DodgeID);
 
 	/*
 	 * Called for the character to perform the specified dodge.
@@ -40,7 +41,8 @@ public:
 	/*
 	 * Called for the character to finish the dodge.
 	 * @param DodgeName		Name of the dodge to finish.
+	 * @param DodgeID		ID of the dodge to finish.
 	 */
-	virtual void FinishDodge_Implementation(const FString& DodgeName);
+	virtual void FinishDodge_Implementation(const FString& DodgeName, const uint8 DodgeID);
 
 };

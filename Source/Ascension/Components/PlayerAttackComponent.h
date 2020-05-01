@@ -42,8 +42,9 @@ public:
 	/*
 	 * Called for the character to setup the specified attack.
 	 * @param AttackName	Name of the attack to setup.
+	 * @param AttackID		ID of the attack to setup.
 	 */
-	virtual void SetupAttack_Implementation(const FString& AttackName);
+	virtual void SetupAttack_Implementation(const FString& AttackName, const uint8 AttackID);
 
 	/*
 	 * Called for the character to perform the specified attack.
@@ -55,8 +56,9 @@ public:
 	/*
 	 * Called for the character to finish the specified attack.
 	 * @param AttackName	Name of the attack to finish.
+	 * @param AttackID		ID of the attack to finish.
 	 */
-	virtual void FinishAttack_Implementation(const FString& AttackName);
+	virtual void FinishAttack_Implementation(const FString& AttackName, const uint8 AttackID);
 
 	/*
 	 * Event called when a combo is finished/reset.
@@ -65,4 +67,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void ResetCombo();
 	virtual void ResetCombo_Implementation();
+
 };

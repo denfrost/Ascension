@@ -12,7 +12,7 @@ FString UPlayerDodgeComponent::SelectDodge_Implementation(const FString& DodgeTy
 	return DodgeType;
 }
 
-void UPlayerDodgeComponent::SetupDodge_Implementation(const FString& DodgeName = FString("Dodge"))
+void UPlayerDodgeComponent::SetupDodge_Implementation(const FString& DodgeName = FString("Dodge"), const uint8 DodgeID = 0)
 {
 	UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
 	if (StateComponent != nullptr)
@@ -26,32 +26,67 @@ bool UPlayerDodgeComponent::Dodge_Implementation(const FString& DodgeName = FStr
 	// This is done to choose the correct dodge.
 	FString PlayerDodgeName = SelectDodge(DodgeName);
 
+	return Super::Dodge_Implementation(PlayerDodgeName);
+}
+
+void UPlayerDodgeComponent::FinishDodge_Implementation(const FString& DodgeName = FString("Dodge"), const uint8 DodgeID = 0)
+{
 	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
-	if (AbilitySystem->CanActivateAbility(PlayerDodgeName))
+
+	if (!DodgeName.Equals(FString("")))
 	{
-		if (ActiveDodges.Contains(PlayerDodgeName))
+		if (ActiveDodgeNameIDsMap.Contains(DodgeName))
 		{
-			AbilitySystem->FinishAbility(PlayerDodgeName);
-		}
-		bool Activated = AbilitySystem->ActivateAbility(PlayerDodgeName);
-		if (Activated)
-		{
-			ActiveDodges.Add(PlayerDodgeName);
-			return true;
+			TArray<uint8> IDs = ActiveDodgeNameIDsMap[DodgeName];
+
+			if (IDs.Num() > 0)
+			{
+				if (IDs.Contains(DodgeID) && ActiveDodgeIDs.Contains(DodgeID))
+				{
+					if (AbilitySystem)
+					{
+						AbilitySystem->FinishAbility(DodgeName, DodgeID);
+						ActiveDodgeIDs.Remove(DodgeID);
+						ActiveDodgeNameIDsMap[DodgeName].Remove(DodgeID);
+					}
+				}
+				else if (ActiveDodgeIDs.Contains(IDs[0]))
+				{
+					if (AbilitySystem)
+					{
+						AbilitySystem->FinishAbility(DodgeName, IDs[0]);
+						ActiveDodgeIDs.Remove(IDs[0]);
+						ActiveDodgeNameIDsMap[DodgeName].Remove(IDs[0]);
+					}
+				}
+			}
+
+			UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
+			if (StateComponent)
+			{
+				StateComponent->SetCharacterState(ECharacterState::CS_Idle);
+			}
 		}
 	}
 
-	return false;
-}
-
-void UPlayerDodgeComponent::FinishDodge_Implementation(const FString& DodgeName = FString("Dodge"))
-{
-	if (ActiveDodges.Contains(DodgeName))
+	else if (ActiveDodgeIDs.Contains(DodgeID))
 	{
-		ActiveDodges.Remove(DodgeName);
+		if (AbilitySystem)
+		{
+			AbilitySystem->FinishAbility(DodgeName, DodgeID);
+			ActiveDodgeIDs.Remove(DodgeID);
+
+			if (ActiveDodgeNameIDsMap.Contains(DodgeName))
+			{
+				if (ActiveDodgeNameIDsMap[DodgeName].Contains(DodgeID))
+				{
+					ActiveDodgeNameIDsMap[DodgeName].Remove(DodgeID);
+				}
+			}
+		}
 
 		UPlayerStateComponent* StateComponent = Owner->FindComponentByClass<UPlayerStateComponent>();
-		if (StateComponent != nullptr)
+		if (StateComponent)
 		{
 			StateComponent->SetCharacterState(ECharacterState::CS_Idle);
 		}

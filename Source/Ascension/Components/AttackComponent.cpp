@@ -19,7 +19,8 @@ UAttackComponent::UAttackComponent()
 	DamagedActors.Empty();
 
 	// Clear active attacks.
-	ActiveAttacks.Empty();
+	ActiveAttackIDs.Empty();
+	ActiveAttackNameIDsMap.Empty();
 }
 
 
@@ -40,7 +41,7 @@ void UAttackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UAttackComponent::SetupAttack_Implementation(const FString& AttackName) {}
+void UAttackComponent::SetupAttack_Implementation(const FString& AttackName = FString(""), const uint8 AttackID = 0) {}
 
 bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 {
@@ -50,14 +51,20 @@ bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 	{
 		if (AbilitySystem->CanActivateAbility(AttackName))
 		{
-			if (ActiveAttacks.Contains(AttackName))
-			{
-				AbilitySystem->FinishAbility(AttackName);
-			}
-			bool Activated = AbilitySystem->ActivateAbility(AttackName);
+			uint8 AttackID = 0;
+			bool Activated = AbilitySystem->ActivateAbility(AttackName, AttackID);
+
 			if (Activated)
 			{
-				ActiveAttacks.Add(AttackName);
+				ActiveAttackIDs.Add(AttackID);
+
+				if (!ActiveAttackNameIDsMap.Contains(AttackName))
+				{
+					TArray<uint8> AttackIDs = TArray<uint8>();
+					ActiveAttackNameIDsMap.Add(AttackName, AttackIDs);
+				}
+				ActiveAttackNameIDsMap[AttackName].Add(AttackID);
+
 				return true;
 			}
 		}
@@ -66,10 +73,62 @@ bool UAttackComponent::Attack_Implementation(const FString& AttackName)
 	return false;
 }
 
-void UAttackComponent::FinishAttack_Implementation(const FString& AttackName) {}
+void UAttackComponent::FinishAttack_Implementation(const FString& AttackName = FString(""), const uint8 AttackID = 0)
+{
+	UGameAbilitySystemComponent* AbilitySystem = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
+
+	if (!AttackName.Equals(FString("")))
+	{
+		if (ActiveAttackNameIDsMap.Contains(AttackName))
+		{
+			TArray<uint8> IDs = ActiveAttackNameIDsMap[AttackName];
+
+			if (IDs.Num() > 0)
+			{
+				if (IDs.Contains(AttackID) && ActiveAttackIDs.Contains(AttackID))
+				{
+					if (AbilitySystem)
+					{
+						AbilitySystem->FinishAbility(AttackName, AttackID);
+						ActiveAttackIDs.Remove(AttackID);
+						ActiveAttackNameIDsMap[AttackName].Remove(AttackID);
+					}
+				}
+				else if (ActiveAttackIDs.Contains(IDs[0]))
+				{
+					if (AbilitySystem)
+					{
+						AbilitySystem->FinishAbility(AttackName, IDs[0]);
+						ActiveAttackIDs.Remove(IDs[0]);
+						ActiveAttackNameIDsMap[AttackName].Remove(IDs[0]);
+					}
+				}
+			}
+		}
+	}
+
+	else if (ActiveAttackIDs.Contains(AttackID))
+	{
+		if (AbilitySystem)
+		{
+			AbilitySystem->FinishAbility(AttackName, AttackID);
+			ActiveAttackIDs.Remove(AttackID);
+
+			if (ActiveAttackNameIDsMap.Contains(AttackName))
+			{
+				if (ActiveAttackNameIDsMap[AttackName].Contains(AttackID))
+				{
+					ActiveAttackNameIDsMap[AttackName].Remove(AttackID);
+				}
+			}
+		}
+	}
+}
 
 void UAttackComponent::DetectHit()
 {
+	// TODO: Rework this.
+	/*
 	if (AttackHitBox)
 	{
 		TArray<UPrimitiveComponent*> OverlappingComponents;
@@ -107,6 +166,7 @@ void UAttackComponent::DetectHit()
 			}
 		}
 	}
+	*/
 }
 
 void UAttackComponent::ClearDamagedActors_Implementation()
@@ -117,4 +177,36 @@ void UAttackComponent::ClearDamagedActors_Implementation()
 void UAttackComponent::FinalizeAttackDirection_Implementation(FVector MovementIntent)
 {
 	ActionDirection = MovementIntent;
+}
+
+void UAttackComponent::PrintActiveAttacks() const
+{
+	FString AttackIDsString = FString("Attack IDs: ");
+	FString AttackNameIDsString = FString("Attack Name IDs Map Contents: ");
+
+	for (uint8 AttackID : ActiveAttackIDs)
+	{
+		AttackIDsString = AttackIDsString.Append(FString::FromInt(AttackID));
+		AttackIDsString = AttackIDsString.Append(FString(" | "));
+	}
+
+	for (auto& Pair : ActiveAttackNameIDsMap)
+	{
+		FString IDsString = "";
+		for (uint8 AttackID : Pair.Value)
+		{
+			IDsString = IDsString.Append(FString::FromInt(AttackID));
+			IDsString = IDsString.Append(FString(","));
+		}
+
+		TArray<FStringFormatArg> FormatArgs;
+		FormatArgs.Add(FStringFormatArg(Pair.Key));
+		FormatArgs.Add(FStringFormatArg(IDsString));
+
+		AttackNameIDsString = AttackNameIDsString.Append(FString::Format(TEXT("<{0}, [{1}]>"), FormatArgs));
+		AttackNameIDsString = AttackNameIDsString.Append(FString(" || "));
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *AttackIDsString)
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *AttackNameIDsString)
 }

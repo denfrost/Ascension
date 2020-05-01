@@ -24,10 +24,11 @@ public:
 	/*
 	 * Called for the character to setup the dodge.
 	 * @param DodgeName		Name of the dodge to setup.
+	 * @param DodgeID		ID of the dodge to setup.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dodge")
-	void SetupDodge(const FString& DodgeName);
-	virtual void SetupDodge_Implementation(const FString& DodgeName);
+	void SetupDodge(const FString& DodgeName, const uint8 DodgeID);
+	virtual void SetupDodge_Implementation(const FString& DodgeName, const uint8 DodgeID);
 
 	/*
 	 * Called for the character to perform a dodge.
@@ -42,19 +43,24 @@ public:
 	/*
 	 * Called for the character to finish the dodge.
 	 * @param DodgeName		Name of the dodge to finish.
+	 * @param DodgeID		ID of the dodge to finish.
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dodge")
-	void FinishDodge(const FString& DodgeName);
-	virtual void FinishDodge_Implementation(const FString& DodgeName);
+	void FinishDodge(const FString& DodgeName, const uint8 DodgeID);
+	virtual void FinishDodge_Implementation(const FString& DodgeName, const uint8 DodgeID);
 
 protected:
+	/*
+	 * Array of active dodge IDs.
+	 */
+	TArray<uint8> ActiveDodgeIDs;
+
+	/*
+	 * Map of active dodge names to IDs.
+	 */
+	TMap<FString, TArray<uint8>> ActiveDodgeNameIDsMap;
+
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")
 	ACharacter* Owner;
-
-	/*
-	 * Array of active dodges.
-	 */
-	TArray<FString> ActiveDodges;
-	
 };

@@ -21,7 +21,7 @@ UGameMovementComponent::UGameMovementComponent(const FObjectInitializer& ObjectI
 	DefaultTurnRate = RotationRate.Yaw;
 	MovementDirection = FVector();
 	ControlledMovementInstanceID = 0;
-	AbilityNameIDMap.Empty();
+	AbilityNameIDsMap.Empty();
 }
 
 // Called when the game starts
@@ -70,14 +70,21 @@ int UGameMovementComponent::SetupControlledMovementAbility(FString AbilityName)
 	AActor* Owner = GetOwner();
 	UGameAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UGameAbilitySystemComponent>();
 
-	// TODO: Ideally, this should be done for any ability.
-	const UAbility* Ability = AbilitySystemComponent->GetActiveAbility(AbilityName);
+	const UAbility* Ability = AbilitySystemComponent->GetActiveAbility(AbilityName, 0);
 	if (Ability != nullptr)
 	{
 		FCustomMovementParams MovementParams = Ability->GetMovementParams();
 		int MovementID = SetupControlledMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate,
 												 MovementParams.MaxTurnAngleDegrees);
-		AbilityNameIDMap.Add(AbilityName, MovementID);
+
+		if (!AbilityNameIDsMap.Contains(AbilityName))
+		{
+			TArray<int> IDs = TArray<int>();
+			AbilityNameIDsMap.Add(AbilityName, IDs);
+		}
+
+		AbilityNameIDsMap[AbilityName].Add(MovementID);
+
 		return MovementID;
 	}
 
@@ -86,7 +93,7 @@ int UGameMovementComponent::SetupControlledMovementAbility(FString AbilityName)
 
 void UGameMovementComponent::ControlledMove(FVector MovementVector)
 {
-	// Movement direction is the direction with respect to which the movement vector is applied.
+	// Movement direction is the direction in relation to which the controlled movement is applied.
 	FRotator MovementRotation = MovementDirection.Rotation();
 	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(MovementRotation) * MovementVector.X;
 	FVector SideVector = UKismetMathLibrary::GetRightVector(MovementRotation) * MovementVector.Y;
@@ -107,11 +114,28 @@ void UGameMovementComponent::FinishControlledMovement(int InstanceID = 0)
 	}
 }
 
-void UGameMovementComponent::FinishControlledMovementAbility(FString AbilityName)
+void UGameMovementComponent::FinishControlledMovementAbility(FString AbilityName = FString(""), int InstanceID = 0)
 {
-	if (AbilityNameIDMap.Contains(AbilityName))
+	if (!AbilityName.Equals(FString("")))
 	{
-		FinishControlledMovement(AbilityNameIDMap[AbilityName]);
+		if (AbilityNameIDsMap.Contains(AbilityName))
+		{
+			TArray<int> IDs = AbilityNameIDsMap[AbilityName];
+
+			if (IDs.Num() > 0)
+			{
+				if (IDs.Contains(InstanceID))
+				{
+					FinishControlledMovement(InstanceID);
+					AbilityNameIDsMap[AbilityName].Remove(InstanceID);
+				}
+				else
+				{
+					FinishControlledMovement(IDs[0]);
+					AbilityNameIDsMap[AbilityName].Remove(IDs[0]);
+				}
+			}
+		}
 	}
 }
 

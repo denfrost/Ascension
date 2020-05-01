@@ -22,8 +22,17 @@ public:
 	UAbility();
 
 public:
+	/*
+	 * Name of the ability.
+	 */
 	UPROPERTY(Category = Properties, EditDefaultsOnly, BlueprintReadWrite)
 	FString AbilityName;
+
+	/*
+	 * ID of the ability.
+	 */
+	UPROPERTY(Category = Properties, EditDefaultsOnly, BlueprintReadWrite)
+	uint8 AbilityID;
 
 protected:
 	/*
@@ -37,10 +46,11 @@ public:
 	/*
 	 * Used to initialize the ability.
 	 * @param Name		Name of the ability.
+	 * @param ID		ID of the ability.
 	 * @param System	Ability system component which handles this ability.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Interface Functions")
-	virtual void Initialize(FString Name, class UGameAbilitySystemComponent* System);
+	virtual void Initialize(FString Name, uint8 ID, class UGameAbilitySystemComponent* System);
 
 	/*
 	 * This method activates the ability.

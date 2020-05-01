@@ -29,7 +29,8 @@ bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityNam
 			if (IsAttack(AbilityName))
 			{
 				if ((StateComponent->GetCharacterState() == ECharacterState::CS_Idle ||
-					 StateComponent->GetCharacterState() == ECharacterState::CS_Attacking) &&
+					 StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
+					 StateComponent->GetCharacterState() == ECharacterState::CS_Dodging) &&
 					(StateComponent->GetMovementState() == EMovementState::MS_OnGround) &&
 					(StateComponent->GetWeaponState() == EWeaponState::WS_Unsheathed) &&
 					!Player->Dead)
@@ -61,11 +62,29 @@ bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityNam
 
 			else if (IsDodge(AbilityName))
 			{
-				if ((StateComponent->GetCharacterState() == ECharacterState::CS_Idle) &&
+				if ((StateComponent->GetCharacterState() == ECharacterState::CS_Idle ||
+					 StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
+					 StateComponent->GetCharacterState() == ECharacterState::CS_Dodging) &&
 					(StateComponent->GetMovementState() == EMovementState::MS_OnGround) &&
 					!Player->Dead)
 				{
-					return true;
+					if (StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
+						StateComponent->GetCharacterState() == ECharacterState::CS_Dodging)
+					{
+						if (CanChain)
+						{
+							// TODO: This needs to be done by a anim notify sequence and not via a variable.
+							return true;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					else
+					{
+						return true;
+					}
 				}
 			}
 		}

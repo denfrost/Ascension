@@ -59,30 +59,48 @@ protected:
 	EWeaponState WeaponState;
 
 public:
-	/** Gets the character state. */
+	/*
+	 * Gets the character state.
+	 * @returns ECharacterState		State of the character.
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Character State")
 	ECharacterState GetCharacterState() const;
 
-	/** Gets the movement state. */
+	/*
+	 * Gets the movement state.
+	 * @returns EMovementState		State of the character's movement.
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Character State")
 	EMovementState GetMovementState() const;
 
-	/** Gets the weapon state. */
+	/*
+	 * Gets the weapon state.
+	 * @returns EWeaponState		State of the character's weapon.
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Character State")
 	EWeaponState GetWeaponState() const;
 
-	/** Gets the character state. */
+	/*
+	 * Sets the character state.
+	 * @param State		State of the character.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "State Helper")
 	void SetCharacterState(ECharacterState State);
 
-	/** Gets the movement state. */
+	/*
+	 * Sets the movement state.
+	 * @param State		State of the character's movement.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "State Helper")
 	void SetMovementState(EMovementState State);
 
-	/** Gets the weapon state. */
+	/*
+	 * Sets the weapon state.
+	 * @param State		State of the character's weapon.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "State Helper")
 	void SetWeaponState(EWeaponState State);
-	
+
 protected:
 	/** The component's owner. */
 	UPROPERTY(VisibleAnywhere, Category = "Owner")
