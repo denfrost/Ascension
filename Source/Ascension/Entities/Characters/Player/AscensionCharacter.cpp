@@ -274,7 +274,7 @@ void AAscensionCharacter::Jump()
 {
 	if (StateComponent)
 	{
-		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle && !Dead)
+		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle)
 		{
 			ACharacter::Jump();
 		}
@@ -339,8 +339,7 @@ void AAscensionCharacter::SwitchWeapon()
 	if (StateComponent)
 	{
 		if (StateComponent->GetCharacterState() == ECharacterState::CS_Idle &&
-			StateComponent->GetMovementState() == EMovementState::MS_OnGround &&
-			!Dead)
+			StateComponent->GetMovementState() == EMovementState::MS_OnGround)
 		{
 			switch (StateComponent->GetWeaponState())
 			{
@@ -419,8 +418,13 @@ float AAscensionCharacter::GetHealthPercentage() const
 
 bool AAscensionCharacter::CheckIsDead()
 {
-	Health <= 0 ? Dead = true : Dead = false;
-	return Dead;
+	if (Health <= 0)
+	{
+		StateComponent->SetCharacterState(ECharacterState::CS_Dead);
+		return true;
+	}
+
+	return false;
 }
 
 void AAscensionCharacter::SwitchComplete_Implementation()
@@ -498,7 +502,7 @@ void AAscensionCharacter::GetHealthPercent_Implementation(float& HealthPercent)
 
 void AAscensionCharacter::ApplyHitEffect_Implementation(const AActor* SourceActor, const float Damage, const EHitEffect HitEffect, const FAttackEffect AttackEffect)
 {
-	if (!Dead)
+	if (!(StateComponent->GetCharacterState() == ECharacterState::CS_Dead))
 	{
 		FVector AttackDirection = GetActorForwardVector() * -1;
 
@@ -535,7 +539,7 @@ void AAscensionCharacter::ApplyHitEffect_Implementation(const AActor* SourceActo
 
 bool AAscensionCharacter::IsDead_Implementation()
 {
-	return Dead;
+	return (StateComponent->GetCharacterState() == ECharacterState::CS_Dead);
 }
 
 void AAscensionCharacter::ShowHealthBar_Implementation() {}

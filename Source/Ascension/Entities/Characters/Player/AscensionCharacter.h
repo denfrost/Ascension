@@ -71,11 +71,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Parameters")
 	float MaxHealth;
 
-	/** Set to true when the character is dead. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Parameters")
-	bool Dead;
-
-
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;

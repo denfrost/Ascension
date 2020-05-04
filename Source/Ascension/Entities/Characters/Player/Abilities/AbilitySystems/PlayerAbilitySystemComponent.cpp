@@ -32,8 +32,7 @@ bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityNam
 					 StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
 					 StateComponent->GetCharacterState() == ECharacterState::CS_Dodging) &&
 					(StateComponent->GetMovementState() == EMovementState::MS_OnGround) &&
-					(StateComponent->GetWeaponState() == EWeaponState::WS_Unsheathed) &&
-					!Player->Dead)
+					(StateComponent->GetWeaponState() == EWeaponState::WS_Unsheathed))
 				{
 					if (StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
 						StateComponent->GetCharacterState() == ECharacterState::CS_Dodging)
@@ -65,8 +64,7 @@ bool UPlayerAbilitySystemComponent::CanActivateAbility(const FString& AbilityNam
 				if ((StateComponent->GetCharacterState() == ECharacterState::CS_Idle ||
 					 StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
 					 StateComponent->GetCharacterState() == ECharacterState::CS_Dodging) &&
-					(StateComponent->GetMovementState() == EMovementState::MS_OnGround) &&
-					!Player->Dead)
+					(StateComponent->GetMovementState() == EMovementState::MS_OnGround))
 				{
 					if (StateComponent->GetCharacterState() == ECharacterState::CS_Attacking ||
 						StateComponent->GetCharacterState() == ECharacterState::CS_Dodging)

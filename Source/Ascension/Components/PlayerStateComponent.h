@@ -14,14 +14,15 @@ enum class ECharacterState : uint8
 	CS_Switching		UMETA(DisplayName = "Switching"),
 	CS_Dodging			UMETA(DisplayName = "Dodging"),
 	CS_Attacking		UMETA(DisplayName = "Attacking"),
-	CS_Stunned			UMETA(DisplayName = "Stunned")
+	CS_Stunned			UMETA(DisplayName = "Stunned"),
+	CS_Dead				UMETA(DisplayName = "Dead")
 };
 
 UENUM(BlueprintType)
 enum class EMovementState : uint8
 {
 	MS_OnGround			UMETA(DisplayName = "On Ground"),
-	MS_InAir			UMETA(DisplayName = "InAir")
+	MS_InAir			UMETA(DisplayName = "In Air")
 };
 
 UENUM(BlueprintType)
