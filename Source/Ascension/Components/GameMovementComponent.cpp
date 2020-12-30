@@ -31,11 +31,16 @@ void UGameMovementComponent::BeginPlay()
 }
 
 int UGameMovementComponent::SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate,
-													float MaxTurnAngleDegrees = 0.0f)
+													float MaxTurnAngleDegrees = 0.0f, bool HasZMovement = false)
 {
 	SetMovementSpeed(TargetSpeed);
 	SetAcceleration(TargetAcceleration);
 	SetTurningRate(TargetTurnRate);
+
+	if (HasZMovement)
+	{
+		SetFlyable();
+	}
 
 	AActor* Owner = GetOwner();
 	if (Owner->Implements<UGameMovementInterface>())
@@ -75,7 +80,7 @@ int UGameMovementComponent::SetupControlledMovementAbility(FString AbilityName)
 	{
 		FCustomMovementParams MovementParams = Ability->GetMovementParams();
 		int MovementID = SetupControlledMovement(MovementParams.Speed, MovementParams.Acceleration, MovementParams.TurnRate,
-												 MovementParams.MaxTurnAngleDegrees);
+												 MovementParams.MaxTurnAngleDegrees, MovementParams.HasZMovement);
 
 		if (!AbilityNameIDsMap.Contains(AbilityName))
 		{
@@ -110,6 +115,7 @@ void UGameMovementComponent::FinishControlledMovement(int InstanceID = 0)
 		ResetMovementSpeed();
 		ResetTurningRate();
 		ResetAcceleration();
+		ResetFlyable();
 		ControlledMovementInstanceID = 0;
 	}
 }
@@ -196,6 +202,6 @@ void UGameMovementComponent::ResetFlyable()
 {
 	if (MovementMode == EMovementMode::MOVE_Flying)
 	{
-		MovementMode = EMovementMode::MOVE_Walking;
+		MovementMode = EMovementMode::MOVE_Falling;
 	}
 }

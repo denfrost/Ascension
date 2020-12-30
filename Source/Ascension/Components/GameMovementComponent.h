@@ -44,10 +44,11 @@ public:
 	 * @param TargetAcceleration		Acceleration with which movement is to be performed.
 	 * @param TargetTurnRate			Turn rate at which movement is to be performed.
 	 * @param MaxTurnAngleDegrees		Maximum angle at which the movement can differ from the character's current direction.
+	 * @param HasZMovement				Whether the movement contains movement along the Z-axis.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	virtual int SetupControlledMovement(float TargetSpeed, float TargetAcceleration, float TargetTurnRate,
-										float MaxTurnAngleDegrees);
+										float MaxTurnAngleDegrees, bool HasZMovement);
 
 	/*
 	 * Function to setup variables for controlled movement during an ability.

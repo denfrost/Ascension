@@ -100,7 +100,8 @@ bool UPlayerAbilitySystemComponent::IsAttack(const FString& AbilityName)
 {
 	// TODO: Don't hard-code ability names.
 	if (AbilityName.Equals("Light01") || AbilityName.Equals("Light02") || AbilityName.Equals("Light03") ||
-		AbilityName.Equals("Strong01") || AbilityName.Equals("Strong02") || AbilityName.Equals("Strong03"))
+		AbilityName.Equals("Strong01") || AbilityName.Equals("Strong02") || AbilityName.Equals("Strong03") ||
+		AbilityName.Equals("UpperAttack"))
 	{
 		return true;
 	}

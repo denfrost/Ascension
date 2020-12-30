@@ -66,6 +66,11 @@ FString UPlayerAttackComponent::SelectAttack_Implementation(const FString& Attac
 		}
 	}
 
+	else if (AttackType.Equals(FString("Upper Attack")))
+	{
+		AttackName = FString("UpperAttack");
+	}
+
 	return AttackName;
 }
 

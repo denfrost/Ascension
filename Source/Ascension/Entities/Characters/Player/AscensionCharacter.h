@@ -171,6 +171,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void StrongAttack();
 
+	/** Called for the player to perform an attack going upwards into the air. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
+	void UpperAttack();
+
 	/** Called for the player to dodge. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Gameplay")
 	void Dodge();

@@ -327,7 +327,9 @@ bool UPlayerInputComponent::TryBufferedAction()
 
 	if (!ActionEventToExecute.Name.Equals(FString("")))
 	{
-		if (ActionEventToExecute.Name.Equals(FString("Light Attack")) || ActionEventToExecute.Name.Equals(FString("Strong Attack")))
+		if (ActionEventToExecute.Name.Equals(FString("Light Attack")) ||
+			ActionEventToExecute.Name.Equals(FString("Strong Attack")) ||
+			ActionEventToExecute.Name.Equals(FString("Upper Attack")))
 		{
 			AAscensionPlayerController* Controller = Cast<AAscensionPlayerController>(GetOwner());
 

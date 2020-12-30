@@ -114,4 +114,8 @@ struct FCustomMovementParams
 	// Maximum angle the character can rotate during the attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MaxTurnAngleDegrees = 0.0f;
+
+	// Whether the attack has Z-movement.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool HasZMovement = false;
 };

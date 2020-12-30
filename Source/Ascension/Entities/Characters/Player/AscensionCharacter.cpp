@@ -109,6 +109,7 @@ void AAscensionCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 
 	PlayerInputComponent->BindAction("LightAttack", IE_Pressed, this, &AAscensionCharacter::LightAttack);
 	PlayerInputComponent->BindAction("StrongAttack", IE_Pressed, this, &AAscensionCharacter::StrongAttack);
+	PlayerInputComponent->BindAction("UpperAttack", IE_Pressed, this, &AAscensionCharacter::UpperAttack);
 
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &AAscensionCharacter::Dodge);
 
@@ -315,6 +316,20 @@ void AAscensionCharacter::StrongAttack_Implementation()
 		if (PlayerInputComponent)
 		{
 			PlayerInputComponent->BufferInput("Strong Attack", false);
+			PlayerInputComponent->TryBufferedAction();
+		}
+	}
+}
+
+void AAscensionCharacter::UpperAttack_Implementation()
+{
+	if (Controller != nullptr)
+	{
+		UPlayerInputComponent* PlayerInputComponent = Controller->FindComponentByClass<UPlayerInputComponent>();
+
+		if (PlayerInputComponent)
+		{
+			PlayerInputComponent->BufferInput("Upper Attack", false);
 			PlayerInputComponent->TryBufferedAction();
 		}
 	}
